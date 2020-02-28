@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../src/runtime/index.js"],"names":[],"mappings":";;;;;;;;;;;;AAKA","sourcesContent":["/**\n * @file entry\n * @author cxtom(cxtom2008@gmail.com)\n */\n\nexport {default as defineComponent} from './define-component';\n"],"file":"index.js"}
