@@ -1,15 +1,47 @@
 {
   "name": "vesa",
-  "version": "0.0.1",
-  "description": "",
+  "version": "1.0.0",
+  "description": "san runtime adapter for vue components.",
   "main": "index.js",
   "scripts": {
-    "build": "echo \"Please implement your build script and modify scripts.build section in package.json\" && exit 1"
+    "build": "babel src --ignore runtime/*.js --out-dir lib --source-maps --delete-dir-on-start && webpack --config tool/webpack.runtime.config.js",
+    "test": "jest",
+    "predev": "npm run build",
+    "dev": "webpack-dev-server --config tool/webpack.dev.config.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "ssh://chenxiao07@icode.baidu.com:8235/baidu/atom/vesa"
+  "keywords": [
+    "san",
+    "vue"
+  ],
+  "author": "cxtom (cxtom2008@gmail.com)",
+  "license": "MIT",
+  "dependencies": {
+    "htmlparser2": "^4.1.0",
+    "san": "^3.8.1",
+    "vue-template-compiler": "2.5.22"
   },
-  "author": "chenxiao07",
-  "license": "UNLICENSED"
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "@typescript-eslint/eslint-plugin": "^2.3.0",
+    "@typescript-eslint/parser": "^2.3.0",
+    "babel-loader": "^8.0.6",
+    "domutils": "^2.0.0",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.15.0",
+    "eslint-plugin-jest": "^22.6.4",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "html-webpack-plugin": "^3.2.0",
+    "jest": "^25.1.0",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.8.2",
+    "vue-loader": "^15.9.0",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  }
 }
