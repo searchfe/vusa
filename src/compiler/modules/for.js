@@ -11,7 +11,7 @@ function postTransformNode(node) {
     let fr = node.alias;
 
     if (node.iterator1) {
-        fr += `,${node.iterator1}`
+        fr += `,${node.iterator1}`;
     }
 
     fr += ` in _l(${node.for})`;

@@ -3,8 +3,8 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import { defineComponent, inherits } from 'san';
-import { extend, hyphenate } from '../shared/util';
+import {defineComponent, inherits} from 'san';
+import {extend, hyphenate} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
@@ -20,14 +20,16 @@ const lifeCycleMap = {
     beforeUpdate: 'updated'
 };
 
-export default function define (options) {
+export default function define(options) {
 
+    /* eslint-disable fecs-camelcase */
     const sanOptions = {
         _mc: mergeClass,
         _ms: mergeStyle,
         _l: loopExpression,
         template: options.__santemplate
     };
+    /* eslint-enable fecs-camelcase */
 
     ['filters', 'computed', 'watch'].forEach(key => {
         if (options[key]) {

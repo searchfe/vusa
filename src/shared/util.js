@@ -6,9 +6,9 @@
 /**
  * Mix properties into target object.
  */
-export function extend(to, _from) {
-    for (const key in _from) {
-        to[key] = _from[key];
+export function extend(to, from) {
+    for (const key in from) {
+        to[key] = from[key];
     }
     return to;
 }
@@ -32,16 +32,16 @@ export function toObject(arr) {
  */
 export function cached(fn) {
     const cache = Object.create(null);
-    return (function cachedFn(str) {
+    return function cachedFn(str) {
         const hit = cache[str];
         return hit || (cache[str] = fn(str));
-    })
+    };
 }
 
 /**
  * Hyphenate a camelCase string.
  */
-const hyphenateRE = /([^-])([A-Z])/g
+const hyphenateRE = /([^-])([A-Z])/g;
 export const hyphenate = cached((str) => {
     return str
         .replace(hyphenateRE, '$1-$2')

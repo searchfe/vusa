@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {cached, extend, toObject} from '../shared/util'
+import {cached, extend, toObject} from '../shared/util';
 
 const parseStyleText = cached(function (cssText) {
     const res = {};
@@ -19,7 +19,7 @@ const parseStyleText = cached(function (cssText) {
 });
 
 // normalize possible array / string values into Object
-function normalizeStyleBinding (bindingStyle) {
+function normalizeStyleBinding(bindingStyle) {
     if (Array.isArray(bindingStyle)) {
         return toObject(bindingStyle);
     }

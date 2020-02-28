@@ -18,7 +18,7 @@ function postTransformNode(node) {
 
     if (node.attrsMap['v-bind']) {
         const vBind = node.attrsMap['v-bind'];
-        node.attrsMap['s-bind'] = `{{ ${vBind} }}`
+        node.attrsMap['s-bind'] = `{{ ${vBind} }}`;
         delete node.attrsMap['v-bind'];
     }
 }
