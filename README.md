@@ -1,3 +1,4 @@
 # vesa
 
-a tool for vue sfc components use san
+A tool for vue sfc components running with san.
+

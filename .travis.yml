@@ -1,0 +1,10 @@
+language: node_js
+node_js: "12"
+install:
+  - npm install
+jobs:
+  include:
+    - stage: test
+      name: 'Unit on Node.js12'
+      script:
+        - npm test
