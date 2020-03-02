@@ -63,5 +63,14 @@ describe('compiler', function () {
         expect(result.code).toBe('<div><p s-if="a < 0">1</p><p s-else-if="a >= 0">1</p><p s-else>4</p></div>');
     });
 
+    it('v-on & @', async () => {
+        const source = `
+        <div @click="onClick" v-on:touchstart.native="onTouchStart">
+            <p @touchstop.stop.native="onTouchStop"></p>
+        </div>`;
+        const result = await compile(source);
+        expect(result.code).toBe('<div on-click=":onClick" on-touchstart="native:onTouchStart"><p on-touchstop="stop:native:onTouchStop"></p></div>');
+    });
+
 });
 

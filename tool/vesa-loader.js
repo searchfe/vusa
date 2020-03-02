@@ -4,7 +4,7 @@
  */
 
 const {readFileSync} = require('fs');
-const compile = require('../dist/compiler').default;
+const compile = require('../lib/compiler').default;
 const {parseComponent} = require('vue-template-compiler');
 
 module.exports = function (content) {

@@ -16,11 +16,16 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.ts']
     },
-    externals: ['san'],
+    externals: Object.keys(require('../packages/runtime/package.json').dependencies),
     output: {
-        filename: 'vesa.js',
+        path: path.resolve(__dirname, '../packages/runtime'),
+        filename: 'vusa.js',
         libraryTarget: 'umd'
     },
+    optimization: {
+        minimize: false
+    },
+    stats: 'normal',
     module: {
         rules: [{
                 test: /\.js$/,

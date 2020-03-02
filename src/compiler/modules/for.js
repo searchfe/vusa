@@ -23,6 +23,9 @@ function postTransformNode(node) {
     node.attrsMap['s-for'] = fr;
 
     delete node.attrsMap['v-for'];
+    delete node.attrsMap['key'];
+    delete node.attrsMap[':key'];
+    delete node.attrsMap['v-bind:key'];
 }
 
 export default {
