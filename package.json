@@ -7,7 +7,8 @@
     "build": "webpack --config tool/webpack.compiler.config.js && webpack --config tool/webpack.runtime.config.js && webpack --config tool/webpack.runtime.min.config.js",
     "test": "jest",
     "predev": "npm run build",
-    "dev": "webpack-dev-server --config tool/webpack.dev.config.js"
+    "dev": "webpack-dev-server --config tool/webpack.dev.config.js",
+    "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "keywords": [
     "san",
@@ -24,6 +25,8 @@
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^2.3.0",
     "@typescript-eslint/parser": "^2.3.0",
     "babel-loader": "^8.0.6",
@@ -36,6 +39,7 @@
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
     "html-webpack-plugin": "^3.2.0",
+    "husky": "^4.2.3",
     "jest": "^25.1.0",
     "lerna": "^3.20.2",
     "ts-loader": "^6.2.1",
@@ -44,5 +48,15 @@
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }
