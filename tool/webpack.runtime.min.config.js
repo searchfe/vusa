@@ -11,5 +11,7 @@ module.exports = Object.assign({}, webpackConfig, {
     },
     output: Object.assign({}, webpackConfig.output, {
         filename: 'vusa.min.js',
-    })
+        library: '@vusa/runtime'
+    }),
+    devtool: false
 });

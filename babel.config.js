@@ -5,8 +5,16 @@ module.exports = {
             {
                 targets: {
                     node: 'current',
-                },
-            },
-        ],
+                }
+            }
+        ]
     ],
+    env: {
+        runtime: {
+            presets: [
+                '@babel/preset-env'
+            ],
+            comments: false
+        }
+    }
 };

@@ -5,13 +5,7 @@
 
 /* eslint-disable max-len */
 
-import parseTemplate from 'san/src/parser/parse-template';
-import compile from '../../src/compiler/index';
-import { isExportDeclaration } from 'typescript';
-
-function print(node) {
-    console.log(JSON.stringify(node, null, 2));
-}
+import {compile} from '../../src/compiler/index';
 
 describe('compiler', function () {
 
@@ -69,7 +63,31 @@ describe('compiler', function () {
             <p @touchstop.stop.native="onTouchStop"></p>
         </div>`;
         const result = await compile(source);
-        expect(result.code).toBe('<div on-click=":onClick" on-touchstart="native:onTouchStart"><p on-touchstop="stop:native:onTouchStop"></p></div>');
+        expect(result.code).toBe('<div on-click="onClick" on-touchstart="native:onTouchStart"><p on-touchstop="stop:native:onTouchStop"></p></div>');
+    });
+
+    it('v-html', async () => {
+        const source = `<div v-html="html"></div>`;
+        const result = await compile(source);
+        expect(result.code).toBe('<div s-html="{{ html }}"></div>');
+    });
+
+    it('v-text', async () => {
+        const source = `<div v-text="text"></div>`;
+        const result = await compile(source);
+        expect(result.code).toBe('<div>{{ text }}</div>');
+    });
+
+    it('atom', async () => {
+        const source = `<div a-html="html"></div>`;
+        const result = await compile(source, {atom: true});
+        expect(result.code).toBe('<div s-html="{{ html }}"></div>');
+    });
+
+    it('ref', async () => {
+        const source = `<div ref="root"></div>`;
+        const result = await compile(source, {atom: true});
+        expect(result.code).toBe('<div s-ref="root"></div>');
     });
 
 });

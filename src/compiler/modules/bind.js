@@ -13,7 +13,7 @@ function postTransformNode(node) {
     for (const key of keys) {
         const value = node.attrsMap[key];
         delete node.attrsMap[key];
-        node.attrsMap[key.replace(reBind, '')] = `{{ ${value} }}`;
+        node.attrsMap[key.replace(reBind, '')] = `{{ ${value.replace(/\s+/g, ' ')} }}`;
     }
 
     if (node.attrsMap['v-bind']) {

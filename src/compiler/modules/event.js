@@ -11,7 +11,8 @@ function postTransformNode(node) {
     for (const attr of eventAttrs) {
         delete node.attrsMap[attr.name];
         const [name, ...modifiers] = attr.name.split('.');
-        node.attrsMap[`on-${name.replace(reEvent, '')}`] = `${modifiers.join(':')}:${attr.value}`;
+        node.attrsMap[`on-${name.replace(reEvent, '')}`]
+            = `${modifiers.map(m => `${m}:`).join('')}${attr.value}`;
     }
 }
 

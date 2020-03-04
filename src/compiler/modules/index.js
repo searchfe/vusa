@@ -9,11 +9,15 @@ import bind from './bind';
 import yf from './if';
 import fr from './for';
 import event from './event';
+import html from './html';
+import ref from './ref';
 
 export default [
     yf,
     fr,
     event,
+    html,
+    ref,
 
     clazz,
     style,

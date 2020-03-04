@@ -4,22 +4,45 @@
  */
 
 import buildInModules from './modules';
-import {compile} from 'vue-template-compiler';
+import {compile as vueCompile} from 'vue-template-compiler';
 import stringify from './stringify';
+import getCssModules from './modules/cssmodules';
+import strip from './modules/strip';
+import atom from './modules/atom';
+import {isEmpty} from 'lodash';
 
-export default function (source, options = {}) {
+export function compile(source, options = {}) {
 
     const {
-        modules = []
+        modules = [],
+        cssModules = null,
+        scopeId = '',
+        strip = true,
+        atom: isAtom = false
     } = options;
 
-    const {ast} = compile(source.trim(), {
-        modules: [...buildInModules, ...modules],
+    if (!isEmpty(cssModules)) {
+        modules.unshift(getCssModules(cssModules));
+    }
+
+    if (strip) {
+        modules.unshift(strip);
+    }
+
+    if (isAtom) {
+        modules.unshift(atom);
+    }
+
+    const {ast} = vueCompile(source.trim(), {
+        modules: [
+            ...buildInModules,
+            ...modules
+        ],
         preserveWhitespace: false
     });
 
     return {
         ast,
-        code: stringify(ast)
+        code: stringify(ast, scopeId)
     };
 }

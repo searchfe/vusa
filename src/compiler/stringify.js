@@ -39,7 +39,7 @@ function stringifyAttr(key, value) {
     return `${key}=${JSON.stringify(value)}`;
 }
 
-export default function stringify(ast) {
+export default function stringify(ast, scopeId) {
     if (!Array.isArray(ast)) {
         ast = [ast];
     }
@@ -52,14 +52,17 @@ export default function stringify(ast) {
         }
         else if (node.type === 1) {
             const attrs = Object.keys(node.attrsMap).map(key => stringifyAttr(key, node.attrsMap[key]));
+            if (scopeId) {
+                attrs.push(scopeId);
+            }
             const hasChildren = node.children && node.children.length > 0;
             const hasAttr = attrs.length > 0;
             html += `<${node.tag}${hasAttr ? ' ' : ''}${attrs.join(' ')}>`;
-            html += hasChildren ? stringify(node.children) : '';
+            html += hasChildren ? stringify(node.children, scopeId) : '';
             html += !hasChildren && singleTag[node.tag] ? '' : `</${node.tag}>`;
 
             if (node.ifConditions && node.ifConditions.length > 1) {
-                html += stringify(node.ifConditions.slice(1).map(n => n.block));
+                html += stringify(node.ifConditions.slice(1).map(n => n.block), scopeId);
             }
         }
     }

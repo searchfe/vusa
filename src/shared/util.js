@@ -48,3 +48,5 @@ export const hyphenate = cached((str) => {
         .replace(hyphenateRE, '$1-$2')
         .toLowerCase();
 });
+
+export const camelize = str => str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ''));
