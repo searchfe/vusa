@@ -28,7 +28,6 @@ module.exports = function (content) {
     content += `\ncomponent.options.__sanaNode = ${JSON.stringify(sanANode)}`;
 
     if (vesaResult.refs && vesaResult.refs.length > 0) {
-        console.log(vesaResult.refs);
         content += `\ncomponent.options.__sanRefs = ${JSON.stringify(vesaResult.refs)}`;
     }
 

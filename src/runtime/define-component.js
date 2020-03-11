@@ -116,7 +116,6 @@ export default function define(options) {
     const refs = options.__sanRefs;
     const createdHook = sanOptions.created;
     sanOptions.created = function () {
-        createdHook && createdHook.call(this);
         const me = this;
         this.$refs = Object.create(null);
 
@@ -133,6 +132,8 @@ export default function define(options) {
             // overwrite san component api for support v-for + ref
             me.ref = ref;
         }
+
+        createdHook && createdHook.call(this);
     };
 
     if (options.data || options.props) {

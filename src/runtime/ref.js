@@ -4,6 +4,7 @@
  */
 
 import {evalExpr} from 'san';
+import {camelize} from '../shared/util';
 
 export default function (name) {
 
@@ -26,18 +27,21 @@ export default function (name) {
         let refTarget;
         if (element.owner === owner) {
             let ref;
+            let value;
             switch (nodeType) {
                 case 4:
                 case 3:
                     ref = element.aNode.directives.ref;
-                    if (ref && evalExpr(ref.value, element.scope, owner) === name) {
+                    value = evalExpr(ref.value, element.scope, owner);
+                    if (ref && (value === name || camelize(value) === name)) {
                         return nodeType === 4 ? element.el : element.children.map(elementTraversal);
                     }
                     break;
 
                 case 5:
                     ref = element.source.directives.ref;
-                    if (ref && evalExpr(ref.value, element.scope, owner) === name) {
+                    value = evalExpr(ref.value, element.scope, owner);
+                    if (ref && (value === name || camelize(value) === name)) {
                         return element;
                     }
             }

@@ -15,7 +15,7 @@ export default {
         console.log(this.$refs.line);
         console.log(this.$refs.loop);
         console.log(this.$refs.component);
-        console.log(this.$refs['component-loop']);
+        console.log(this.$refs.componentLoop);
     },
     components: {
         Child
