@@ -3,12 +3,18 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode(node) {
+function postTransformNode(node, options) {
     if (node.type !== 1 || !node.attrsMap.ref) {
         return;
     }
-    node.attrsMap['s-ref'] = node.attrsMap.ref;
+    const ref = node.attrsMap['s-ref'] = node.attrsMap.ref;
     delete node.attrsMap.ref;
+
+    options.refs.push({
+        name: ref,
+        root: node.parent ? undefined : 1,
+        for: node.for ? 1 : undefined
+    });
 }
 
 export default {

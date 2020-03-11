@@ -10,6 +10,7 @@ import getCssModules from './modules/cssmodules';
 import strip from './modules/strip';
 import atom from './modules/atom';
 import {isEmpty} from 'lodash';
+import {parseTemplate} from 'san';
 
 export function compile(source, options = {}) {
 
@@ -33,16 +34,25 @@ export function compile(source, options = {}) {
         modules.unshift(atom);
     }
 
-    const {ast} = vueCompile(source.trim(), {
+    const compilerOptions = {
         modules: [
             ...buildInModules,
             ...modules
         ],
-        preserveWhitespace: false
-    });
+        preserveWhitespace: false,
+        useDynamicComponent: false,
+        refs: []
+    };
+
+    const {ast} = vueCompile(source.trim(), compilerOptions);
+
+    const template = stringify(ast, scopeId);
+    const aNode = parseTemplate(template).children[0];
 
     return {
         ast,
-        code: stringify(ast, scopeId)
+        aNode,
+        template,
+        refs: compilerOptions.refs
     };
 }

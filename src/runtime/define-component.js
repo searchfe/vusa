@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {defineComponent, inherits} from 'san';
+import {defineComponent, inherits, evalExpr} from 'san';
 import {extend, hyphenate} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
@@ -21,11 +21,10 @@ const lifeCycleMap = {
 };
 
 /* eslint-disable fecs-camelcase */
-const sanOptions = {
+const defaultSanOptions = {
     _mc: mergeClass,
     _ms: mergeStyle,
     _l: loopExpression,
-    template: options.__santemplate,
     filters: {
         json(obj) {
             return JSON.stringify(json);
@@ -45,31 +44,48 @@ const MATH_METHOD = [
 ];
 
 MATH_METHOD.forEach(name => {
-    sanOptions[`math_${name}`] = function (...args) {
+    defaultSanOptions[`math_${name}`] = function (...args) {
         return Math[name].apply(Math, args);
     };
 });
 
-sanOptions.array_slice = function (arr, start, len) {
+defaultSanOptions.array_slice = function (arr, start, len) {
     var end = len == null ? void 0 : (len >= 0 ? (start + len) : (arr.length + len));
     return arr.slice(start, end);
 };
 
-sanOptions.array_join = function (arr, sep) {
+defaultSanOptions.array_join = function (arr, sep) {
     return arr.join(sep);
 };
 
-sanOptions.str_pos = function (str, match) {
+defaultSanOptions.str_pos = function (str, match) {
     return str.indexOf(match);
 };
 
-sanOptions.object_freeze = function (obj) {
+defaultSanOptions.object_freeze = function (obj) {
     return Object.freeze(obj);
+};
+
+defaultSanOptions.getComponentType = function (aNode, data) {
+    if (aNode.hotspot.props.is == null) {
+        return this.components[aNode.tagName];
+    }
+
+    const is = aNode.props[aNode.hotspot.props.is];
+    const isValue = evalExpr(is.expr, data);
+    aNode.tagName = isValue;
+    aNode.props.splice(is, 1);
+    return this.components[isValue];
 };
 
 /* eslint-enable fecs-camelcase */
 
 export default function define(options) {
+
+    const sanOptions = extend({
+        template: options.__santemplate,
+        aNode: options.__sanaNode
+    }, defaultSanOptions);
 
     if (options.filters) {
         sanOptions.filters = Object.assign(
@@ -96,11 +112,30 @@ export default function define(options) {
         }
     });
 
+    const refs = options.__sanRefs;
+    const createdHook = sanOptions.created;
+    sanOptions.created = function () {
+        createdHook && createdHook.call(this);
+        const me = this;
+        this.$refs = Object.create(null);
+
+        if (refs) {
+            for (let i = 0, len = refs.length; i < len; i++) {
+                const r = refs[i];
+                Object.defineProperty(me.$refs, r.name, {
+                    enumerable: true,
+                    get() {
+                        return r.root ? me.el : me.ref(r.name);
+                    }
+                });
+            }
+        }
+    };
+
     if (options.data || options.props) {
         sanOptions.initData = function () {
 
             const bindData = this._sbindData || {};
-            console.log(bindData);
             const propKeys = options.props
                 ? (Array.isArray(options.props) ? options.props : Object.keys(options.props))
                 : [];

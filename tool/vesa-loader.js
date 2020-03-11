@@ -4,7 +4,7 @@
  */
 
 const {readFileSync} = require('fs');
-const compile = require('../lib/compiler').default;
+const compile = require('../packages/compiler').compile;
 const {parseComponent} = require('vue-template-compiler');
 
 module.exports = function (content) {
@@ -20,12 +20,17 @@ module.exports = function (content) {
     const output = parseComponent(readFileSync(resourcePath, 'utf8'));
     const templateCode = output.template.content;
 
-    const vesaResult = compile(templateCode);
-    const sanTemplate = vesaResult.code;
+    const vesaResult = compile(templateCode, {
+        strip: true
+    });
+    const sanANode = vesaResult.aNode;
 
-    console.log(sanTemplate);
+    content += `\ncomponent.options.__sanaNode = ${JSON.stringify(sanANode)}`;
 
-    content += `\ncomponent.options.__santemplate = ${JSON.stringify(sanTemplate)}`;
+    if (vesaResult.refs && vesaResult.refs.length > 0) {
+        console.log(vesaResult.refs);
+        content += `\ncomponent.options.__sanRefs = ${JSON.stringify(vesaResult.refs)}`;
+    }
 
     return content;
 };

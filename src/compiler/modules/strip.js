@@ -10,7 +10,7 @@ function postTransformNode(el) {
         if (child.type === 3) {
             child.text = _.trim(child.text, ' \n');
         }
-        if (child.type === 2) {
+        if (child.type === 2 && child.expression) {
             const expression = child.expression;
             const parts = expression.split('+');
             let first = parts[0];
