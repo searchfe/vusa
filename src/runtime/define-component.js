@@ -88,6 +88,44 @@ export default function define(options) {
         aNode: options.__sanaNode
     }, defaultSanOptions);
 
+    // 处理 mixin
+    if (options.mixins && options.mixins.length) {
+
+        let methods = {};
+        for (let i = 0; i < options.mixins.length; i++) {
+            const item = options.mixins[i];
+            if (!item) {
+                continue;
+            }
+
+            // 所有 mixins 的 methods 收集到一起，优先数组后面的 methods
+            if (item.methods) {
+                methods = Object.assign(methods, item.methods);
+            }
+            // 处理其他生命周期
+            ['created', 'mounted', 'activated', 'deactivated', 'beforeDestroy'].forEach(key => {
+                if (!options[key] && item[key]) {
+                    options[key] = item[key];
+                }
+            });
+            // 处理 data，将 mixin 的 data 合并
+            if (item.data) {
+                if (typeof item.data === 'function') {
+                    // mixinData = options.data.call(Object.assign({}, defaultProps, bindData))
+                }
+                // const tempData = item.data();
+                // console.log('options.data', options.data());
+            }
+        }
+
+        if (Object.keys(methods).length) {
+            if (!options.methods) {
+                options.methods = {};
+            }
+            options.methods = Object.assign({}, methods, options.methods);
+        }
+    }
+
     if (options.filters) {
         sanOptions.filters = Object.assign(
             sanOptions.filters,
