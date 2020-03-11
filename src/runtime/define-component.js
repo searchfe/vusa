@@ -8,6 +8,7 @@ import {extend, hyphenate} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
+import ref from './ref';
 
 const lifeCycleMap = {
     beforeCreate: 'compiled',
@@ -129,6 +130,8 @@ export default function define(options) {
                     }
                 });
             }
+            // overwrite san component api for support v-for + ref
+            me.ref = ref;
         }
     };
 
