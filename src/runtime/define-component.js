@@ -8,7 +8,9 @@ import {extend, hyphenate} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
+import getComponentType from './get-component-type';
 import ref from './ref';
+import * as atomGlobalApis from './atom-global-api';
 
 const lifeCycleMap = {
     beforeCreate: 'compiled',
@@ -22,62 +24,12 @@ const lifeCycleMap = {
 };
 
 /* eslint-disable fecs-camelcase */
-const defaultSanOptions = {
+const defaultSanOptions = extend({
     _mc: mergeClass,
     _ms: mergeStyle,
     _l: loopExpression,
-    filters: {
-        json(obj) {
-            return JSON.stringify(json);
-        },
-        lower(str) {
-            return str.toLowerCase();
-        },
-        upper(str) {
-            return str.toUpperCase();
-        }
-    }
-};
-
-const MATH_METHOD = [
-    'floor', 'ceil', 'round',
-    'abs', 'max', 'min', 'pow'
-];
-
-MATH_METHOD.forEach(name => {
-    defaultSanOptions[`math_${name}`] = function (...args) {
-        return Math[name].apply(Math, args);
-    };
-});
-
-defaultSanOptions.array_slice = function (arr, start, len) {
-    var end = len == null ? void 0 : (len >= 0 ? (start + len) : (arr.length + len));
-    return arr.slice(start, end);
-};
-
-defaultSanOptions.array_join = function (arr, sep) {
-    return arr.join(sep);
-};
-
-defaultSanOptions.str_pos = function (str, match) {
-    return str.indexOf(match);
-};
-
-defaultSanOptions.object_freeze = function (obj) {
-    return Object.freeze(obj);
-};
-
-defaultSanOptions.getComponentType = function (aNode, data) {
-    if (aNode.hotspot.props.is == null) {
-        return this.components[aNode.tagName];
-    }
-
-    const is = aNode.props[aNode.hotspot.props.is];
-    const isValue = evalExpr(is.expr, data);
-    aNode.tagName = isValue;
-    aNode.props.splice(is, 1);
-    return this.components[isValue];
-};
+    getComponentType
+}, atomGlobalApis);
 
 /* eslint-enable fecs-camelcase */
 
@@ -119,7 +71,7 @@ export default function define(options) {
     }
 
     if (options.filters) {
-        sanOptions.filters = Object.assign(
+        sanOptions.filters = extend(
             sanOptions.filters,
             options.filters
         );
@@ -132,9 +84,7 @@ export default function define(options) {
     });
 
     if (options.methods) {
-        Object.keys(options.methods).forEach(key => {
-            sanOptions[key] = options.methods[key];
-        });
+        extend(sanOptions, options.methods);
     }
 
     Object.keys(lifeCycleMap).forEach(hook => {
@@ -187,10 +137,10 @@ export default function define(options) {
             }
 
             const data = typeof options.data === 'function'
-                ? options.data.call(Object.assign({}, defaultProps, bindData))
+                ? options.data.call(extend({}, defaultProps, bindData))
                 : (options.data || {});
 
-            return Object.assign({}, defaultProps, data);
+            return extend({}, defaultProps, data);
         };
     }
 

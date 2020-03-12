@@ -3,7 +3,6 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-const prefixers = ['@', 'v-on:'];
 const reEvent = /^(@|v-on:)/;
 
 function postTransformNode(node) {
