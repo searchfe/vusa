@@ -108,14 +108,6 @@ export default function define(options) {
                     options[key] = item[key];
                 }
             });
-            // 处理 data，将 mixin 的 data 合并
-            if (item.data) {
-                if (typeof item.data === 'function') {
-                    // mixinData = options.data.call(Object.assign({}, defaultProps, bindData))
-                }
-                // const tempData = item.data();
-                // console.log('options.data', options.data());
-            }
         }
 
         if (Object.keys(methods).length) {
