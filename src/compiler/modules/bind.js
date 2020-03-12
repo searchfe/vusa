@@ -5,7 +5,7 @@
 
 const reBind = /^(v-bind)?\:/;
 
-function postTransformNode(node) {
+function preTransformNode(node) {
     if (node.type !== 1) {
         return;
     }
@@ -13,7 +13,7 @@ function postTransformNode(node) {
     for (const key of keys) {
         const value = node.attrsMap[key];
         delete node.attrsMap[key];
-        node.attrsMap[key.replace(reBind, '')] = `{{ ${value.replace(/\s+/g, ' ')} }}`;
+        node.attrsMap[key.replace(reBind, '')] = `{{ ${value} }}`;
     }
 
     if (node.attrsMap['v-bind']) {
@@ -24,5 +24,5 @@ function postTransformNode(node) {
 }
 
 export default {
-    postTransformNode
+    preTransformNode
 };

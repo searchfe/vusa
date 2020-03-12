@@ -17,6 +17,7 @@
   "author": "cxtom (cxtom2008@gmail.com)",
   "license": "MIT",
   "dependencies": {
+    "atom-expression-compiler": "^2.2.3",
     "htmlparser2": "^4.1.0",
     "san": "^3.8.1",
     "vue-template-compiler": "2.5.22"

@@ -11,8 +11,11 @@ import fr from './for';
 import event from './event';
 import html from './html';
 import ref from './ref';
+import stripAttr from './strip-attr';
+import dynamicComponent from './dynamic-component';
 
 export default [
+    stripAttr,
     yf,
     fr,
     event,
@@ -21,7 +24,8 @@ export default [
 
     clazz,
     style,
+    dynamicComponent,
 
-    // bind 放在 class 和 style 处理完之后
+    // bind 放在所有处理完之后
     bind
 ];

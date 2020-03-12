@@ -96,5 +96,18 @@ describe('compiler', function () {
         expect(result.template).toBe('<div s-ref="{{ \'root\' + i }}"></div>');
     });
 
+    it('strip static attr', async () => {
+        const source = `<div class="a
+            p"></div>`;
+        const result = await compile(source);
+        expect(result.template).toBe('<div class="a p"></div>');
+    });
+
+    it('dynamic component', async () => {
+        const source = `<component :is="url ? 'a' : 'div'" :href="url"></component>`;
+        const result = await compile(source);
+        expect(result.template).toBe('<a href="{{ url }}" s-if="url"></a><div href="{{ url }}" s-else></div>');
+    });
+
 });
 
