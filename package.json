@@ -44,6 +44,7 @@
     "lerna": "^3.20.2",
     "ts-loader": "^6.2.1",
     "typescript": "^3.8.2",
+    "vue": "2.5.22",
     "vue-loader": "^15.9.0",
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11",

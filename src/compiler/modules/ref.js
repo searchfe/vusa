@@ -6,26 +6,35 @@
 import {camelize} from '../../shared/util';
 
 function postTransformNode(node, options) {
-    if (node.type !== 1 || !node.attrsMap.ref) {
+    if (node.type !== 1 || !node.attrsMap.ref && !node.attrsMap[':ref']) {
         return;
     }
-    const ref = node.attrsMap['s-ref'] = node.attrsMap.ref;
-    delete node.attrsMap.ref;
 
-    const info = {
-        name: ref,
-        root: node.parent ? undefined : 1,
-        for: node.for ? 1 : undefined
-    };
+    const ref = node.attrsMap.ref;
+    if (ref) {
+        delete node.attrsMap.ref;
+        node.attrsMap['s-ref'] = ref;
 
-    options.refs.push(info);
-    const camelName = camelize(ref);
+        const info = {
+            name: ref,
+            root: node.parent ? undefined : 1
+        };
 
-    if (camelName !== ref) {
-        options.refs.push({
-            ...info,
-            name: camelName
-        });
+        options.refs.push(info);
+        const camelName = camelize(ref);
+
+        if (camelName !== ref) {
+            options.refs.push({
+                ...info,
+                name: camelName
+            });
+        }
+    }
+
+    const bindRef = node.attrsMap[':ref'];
+    if (bindRef) {
+        delete node.attrsMap[':ref'];
+        node.attrsMap['s-ref'] = `{{ ${bindRef} }}`;
     }
 }
 

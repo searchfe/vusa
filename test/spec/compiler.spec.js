@@ -86,8 +86,14 @@ describe('compiler', function () {
 
     it('ref', async () => {
         const source = `<div ref="root"></div>`;
-        const result = await compile(source, {atom: true});
+        const result = await compile(source);
         expect(result.template).toBe('<div s-ref="root"></div>');
+    });
+
+    it(':ref', async () => {
+        const source = `<div :ref="'root' + i"></div>`;
+        const result = await compile(source);
+        expect(result.template).toBe('<div s-ref="{{ \'root\' + i }}"></div>');
     });
 
 });

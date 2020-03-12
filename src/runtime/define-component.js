@@ -8,6 +8,7 @@ import {extend, hyphenate} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
+import getComponentType from './get-component-type';
 import ref from './ref';
 import * as atomGlobalApis from './atom-global-api';
 
@@ -26,21 +27,9 @@ const lifeCycleMap = {
 const defaultSanOptions = extend({
     _mc: mergeClass,
     _ms: mergeStyle,
-    _l: loopExpression
+    _l: loopExpression,
+    getComponentType
 }, atomGlobalApis);
-
-
-defaultSanOptions.getComponentType = function (aNode, data) {
-    if (aNode.hotspot.props.is == null) {
-        return this.components[aNode.tagName];
-    }
-
-    const is = aNode.props[aNode.hotspot.props.is];
-    const isValue = evalExpr(is.expr, data);
-    aNode.tagName = isValue;
-    aNode.props.splice(is, 1);
-    return this.components[isValue];
-};
 
 /* eslint-enable fecs-camelcase */
 
@@ -65,9 +54,7 @@ export default function define(options) {
     });
 
     if (options.methods) {
-        Object.keys(options.methods).forEach(key => {
-            sanOptions[key] = options.methods[key];
-        });
+        extend(sanOptions, options.methods);
     }
 
     Object.keys(lifeCycleMap).forEach(hook => {

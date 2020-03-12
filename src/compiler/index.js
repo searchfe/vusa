@@ -34,6 +34,7 @@ export function compile(source, options = {}) {
         modules.unshift(atom);
     }
 
+    const errors = [];
     const compilerOptions = {
         modules: [
             ...buildInModules,
@@ -41,7 +42,11 @@ export function compile(source, options = {}) {
         ],
         preserveWhitespace: false,
         useDynamicComponent: false,
-        refs: []
+        refs: [],
+        error(msg) {
+            console.error(`[vusa error] ${msg}`);
+            errors.push(msg);
+        }
     };
 
     const {ast} = vueCompile(source.trim(), compilerOptions);
@@ -53,6 +58,7 @@ export function compile(source, options = {}) {
         ast,
         aNode,
         template,
-        refs: compilerOptions.refs
+        refs: compilerOptions.refs,
+        errors
     };
 }
