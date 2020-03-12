@@ -5,7 +5,7 @@
 
 const reBind = /^(v-bind)?\:/;
 
-function preTransformNode(node) {
+function postTransformNode(node) {
     if (node.type !== 1) {
         return;
     }
@@ -24,5 +24,5 @@ function preTransformNode(node) {
 }
 
 export default {
-    preTransformNode
+    postTransformNode
 };

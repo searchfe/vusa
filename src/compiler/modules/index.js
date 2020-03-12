@@ -24,8 +24,9 @@ export default [
 
     clazz,
     style,
-    dynamicComponent,
 
     // bind 放在所有处理完之后
-    bind
+    bind,
+
+    dynamicComponent
 ];

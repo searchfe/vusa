@@ -3,6 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+import {evalExpr} from 'san';
 
 export default function (aNode, data) {
     if (aNode.hotspot.props.is == null) {
