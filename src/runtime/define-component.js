@@ -82,7 +82,7 @@ defaultSanOptions.getComponentType = function (aNode, data) {
 /* eslint-enable fecs-camelcase */
 
 export default function define(options) {
-
+    debugger;
     const sanOptions = extend({
         template: options.__santemplate,
         aNode: options.__sanaNode

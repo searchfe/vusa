@@ -8,6 +8,7 @@
 </template>
 
 <script>
+import Child from './child';
 export default {
     mounted() {
         console.log(this.$refs.wrapper);
