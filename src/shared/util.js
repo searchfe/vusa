@@ -6,12 +6,7 @@
 /**
  * Mix properties into target object.
  */
-export function extend(to, from) {
-    for (const key in from) {
-        to[key] = from[key];
-    }
-    return to;
-}
+export const extend = Object.assign;
 
 /**
  * Merge an Array of Objects into a single Object.

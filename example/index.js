@@ -3,6 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+import Vue from 'vue';
 import defineComponent from '../src/runtime/define-component';
 import Simple from './component/simple/index';
 
