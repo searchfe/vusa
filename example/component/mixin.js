@@ -9,6 +9,9 @@ export default {
             this.data.set('changeMixin', !this.data.get().changeMixin);
         }
     },
+    mounted() {
+        console.log('mixin created');
+    },
     created() {
         console.log('mixin created');
     },

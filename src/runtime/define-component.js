@@ -23,6 +23,17 @@ const lifeCycleMap = {
     beforeUpdate: 'updated'
 };
 
+const lifeCycleArr = [
+    'beforeCreate',
+    'mounted',
+    'created',
+    'beforeMount',
+    'beforeDestroy',
+    'destroy',
+    'updated',
+    'beforeUpdate'
+];
+
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = extend({
     _mc: mergeClass,
@@ -34,16 +45,19 @@ const defaultSanOptions = extend({
 /* eslint-enable fecs-camelcase */
 
 export default function define(options) {
-    debugger;
+
     const sanOptions = extend({
         template: options.__santemplate,
         aNode: options.__sanaNode
     }, defaultSanOptions);
 
+    let tempLifeCycle = {};
+
     // 处理 mixin
     if (options.mixins && options.mixins.length) {
 
         let methods = {};
+
         for (let i = 0; i < options.mixins.length; i++) {
             const item = options.mixins[i];
             if (!item) {
@@ -54,10 +68,13 @@ export default function define(options) {
             if (item.methods) {
                 methods = Object.assign(methods, item.methods);
             }
-            // 处理其他生命周期
-            ['created', 'mounted', 'activated', 'deactivated', 'beforeDestroy'].forEach(key => {
-                if (!options[key] && item[key]) {
-                    options[key] = item[key];
+            // 处理生命周期
+            lifeCycleArr.forEach(lifeName => {
+                if (item[lifeName]) {
+                    if (!tempLifeCycle[lifeName]) {
+                        tempLifeCycle[lifeName] = [];
+                    }
+                    tempLifeCycle[lifeName].push(item[lifeName]);
                 }
             });
         }
@@ -69,6 +86,21 @@ export default function define(options) {
             options.methods = Object.assign({}, methods, options.methods);
         }
     }
+
+    // 循环遍历非 mixin 的生命周期，保存到数组中
+    for (let i = 0; i < lifeCycleArr.length; i++) {
+        const lifeName = lifeCycleArr[i];
+        if (options[lifeName]) {
+            if (!tempLifeCycle[lifeName]) {
+                tempLifeCycle[lifeName] = [];
+            }
+            tempLifeCycle[lifeName].push(options[lifeName]);
+        }
+
+        // 至此生命周期保存到了数组中
+    }
+    console.log('sanOptions.mounted', sanOptions.mounted);
+
 
     if (options.filters) {
         sanOptions.filters = extend(
@@ -87,14 +119,22 @@ export default function define(options) {
         extend(sanOptions, options.methods);
     }
 
+    // 循环调用函数，created 下面单独处理
     Object.keys(lifeCycleMap).forEach(hook => {
-        if (options[hook]) {
-            sanOptions[lifeCycleMap[hook]] = options[hook];
+        if (tempLifeCycle[hook]
+            && tempLifeCycle[hook].length
+            && hook !== 'created') {
+            sanOptions[lifeCycleMap[hook]] = function () {
+                const me = this;
+                for (let j = 0; j < tempLifeCycle[hook].length; j++) {
+                    tempLifeCycle[hook][j].call(this);
+                }
+            }
         }
     });
 
     const refs = options.__sanRefs;
-    const createdHook = sanOptions.created;
+    const createdHook = options.created;
     sanOptions.created = function () {
         const me = this;
         this.$refs = Object.create(null);
@@ -113,7 +153,12 @@ export default function define(options) {
             me.ref = ref;
         }
 
-        createdHook && createdHook.call(this);
+        // created 在这里循环调用
+        if (createdHook) {
+            for (let i = 0; i < tempLifeCycle.created.length; i++) {
+                tempLifeCycle.created[i].call(me);
+            }
+        }
     };
 
     if (options.data || options.props) {

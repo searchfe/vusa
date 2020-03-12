@@ -28,6 +28,9 @@ export default {
             default: 'default'
         }
     },
+    mounted(){
+        console.log('index vue mounted');
+    },
     created(){
         console.log('index vue created');
     },
