@@ -6,7 +6,7 @@
 import {evalExpr} from 'san';
 
 export default function (aNode, data) {
-    if (aNode.hotspot.props.is == null) {
+    if (aNode.tagName !== 'component' || aNode.hotspot.props.is == null) {
         return this.components[aNode.tagName];
     }
 
