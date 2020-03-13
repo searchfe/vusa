@@ -21,6 +21,7 @@
     "htmlparser2": "^4.1.0",
     "san": "^3.8.1",
     "to-double-quotes": "^3.0.0",
+    "to-single-quotes": "^3.0.0",
     "vue-template-compiler": "2.5.22"
   },
   "devDependencies": {

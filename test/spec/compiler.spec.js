@@ -43,7 +43,7 @@ describe('compiler', function () {
             <p v-bind="objB"></p>
         </div>`;
         const result = await compile(source);
-        expect(result.template).toBe('<div style="color:red" data-click="{{ dataA }}"><p data-click="{{ dataB + \'a\' }}"></p><p s-bind="{{ objB }}"></p></div>');
+        expect(result.template).toBe('<div style="color:red" data-click="{{ dataA }}"><p data-click="{{ dataB+\'a\' }}"></p><p s-bind="{{ objB }}"></p></div>');
     });
 
     it('v-if', async () => {

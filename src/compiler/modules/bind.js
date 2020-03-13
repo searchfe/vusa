@@ -3,6 +3,8 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+import transform from '../expression-transformer';
+
 const reBind = /^(v-bind)?\:/;
 
 function postTransformNode(node) {
@@ -13,12 +15,12 @@ function postTransformNode(node) {
     for (const key of keys) {
         const value = node.attrsMap[key];
         delete node.attrsMap[key];
-        node.attrsMap[key.replace(reBind, '')] = `{{ ${value} }}`;
+        node.attrsMap[key.replace(reBind, '')] = `{{ ${transform(value).code} }}`;
     }
 
     if (node.attrsMap['v-bind']) {
         const vBind = node.attrsMap['v-bind'];
-        node.attrsMap['s-bind'] = `{{ ${vBind} }}`;
+        node.attrsMap['s-bind'] = `{{ ${transform(vBind).code} }}`;
         delete node.attrsMap['v-bind'];
     }
 }
