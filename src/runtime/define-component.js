@@ -99,8 +99,6 @@ export default function define(options) {
 
         // 至此生命周期保存到了数组中
     }
-    console.log('sanOptions.mounted', sanOptions.mounted);
-
 
     if (options.filters) {
         sanOptions.filters = extend(
