@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper" :class="[{node: 1}, 'a']">
+  <div class="wrapper" :class="[{node: 1, [name]: 1}, 'a']">
     Hello, {{ name }}! {{ message }}
     <p v-for="(item, index) in loop" :key="index">{{ item }}</p>
     <p v-for="n in 5" :key="n">{{ n }}</p>
@@ -54,9 +54,9 @@ export default {
         onClickMixin() {
             this.testMixin();
         },
-        // testMixin() {
-        //     console.log('this is index.vue testMixin');
-        // }
+        testMixin() {
+            console.log('this is index.vue testMixin');
+        }
     }
 };
 </script>

@@ -6,9 +6,6 @@
 export default {
   props: {
     name: String
-  },
-  beforeMount() {
-    console.log(this);
   }
 }
 </script>

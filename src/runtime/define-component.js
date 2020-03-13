@@ -9,6 +9,7 @@ import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
 import getComponentType from './get-component-type';
+import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
 import * as atomGlobalApis from './atom-global-api';
 
@@ -23,25 +24,17 @@ const lifeCycleMap = {
     beforeUpdate: 'updated'
 };
 
-const lifeCycleArr = [
-    'beforeCreate',
-    'mounted',
-    'created',
-    'beforeMount',
-    'beforeDestroy',
-    'destroy',
-    'updated',
-    'beforeUpdate'
-];
+const lifeCycleNames = Object.keys(lifeCycleMap);
 
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = extend({
     _mc: mergeClass,
     _ms: mergeStyle,
     _l: loopExpression,
+    _ex: extend,
+    _ocp: objectComputedProperties,
     getComponentType
 }, atomGlobalApis);
-
 /* eslint-enable fecs-camelcase */
 
 export default function define(options) {
@@ -69,7 +62,7 @@ export default function define(options) {
                 methods = Object.assign(methods, item.methods);
             }
             // 处理生命周期
-            lifeCycleArr.forEach(lifeName => {
+            lifeCycleNames.forEach(lifeName => {
                 if (item[lifeName]) {
                     if (!tempLifeCycle[lifeName]) {
                         tempLifeCycle[lifeName] = [];
@@ -88,8 +81,8 @@ export default function define(options) {
     }
 
     // 循环遍历非 mixin 的生命周期，保存到数组中
-    for (let i = 0; i < lifeCycleArr.length; i++) {
-        const lifeName = lifeCycleArr[i];
+    for (let i = 0; i < lifeCycleNames.length; i++) {
+        const lifeName = lifeCycleNames[i];
         if (options[lifeName]) {
             if (!tempLifeCycle[lifeName]) {
                 tempLifeCycle[lifeName] = [];
@@ -119,11 +112,8 @@ export default function define(options) {
 
     // 循环调用函数，created 下面单独处理
     Object.keys(lifeCycleMap).forEach(hook => {
-        if (tempLifeCycle[hook]
-            && tempLifeCycle[hook].length
-            && hook !== 'created') {
+        if (tempLifeCycle[hook] && tempLifeCycle[hook].length && hook !== 'created') {
             sanOptions[lifeCycleMap[hook]] = function () {
-                const me = this;
                 for (let j = 0; j < tempLifeCycle[hook].length; j++) {
                     tempLifeCycle[hook][j].call(this);
                 }

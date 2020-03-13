@@ -14,11 +14,5 @@ export default {
     },
     created() {
         console.log('mixin created');
-    },
-    data() {
-        return {
-            mixinData: '哈哈',
-            testMixinData: '456'
-        }
     }
 };

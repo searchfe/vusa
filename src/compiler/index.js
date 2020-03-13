@@ -52,6 +52,7 @@ export function compile(source, options = {}) {
     const {ast} = vueCompile(source.trim(), compilerOptions);
 
     const template = stringify(ast, scopeId);
+    console.log(template);
     const aNode = parseTemplate(template).children[0];
 
     return {
