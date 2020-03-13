@@ -6,6 +6,10 @@
     <div style="color:red" :style="[{'font-size': '16px'}]" v-show="false"></div>
     <component :is="name ? 'div' : 'a'" @click="onClick">aaa</component>
     <div v-if="!name">no name</div>
+    <div @click="onClickMixin">
+        点击执行mixin，mixin值 {{ changeMixin }}
+    </div>
+    <child />
     <child :name="name" />
     <ui-ref />
   </div>
@@ -14,6 +18,8 @@
 <script>
 import Child from './child';
 import Ref from './ref';
+import mixin from '../mixin';
+import mixin1 from '../mixin1';
 
 export default {
     props: {
@@ -22,10 +28,19 @@ export default {
             default: 'default'
         }
     },
+    mounted(){
+        console.log('index vue mounted');
+    },
+    created(){
+        console.log('index vue created');
+    },
+    mixins: [mixin, mixin1],
     data() {
         return {
             name: 'tom',
-            loop: [1, 2]
+            loop: [1, 2],
+            changeMixin: false,
+            testMixinData: '123'
         };
     },
     components: {
@@ -35,7 +50,13 @@ export default {
     methods: {
         onClick(e) {
             this.data.set('name', '');
-        }
+        },
+        onClickMixin() {
+            this.testMixin();
+        },
+        // testMixin() {
+        //     console.log('this is index.vue testMixin');
+        // }
     }
 };
 </script>
