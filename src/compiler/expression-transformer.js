@@ -5,7 +5,7 @@
 
 import {codeFrameColumns} from '@babel/code-frame';
 import {parse} from 'atom-expression-compiler';
-import toDoubleQuotes from 'to-double-quotes';
+import escapeQuotes from 'escape-quotes';
 
 const mark = '__vusa__filter__mark__';
 const reg = new RegExp(mark, 'g');
@@ -64,7 +64,7 @@ function toString(a) {
         return a + '';
     }
     if (typeof a === 'string') {
-        return `'${toDoubleQuotes(a)}'`
+        return `'${escapeQuotes(a)}'`
     }
     return JSON.stringify(a);
 }
