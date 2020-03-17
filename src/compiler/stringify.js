@@ -3,6 +3,8 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+import { trim } from 'lodash';
+
 /*
   Self-enclosing tags (stolen from node-htmlparser)
 */
@@ -39,7 +41,7 @@ function stringifyAttr(key, value) {
     return `${key}=${JSON.stringify(value)}`;
 }
 
-export default function stringify(ast, scopeId) {
+export default function stringify(ast, {scopeId, strip}) {
     if (!Array.isArray(ast)) {
         ast = [ast];
     }
@@ -48,7 +50,7 @@ export default function stringify(ast, scopeId) {
 
     for (const node of ast) {
         if (node.type === 3 || node.type === 2) {
-            html += node.text;
+            html += strip ? trim(node.text, ' \n\t') : node.text;
         }
         else if (node.type === 1) {
             const attrs = Object.keys(node.attrsMap).map(key => stringifyAttr(key, node.attrsMap[key]));
@@ -58,11 +60,11 @@ export default function stringify(ast, scopeId) {
             const hasChildren = node.children && node.children.length > 0;
             const hasAttr = attrs.length > 0;
             html += `<${node.tag}${hasAttr ? ' ' : ''}${attrs.join(' ')}>`;
-            html += hasChildren ? stringify(node.children, scopeId) : '';
+            html += hasChildren ? stringify(node.children, {scopeId, strip}) : '';
             html += !hasChildren && singleTag[node.tag] ? '' : `</${node.tag}>`;
 
             if (node.ifConditions && node.ifConditions.length > 1) {
-                html += stringify(node.ifConditions.slice(1).map(n => n.block), scopeId);
+                html += stringify(node.ifConditions.slice(1).map(n => n.block), {scopeId, strip});
             }
         }
     }

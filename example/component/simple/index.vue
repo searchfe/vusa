@@ -1,8 +1,8 @@
 <template>
   <div class="wrapper" :class="[{node: 1, [name]: 1}, 'a']">
     Hello, {{ name }}! {{ message }}
-    <p v-for="(item, index) in loop" :key="index">{{ item }}</p>
-    <p v-for="n in 5" :key="n">{{ n }}</p>
+    <span v-for="(item, index) in loop" :key="index">{{ item }}</span>
+    <span v-for="n in 5">{{ n }}</span>
     <div style="color:red" :style="[{'font-size': '16px'}]" v-show="false"></div>
     <component :is="name ? 'div' : 'a'" @click="onClick">aaa</component>
     <div v-if="!name">no name</div>

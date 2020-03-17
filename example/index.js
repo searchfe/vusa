@@ -9,10 +9,18 @@ import Simple from './component/simple/index';
 
 console.log(Simple);
 
-const Component = defineComponent(Simple);
+console.log('%c start to mount vusa...', 'color:#0f0;');
 
-const comp = new Component({
+const SanComponent = defineComponent(Simple);
+
+const comp = new SanComponent({
     el: document.getElementById('main')
 });
 
-comp.attach(document.body);
+comp.attach(document.querySelector('.vusa'));
+
+console.log('%c start to mount vue...', 'color:#0f0;');
+
+const vm = new Vue(Simple);
+vm.$mount();
+document.querySelector('.vue').appendChild(vm.$el);

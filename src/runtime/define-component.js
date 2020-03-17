@@ -141,6 +141,13 @@ export default function define(options) {
             me.ref = ref;
         }
 
+        Object.defineProperty(me, '$el', {
+            enumerable: true,
+            get() {
+                return this.el;
+            }
+        });
+
         // created 在这里循环调用
         if (createdHook) {
             for (let i = 0; i < tempLifeCycle.created.length; i++) {

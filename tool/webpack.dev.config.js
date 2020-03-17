@@ -18,7 +18,8 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Vesa'
+            title: 'Vusa',
+            template: path.resolve(__dirname, '../example/index.html')
         }),
         new VueLoaderPlugin()
     ],
@@ -38,7 +39,14 @@ module.exports = {
                 test: /\.vue$/,
                 use: [
                     require.resolve('./vesa-loader'),
-                    'vue-loader'
+                    {
+                        loader: 'vue-loader',
+                        options: {
+                            compilerOptions: {
+                                preserveWhitespace: false
+                            }
+                        }
+                    }
                 ]
             }
         ]

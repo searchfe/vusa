@@ -26,10 +26,6 @@ export function compile(source, options = {}) {
         modules.unshift(getCssModules(cssModules));
     }
 
-    if (strip) {
-        modules.unshift(strip);
-    }
-
     if (isAtom) {
         modules.unshift(atom);
     }
@@ -51,7 +47,7 @@ export function compile(source, options = {}) {
 
     const {ast} = vueCompile(source.trim(), compilerOptions);
 
-    const template = stringify(ast, scopeId);
+    const template = stringify(ast, { scopeId, strip });
     console.log(template);
     const aNode = parseTemplate(template).children[0];
 

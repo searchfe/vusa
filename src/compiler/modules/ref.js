@@ -3,8 +3,6 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {camelize} from '../../shared/util';
-
 function postTransformNode(node, options) {
     if (node.type !== 1 || !node.attrsMap.ref && !node.attrsMap[':ref']) {
         return;
@@ -21,14 +19,6 @@ function postTransformNode(node, options) {
         };
 
         options.refs.push(info);
-        const camelName = camelize(ref);
-
-        if (camelName !== ref) {
-            options.refs.push({
-                ...info,
-                name: camelName
-            });
-        }
     }
 
     const bindRef = node.attrsMap[':ref'];
