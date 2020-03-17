@@ -11,7 +11,8 @@
     </div>
     <child />
     <child :name="name" />
-    <ui-ref />
+    <ref />
+    <bool bool />
   </div>
 </template>
 
@@ -20,6 +21,7 @@ import Child from './child';
 import Ref from './ref';
 import mixin from '../mixin';
 import mixin1 from '../mixin1';
+import Bool from './bool';
 
 export default {
     props: {
@@ -45,7 +47,8 @@ export default {
     },
     components: {
         Child,
-        'ui-ref': Ref
+        Ref,
+        Bool
     },
     methods: {
         onClick(e) {

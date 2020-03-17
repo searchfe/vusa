@@ -148,6 +148,13 @@ export default function define(options) {
             }
         });
 
+        Object.defineProperty(me, '$options', {
+            enumerable: true,
+            get() {
+                return options;
+            }
+        });
+
         // created 在这里循环调用
         if (createdHook) {
             for (let i = 0; i < tempLifeCycle.created.length; i++) {
@@ -158,6 +165,8 @@ export default function define(options) {
 
     if (options.data || options.props) {
         sanOptions.initData = function () {
+
+            const me = this;
 
             const bindData = this._sbindData || {};
             const propKeys = options.props
@@ -173,12 +182,32 @@ export default function define(options) {
                             ? options.props[p].default()
                             : options.props[p].default
                     }
-                })
+
+                    Object.defineProperty(me, p, {
+                        enumerable: true,
+                        get() {
+                            return me.data.get(p);
+                        }
+                    });
+                });
             }
 
             const data = typeof options.data === 'function'
                 ? options.data.call(extend({}, defaultProps, bindData))
                 : (options.data || {});
+
+            const dataKeys = Object.keys(data);
+            dataKeys.forEach(key => {
+                Object.defineProperty(me, key, {
+                    enumerable: true,
+                    get() {
+                        return me.data.get(key);
+                    },
+                    set(val) {
+                        me.data.set(key, value);
+                    }
+                });
+            });
 
             return extend({}, defaultProps, data);
         };

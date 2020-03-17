@@ -3,39 +3,11 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import { trim } from 'lodash';
+import {trim} from 'lodash';
+import {noValueAttr, singleTag, booleanAttr, htmlTag} from './constant';
 
-/*
-  Self-enclosing tags (stolen from node-htmlparser)
-*/
-const singleTag = {
-    area: true,
-    base: true,
-    basefont: true,
-    br: true,
-    col: true,
-    command: true,
-    embed: true,
-    frame: true,
-    hr: true,
-    img: true,
-    input: true,
-    isindex: true,
-    keygen: true,
-    link: true,
-    meta: true,
-    param: true,
-    source: true,
-    track: true,
-    wbr: true
-};
-
-const noValueAttr = {
-    's-else': true
-};
-
-function stringifyAttr(key, value) {
-    if (noValueAttr[key]) {
+function stringifyAttr(key, value, tag) {
+    if (!value && (noValueAttr[key] || (htmlTag[tag] && booleanAttr[key]))) {
         return key;
     }
     return `${key}=${JSON.stringify(value)}`;
@@ -53,7 +25,7 @@ export default function stringify(ast, {scopeId, strip}) {
             html += strip ? trim(node.text, ' \n\t') : node.text;
         }
         else if (node.type === 1) {
-            const attrs = Object.keys(node.attrsMap).map(key => stringifyAttr(key, node.attrsMap[key]));
+            const attrs = Object.keys(node.attrsMap).map(key => stringifyAttr(key, node.attrsMap[key], node.tag));
             if (scopeId) {
                 attrs.push(scopeId);
             }

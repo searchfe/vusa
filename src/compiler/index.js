@@ -7,7 +7,6 @@ import buildInModules from './modules';
 import {compile as vueCompile} from 'vue-template-compiler';
 import stringify from './stringify';
 import getCssModules from './modules/cssmodules';
-import strip from './modules/strip';
 import atom from './modules/atom';
 import {isEmpty} from 'lodash';
 import {parseTemplate} from 'san';
