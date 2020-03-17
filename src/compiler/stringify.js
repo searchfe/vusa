@@ -7,7 +7,7 @@ import {trim} from 'lodash';
 import {noValueAttr, singleTag, booleanAttr, htmlTag} from './constant';
 
 function stringifyAttr(key, value, tag) {
-    if (!value && (noValueAttr[key] || (htmlTag[tag] && booleanAttr[key]))) {
+    if (noValueAttr[key] || (!value && htmlTag[tag] && booleanAttr[key])) {
         return key;
     }
     return `${key}=${JSON.stringify(value)}`;
