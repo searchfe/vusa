@@ -8,26 +8,28 @@ const MATH_METHOD = [
     'abs', 'max', 'min', 'pow'
 ];
 
+const methods = exports.methods = {};
+
 MATH_METHOD.forEach(name => {
-    exports[`math_${name}`] = function (...args) {
+    methods[`math_${name}`] = function (...args) {
         return Math[name].apply(Math, args);
     };
 });
 
-exports.array_slice = function (arr, start, len) {
+methods.array_slice = function (arr, start, len) {
     var end = len == null ? void 0 : (len >= 0 ? (start + len) : (arr.length + len));
     return arr.slice(start, end);
 };
 
-exports.array_join = function (arr, sep) {
+methods.array_join = function (arr, sep) {
     return arr.join(sep);
 };
 
-exports.str_pos = function (str, match) {
+methods.str_pos = function (str, match) {
     return str.indexOf(match);
 };
 
-exports.object_freeze = function (obj) {
+methods.object_freeze = function (obj) {
     return Object.freeze(obj);
 };
 

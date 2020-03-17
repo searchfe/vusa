@@ -3,7 +3,7 @@
       <p ref="line">一句话。</p>
       <span v-for="n in 3" ref="loop">{{ n }}</span>
       <child ref="component" />
-      <child v-for="n in 3" ref="component-loop" />
+      <child v-for="n in 3" ref="component-loop" :key="n" />
   </div>
 </template>
 

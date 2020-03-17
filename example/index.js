@@ -9,7 +9,7 @@ import Simple from './component/simple/index';
 
 console.log(Simple);
 
-console.log('%c start to mount vusa...', 'color:#0f0;');
+console.log('%c start to mount vusa...', 'color:#ff0000;');
 
 const SanComponent = defineComponent(Simple);
 
@@ -19,7 +19,7 @@ const comp = new SanComponent({
 
 comp.attach(document.querySelector('.vusa'));
 
-console.log('%c start to mount vue...', 'color:#0f0;');
+console.log('%c start to mount vue...', 'color:#8b008b;');
 
 const vm = new Vue(Simple);
 vm.$mount();

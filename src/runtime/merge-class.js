@@ -41,24 +41,14 @@ function array(cls = []) {
         if (!element) {
             continue;
         }
-        if (typeof element === 'string') {
-            clazz = {
-                ...clazz,
-                ...string(element)
-            };
-        }
-        else if (Array.isArray(element)) {
-            clazz = {
-                ...clazz,
-                ...array(element)
-            };
-        }
-        else {
-            clazz = {
-                ...clazz,
-                ...object(element)
-            };
-        }
+        clazz = {
+            ...clazz,
+            ...(
+                typeof element === 'string'
+                ? string(element)
+                : (Array.isArray(element) ? array(element) : object(element))
+            )
+        };
     }
     return clazz;
 }
