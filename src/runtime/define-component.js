@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {defineComponent, inherits, evalExpr} from 'san';
+import {defineComponent, inherits, evalExpr, Component} from 'san';
 import {extend, hyphenate} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
@@ -20,9 +20,31 @@ const defaultSanOptions = {
     _l: loopExpression,
     _ex: extend,
     _ocp: objectComputedProperties,
-    getComponentType
+    getComponentType,
+    $emit: Component.prototype.fire,
+    $on: Component.prototype.on
 };
 /* eslint-enable fecs-camelcase */
+
+const memberMap = {
+    $el: 'el',
+    $context: 'owner',
+    $parent: 'parentComponent',
+    $children() {
+        return this.children.filter(child => child.nodeType === 5);
+    },
+    $root() {
+        let root = this;
+        if (this.parentComponent) {
+            while (root.parentComponent) {
+                root = root.parentComponent
+            }
+        }
+        return root;
+    }
+};
+
+const defineProperty = Object.defineProperty;
 
 export default function define(options) {
 
@@ -40,7 +62,7 @@ export default function define(options) {
         if (refs) {
             for (let i = 0, len = refs.length; i < len; i++) {
                 const r = refs[i];
-                Object.defineProperty(me.$refs, r.name, {
+                defineProperty(me.$refs, r.name, {
                     enumerable: true,
                     get() {
                         return r.root ? me.el : me.ref(r.name);
@@ -51,19 +73,17 @@ export default function define(options) {
             me.ref = ref;
         }
 
-        Object.defineProperty(me, '$el', {
-            enumerable: true,
-            get() {
-                return this.el;
-            }
-        });
-
-        Object.defineProperty(me, '$options', {
-            enumerable: true,
-            get() {
-                return options;
-            }
-        });
+        Object.defineProperties(me, Object.keys(memberMap).reduce((props, key) => {
+            props[key] = {
+                enumerable: true,
+                get() {
+                    return typeof memberMap[key] === 'string'
+                        ? this[memberMap[key]]
+                        : memberMap[key].call(this);
+                }
+            };
+            return props;
+        }, {}));
 
         initedHook && initedHook.call(this);
     };
@@ -88,7 +108,7 @@ export default function define(options) {
                             : options.props[p].default
                     }
 
-                    Object.defineProperty(me, p, {
+                    defineProperty(me, p, {
                         enumerable: true,
                         get() {
                             return me.data.get(p);
@@ -103,7 +123,7 @@ export default function define(options) {
 
             const dataKeys = Object.keys(data);
             dataKeys.forEach(key => {
-                Object.defineProperty(me, key, {
+                defineProperty(me, key, {
                     enumerable: true,
                     get() {
                         return me.data.get(key);

@@ -30,10 +30,11 @@ export default {
             default: 'default'
         }
     },
-    mounted(){
+    mounted() {
+        console.log(this);
         console.log('index vue mounted');
     },
-    created(){
+    created() {
         console.log('index vue created');
     },
     mixins: [mixin, mixin1],
