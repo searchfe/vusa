@@ -86,6 +86,11 @@ describe('compiler', function () {
             [b]: c === 0
         }`;
         expect(transform(source).code).toBe('_ex({\'a\': 1},_ocp([{k: a+1, v: d}]),{\'d\': 2},_ocp([{k: b, v: c===0}]))');
+
+        source = `{
+            aa
+        }`;
+        expect(transform(source).code).toBe('{\'aa\': aa}');
     });
 
 });
