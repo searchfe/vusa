@@ -27,9 +27,15 @@ const defaultSanOptions = {
 /* eslint-enable fecs-camelcase */
 
 const memberMap = {
-    $el: 'el',
-    $context: 'owner',
-    $parent: 'parentComponent',
+    $el() {
+        return this.el;
+    },
+    $context() {
+        return this.owner;
+    },
+    $parent() {
+        return this.parentComponent;
+    },
     $children() {
         return this.children.filter(child => child.nodeType === 5);
     },
@@ -73,19 +79,26 @@ export default function define(options) {
             me.ref = ref;
         }
 
-        Object.defineProperties(me, Object.keys(memberMap).reduce((props, key) => {
-            props[key] = {
-                enumerable: true,
-                get() {
-                    return typeof memberMap[key] === 'string'
-                        ? this[memberMap[key]]
-                        : memberMap[key].call(this);
-                }
-            };
-            return props;
-        }, {}));
+        const properties = Object
+            .keys(memberMap)
+            .reduce((props, key) => {
+                props[key] = {
+                    enumerable: true,
+                    get() {
+                        return memberMap[key].call(this);
+                    }
+                };
+                return props;
+            }, {});
+
+        Object.defineProperties(me, properties);
 
         initedHook && initedHook.call(this);
+
+        // merge css modules
+        if (this.$style) {
+            this.data.merge('$style', this.$style);
+        }
     };
 
     if (options.data || options.props) {
@@ -134,7 +147,7 @@ export default function define(options) {
                 });
             });
 
-            return extend({}, defaultProps, data);
+            return extend({$style: {}}, defaultProps, data);
         };
     }
 
