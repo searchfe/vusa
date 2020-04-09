@@ -4,7 +4,7 @@
     <span v-for="(item, index) in loop" :key="index">{{ item }}</span>
     <span v-for="n in 5">{{ n }}</span>
     <div style="color:red" :style="[{'font-size': '16px'}]" v-show="false"></div>
-    <component :is="name ? 'div' : 'a'" @click="onClick">aaa</component>
+    <component :is="name ? 'button' : 'a'" @click="onClick">aaa</component>
     <div v-if="!name">no name</div>
     <div @click="onClickMixin">
         点击执行mixin，mixin值 {{ changeMixin }}
@@ -13,6 +13,7 @@
     <child :name="name" />
     <ref />
     <bool bool />
+    <reactive />
   </div>
 </template>
 
@@ -22,6 +23,7 @@ import Ref from './ref';
 import mixin from '../mixin';
 import mixin1 from '../mixin1';
 import Bool from './bool';
+import Reactive from './reactive';
 
 export default {
     props: {
@@ -49,11 +51,12 @@ export default {
     components: {
         Child,
         Ref,
-        Bool
+        Bool,
+        Reactive
     },
     methods: {
         onClick(e) {
-            this.data.set('name', '');
+            this.name = '';
         },
         onClickMixin() {
             this.testMixin();

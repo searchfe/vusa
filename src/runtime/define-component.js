@@ -4,7 +4,7 @@
  */
 
 import {defineComponent, inherits, evalExpr, Component} from 'san';
-import {extend, hyphenate} from '../shared/util';
+import {extend, hyphenate, def} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
@@ -12,6 +12,7 @@ import getComponentType from './get-component-type';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
 import mergeOptions from './merge-options';
+import bindData from './bind-data';
 
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = {
@@ -22,7 +23,8 @@ const defaultSanOptions = {
     _ocp: objectComputedProperties,
     getComponentType,
     $emit: Component.prototype.fire,
-    $on: Component.prototype.on
+    $on: Component.prototype.on,
+    $watch: Component.prototype.watch
 };
 /* eslint-enable fecs-camelcase */
 
@@ -50,8 +52,6 @@ const memberMap = {
     }
 };
 
-const defineProperty = Object.defineProperty;
-
 export default function define(options) {
 
     const sanOptions = extend({
@@ -68,8 +68,7 @@ export default function define(options) {
         if (refs) {
             for (let i = 0, len = refs.length; i < len; i++) {
                 const r = refs[i];
-                defineProperty(me.$refs, r.name, {
-                    enumerable: true,
+                def(me.$refs, r.name, {
                     get() {
                         return r.root ? me.el : me.ref(r.name);
                     }
@@ -83,13 +82,16 @@ export default function define(options) {
             .keys(memberMap)
             .reduce((props, key) => {
                 props[key] = {
-                    enumerable: true,
                     get() {
                         return memberMap[key].call(this);
                     }
                 };
                 return props;
             }, {});
+
+        properties.$options = {
+            value: options
+        };
 
         Object.defineProperties(me, properties);
 
@@ -99,57 +101,47 @@ export default function define(options) {
         if (this.$style) {
             this.data.merge('$style', this.$style);
         }
+
+        bindData.call(this);
     };
 
-    if (options.data || options.props) {
-        sanOptions.initData = function () {
+    sanOptions.initData = function () {
 
-            const me = this;
+        const me = this;
 
-            const bindData = this._sbindData || {};
-            const propKeys = options.props
+        const defaultProps = {};
+        if (options.props) {
+            const propKeys = options._propKeys = options.props
                 ? (Array.isArray(options.props) ? options.props : Object.keys(options.props))
                 : [];
 
             // 默认属性
-            const defaultProps = {};
-            if (options.props && !Array.isArray(options.props)) {
-                propKeys.forEach(p => {
-                    if ('default' in options.props[p]) {
-                        defaultProps[p] = typeof options.props[p].default === 'function'
-                            ? options.props[p].default()
-                            : options.props[p].default
+            if (!Array.isArray(options.props)) {
+                for (let i = 0, len = propKeys.length; i < len; i++) {
+                    const p = propKeys[i];
+                    const prop = options.props[p];
+                    if ('default' in prop) {
+                        defaultProps[p] = typeof prop.default === 'function'
+                            ? prop.default()
+                            : prop.default;
                     }
-
-                    defineProperty(me, p, {
-                        enumerable: true,
+                    def(me, p, {
                         get() {
                             return me.data.get(p);
                         }
                     });
-                });
+                }
             }
+        }
 
-            const data = typeof options.data === 'function'
-                ? options.data.call(extend({}, defaultProps, bindData))
-                : (options.data || {});
+        const data = typeof options.data === 'function'
+            ? options.data.call(extend({}, defaultProps, this._srcSbindData))
+            : (options.data || {});
 
-            const dataKeys = Object.keys(data);
-            dataKeys.forEach(key => {
-                defineProperty(me, key, {
-                    enumerable: true,
-                    get() {
-                        return me.data.get(key);
-                    },
-                    set(val) {
-                        me.data.set(key, value);
-                    }
-                });
-            });
+        this._dataKeys = Object.keys(data) || [];
 
-            return extend({$style: {}}, defaultProps, data);
-        };
-    }
+        return extend({$style: {}}, defaultProps, data);
+    };
 
     if (options.components) {
         sanOptions.components = Object

@@ -13,7 +13,7 @@ function stringifyAttr(key, value, tag) {
     return `${key}=${JSON.stringify(value)}`;
 }
 
-export default function stringify(ast, {scopeId, strip}) {
+export default function stringify(ast, {scopeId, strip, atom}) {
     if (!Array.isArray(ast)) {
         ast = [ast];
     }
@@ -27,16 +27,16 @@ export default function stringify(ast, {scopeId, strip}) {
         else if (node.type === 1) {
             const attrs = Object.keys(node.attrsMap).map(key => stringifyAttr(key, node.attrsMap[key], node.tag));
             if (scopeId) {
-                attrs.push(scopeId);
+                attrs.push(`data-${atom ? 'a' : 'v'}-${scopeId}`);
             }
             const hasChildren = node.children && node.children.length > 0;
             const hasAttr = attrs.length > 0;
             html += `<${node.tag}${hasAttr ? ' ' : ''}${attrs.join(' ')}>`;
-            html += hasChildren ? stringify(node.children, {scopeId, strip}) : '';
+            html += hasChildren ? stringify(node.children, {scopeId, strip, atom}) : '';
             html += !hasChildren && singleTag[node.tag] ? '' : `</${node.tag}>`;
 
             if (node.ifConditions && node.ifConditions.length > 1) {
-                html += stringify(node.ifConditions.slice(1).map(n => n.block), {scopeId, strip});
+                html += stringify(node.ifConditions.slice(1).map(n => n.block), {scopeId, strip, atom});
             }
         }
     }

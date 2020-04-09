@@ -21,6 +21,42 @@ export function toObject(arr) {
     return res;
 }
 
+/**
+ * Get the raw type string of a value, e.g., [object Object].
+ */
+export const _toString = Object.prototype.toString;
+
+/**
+ * Quick object check - this is primarily used to tell
+ * Objects from primitive values when we know the value
+ * is a JSON-compliant type.
+ */
+export function isObject(obj) {
+    return obj !== null && typeof obj === 'object';
+}
+
+/**
+ * Check whether an object has the property.
+ */
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+export function hasOwn(obj, key) {
+    return hasOwnProperty.call(obj, key);
+}
+
+/**
+ * Strict object type check. Only returns true
+ * for plain JavaScript objects.
+ */
+export function isPlainObject(obj) {
+    return _toString.call(obj) === '[object Object]';
+}
+
+export function def(obj, key, property) {
+    Object.defineProperty(obj, key, extend({
+        enumerable: false,
+        configurable: true
+    }, property));
+}
 
 /**
  * Create a cached version of a pure function.

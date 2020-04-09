@@ -17,11 +17,15 @@ module.exports = function (content) {
         return content;
     }
 
+    const m = content.match(/type=template&id=(\w{8})&scoped=true/);
+
     const output = parseComponent(readFileSync(resourcePath, 'utf8'));
     const templateCode = output.template.content;
 
     const vesaResult = compile(templateCode, {
-        strip: true
+        strip: true,
+        atom: false,
+        scopeId: m && m[1] ? m[1] : ''
     });
     const sanANode = vesaResult.aNode;
 
