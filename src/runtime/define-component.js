@@ -13,6 +13,7 @@ import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
 import mergeOptions from './merge-options';
 import bindData from './bind-data';
+import calcComputed from './calc-computed';
 
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = {
@@ -59,6 +60,29 @@ export default function define(options) {
         aNode: options.__sanaNode
     }, defaultSanOptions, mergeOptions(options));
 
+    const compiledHook = sanOptions.compiled;
+    sanOptions.compiled = function () {
+        this._calcComputed = calcComputed.bind(this);
+        compiledHook && compiledHook.call(this);
+
+        const properties = Object
+            .keys(memberMap)
+            .reduce((props, key) => {
+                props[key] = {
+                    get() {
+                        return memberMap[key].call(this);
+                    }
+                };
+                return props;
+            }, {});
+
+        properties.$options = {
+            value: options
+        };
+
+        Object.defineProperties(this, properties);
+    };
+
     const refs = options.__sanRefs;
     const initedHook = sanOptions.inited;
     sanOptions.inited = function () {
@@ -77,23 +101,6 @@ export default function define(options) {
             // overwrite san component api for support v-for + ref
             me.ref = ref;
         }
-
-        const properties = Object
-            .keys(memberMap)
-            .reduce((props, key) => {
-                props[key] = {
-                    get() {
-                        return memberMap[key].call(this);
-                    }
-                };
-                return props;
-            }, {});
-
-        properties.$options = {
-            value: options
-        };
-
-        Object.defineProperties(me, properties);
 
         initedHook && initedHook.call(this);
 

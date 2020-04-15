@@ -16,6 +16,9 @@
           <button @click="onClick(3)">数组内对象赋值</button>
           <span>{{ c[0].a }}</span>
       </div>
+      <div>
+          <span>{{ e }}</span>
+      </div>
   </div>
 </template>
 
@@ -31,6 +34,12 @@ export default {
             d: {
                 a: 1
             }
+        }
+    },
+    computed: {
+        e() {
+            console.log(this.a);
+            return this.a + ' computed';
         }
     },
     mounted() {
