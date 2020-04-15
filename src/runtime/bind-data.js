@@ -126,7 +126,6 @@ function defineReactive(obj, key, expr, context) {
             if (newVal === value) {
                 return;
             }
-            console.log(`set ${key} value: ${newVal}`);
             if (getter && !setter) {
                 return;
             }
@@ -136,12 +135,11 @@ function defineReactive(obj, key, expr, context) {
             else {
                 val = newVal;
             }
-            observe(newVal, context, expr);
+            observe(newVal, keyExpr, context);
             context.data.set(keyExpr, newVal, {force: true});
         },
         get() {
             const value = getter ? getter.call(obj) : val;
-            console.log(`get ${key} value: ${value}`);
             return value;
         }
     };

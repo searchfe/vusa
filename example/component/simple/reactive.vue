@@ -17,7 +17,16 @@
           <span>{{ c[0].a }}</span>
       </div>
       <div>
-          <span>{{ e }}</span>
+          <span>computed: {{ e }}</span>
+      </div>
+      <div>
+          <span>computed: {{ f }}</span>
+      </div>
+      <div>
+          <span>computed: {{ g }}</span>
+      </div>
+      <div>
+          <span>computed: {{ h }}</span>
       </div>
   </div>
 </template>
@@ -38,8 +47,16 @@ export default {
     },
     computed: {
         e() {
-            console.log(this.a);
-            return this.a + ' computed';
+            return this.a;
+        },
+        f() {
+            return this.b.length;
+        },
+        g() {
+            return this.d.a;
+        },
+        h() {
+            return this.c[0].a;
         }
     },
     mounted() {
