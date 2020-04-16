@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import './eval-expr';
+import './override-data-get';
 
 import {defineComponent, inherits, Component} from 'san';
 import {extend, hyphenate, def} from '../shared/util';
