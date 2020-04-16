@@ -3,7 +3,9 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {defineComponent, inherits, evalExpr, Component} from 'san';
+import './eval-expr';
+
+import {defineComponent, inherits, Component} from 'san';
 import {extend, hyphenate, def} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
@@ -118,7 +120,7 @@ export default function define(options) {
 
         const defaultProps = {};
         if (options.props) {
-            const propKeys = options._propKeys = options.props
+            const propKeys = me._propKeys = options._propKeys = options.props
                 ? (Array.isArray(options.props) ? options.props : Object.keys(options.props))
                 : [];
 
@@ -139,6 +141,21 @@ export default function define(options) {
                     });
                 }
             }
+        }
+
+        if (options.computed) {
+            me._computedKeys = Object.keys(options.computed);
+            for (let i = 0, len = me._computedKeys; i < len; i++) {
+                const k = me._computedKeys[i];
+                def(me, k, {
+                    get() {
+                        return me.data.get(k);
+                    }
+                });
+            }
+        }
+        else {
+            me._computedKeys = [];
         }
 
         const data = typeof options.data === 'function'

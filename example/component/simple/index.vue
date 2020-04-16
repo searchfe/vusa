@@ -14,6 +14,10 @@
     <ref />
     <bool bool />
     <reactive />
+    <ssolt></ssolt>
+    <ssolt>default slot in main</ssolt>
+    <ssolt><span slot="x">slot x in main</span>default</ssolt>
+    <ssolt><child slot="y" name="slot y"></child></ssolt>
   </div>
 </template>
 
@@ -24,6 +28,7 @@ import mixin from '../mixin';
 import mixin1 from '../mixin1';
 import Bool from './bool';
 import Reactive from './reactive';
+import Slot from './slot';
 
 export default {
     props: {
@@ -52,7 +57,8 @@ export default {
         Child,
         Ref,
         Bool,
-        Reactive
+        Reactive,
+        ssolt: Slot
     },
     methods: {
         onClick(e) {

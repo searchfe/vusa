@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {evalExpr} from 'san';
+import * as san from 'san';
 import {camelize} from '../shared/util';
 
 export default function (name) {
@@ -32,7 +32,7 @@ export default function (name) {
                 case 4:
                 case 3:
                     ref = element.aNode.directives.ref;
-                    value = evalExpr(ref.value, element.scope, owner);
+                    value = san.evalExpr(ref.value, element.scope, owner);
                     if (ref && (value === name || camelize(value) === name)) {
                         return nodeType === 4 ? element.el : element.children.map(elementTraversal);
                     }
@@ -40,7 +40,7 @@ export default function (name) {
 
                 case 5:
                     ref = element.source.directives.ref;
-                    value = evalExpr(ref.value, element.scope, owner);
+                    value = san.evalExpr(ref.value, element.scope, owner);
                     if (ref && (value === name || camelize(value) === name)) {
                         return element;
                     }

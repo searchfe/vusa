@@ -173,6 +173,8 @@ export default function () {
             }
         });
     }
+
+    this.data.owner = this;
 }
 
 function observe(value, expr, context) {
