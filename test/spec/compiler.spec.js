@@ -54,7 +54,7 @@ describe('compiler', function () {
             <p v-else>4</p>
         </div>`;
         const result = await compile(source);
-        expect(result.template).toBe('<div><p s-if="a < 0">1</p><p s-else-if="a >= 0">1</p><p s-else>4</p></div>');
+        expect(result.template).toBe('<div><p s-if="a<0">1</p><p s-else-if="a>=0">1</p><p s-else>4</p></div>');
     });
 
     it('v-on & @', async () => {

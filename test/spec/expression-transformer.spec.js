@@ -91,6 +91,11 @@ describe('compiler', function () {
             aa
         }`;
         expect(transform(source).code).toBe('{\'aa\': aa}');
+
+        source = `a({
+            aa
+        })`;
+        expect(transform(source).code).toBe('a({\'aa\': aa})');
     });
 
 });

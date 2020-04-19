@@ -335,6 +335,7 @@ class CodeGen {
 }
 
 export default function (code) {
+
     let node;
     try {
         node = parse(code, {
@@ -342,7 +343,7 @@ export default function (code) {
         });
     }
     catch (e) {
-        throw new Error(`SyntaxError is found when parsing code "${code}", ${e.message}`);
+        throw new Error(`SyntaxError is found when parsing code "${code}", ${e.stack}`);
     }
 
     let codegen = new CodeGen({
