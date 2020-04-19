@@ -4,7 +4,7 @@ module.exports = {
             '@babel/preset-env',
             {
                 targets: {
-                    node: 'current',
+                    node: 10,
                 }
             }
         ]
@@ -12,7 +12,13 @@ module.exports = {
     env: {
         runtime: {
             presets: [
-                '@babel/preset-env'
+                ['@babel/preset-env', {
+                    targets: {
+                        android: '4.1',
+                        ios: '7'
+                    },
+                    modules: 'commonjs'
+                }]
             ],
             comments: false
         }
