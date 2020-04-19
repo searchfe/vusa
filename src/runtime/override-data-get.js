@@ -17,11 +17,13 @@ Data.prototype.get = function (expr, callee) {
     }
     const paths = expr.paths;
     const first = paths[0].value;
-    if ([
-        ...this.owner._propKeys,
-        ...this.owner._dataKeys,
-        ...this.owner._computedKeys
-    ].indexOf(first) >= 0) {
+    if (
+        [
+            ...this.owner._propKeys,
+            ...this.owner._dataKeys,
+            ...this.owner._computedKeys
+        ].indexOf(first) >= 0
+    ) {
         return value;
     }
     value = this.owner[first];
