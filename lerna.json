@@ -5,7 +5,8 @@
   "version": "independent",
   "command": {
     "publish": {
-      "conventionalCommits": true
+      "ignoreChanges": ["__test__/**", "**/*.md", "*.md"],
+      "message": "chore: publish"
     }
   }
 }
