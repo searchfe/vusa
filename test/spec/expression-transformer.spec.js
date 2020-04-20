@@ -43,7 +43,7 @@ describe('compiler', function () {
     it('call', () => {
         expect(transform('_mc(\'a\')').code).toBe('_mc(\'a\')');
         expect(transform('_ms()').code).toBe('_ms()');
-        expect(transform('_ms(\'a\', {a: 1})').code).toBe('_ms(\'a\', {\'a\': 1})');
+        expect(transform('_ms(\'a\', {a: 1})').code).toBe('_ms(\'a\', {a:1} )');
     });
 
     it('array', () => {
@@ -57,45 +57,45 @@ describe('compiler', function () {
     });
 
     it('object', () => {
-        expect(transform('{a: 1,\n\'b\': 2}').code).toBe('{\'a\': 1, \'b\': 2}');
+        expect(transform('{a: 1,\n\'b\': 2}').code).toBe('{a:1,\'b\':2} ');
         let source = `{
             a: 1,
             d: 2,
             [b]: c === 0,
             [a+1]: d
         }`;
-        expect(transform(source).code).toBe('_ex({\'a\': 1,\'d\': 2},_ocp([{k: b, v: c===0},{k: a+1, v: d}]))');
+        expect(transform(source).code).toBe('_ex({a:1,d:2},_ocp([{k:b,v:c===0},{k:a+1,v:d}]))');
         source = `{
             [b]: c === 0,
             [a+1]: d,
             a: 1,
             d: 2
         }`;
-        expect(transform(source).code).toBe('_ex(_ocp([{k: b, v: c===0},{k: a+1, v: d}]),{\'a\': 1,\'d\': 2})');
+        expect(transform(source).code).toBe('_ex(_ocp([{k:b,v:c===0},{k:a+1,v:d}]),{a:1,d:2})');
         source = `{
             [b]: c === 0,
             a: 1,
             [a+1]: d,
             d: 2
         }`;
-        expect(transform(source).code).toBe('_ex(_ocp([{k: b, v: c===0}]),{\'a\': 1},_ocp([{k: a+1, v: d}]),{\'d\': 2})');
+        expect(transform(source).code).toBe('_ex(_ocp([{k:b,v:c===0}]),{a:1},_ocp([{k:a+1,v:d}]),{d:2})');
         source = `{
             a: 1,
             [a+1]: d,
             d: 2,
             [b]: c === 0
         }`;
-        expect(transform(source).code).toBe('_ex({\'a\': 1},_ocp([{k: a+1, v: d}]),{\'d\': 2},_ocp([{k: b, v: c===0}]))');
+        expect(transform(source).code).toBe('_ex({a:1},_ocp([{k:a+1,v:d}]),{d:2},_ocp([{k:b,v:c===0}]))');
 
         source = `{
             aa
         }`;
-        expect(transform(source).code).toBe('{\'aa\': aa}');
+        expect(transform(source).code).toBe('{aa:aa} ');
 
         source = `a({
             aa
         })`;
-        expect(transform(source).code).toBe('a({\'aa\': aa})');
+        expect(transform(source).code).toBe('a({aa:aa} )');
     });
 
 });

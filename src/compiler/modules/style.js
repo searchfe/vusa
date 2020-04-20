@@ -14,7 +14,7 @@ function postTransformNode(node) {
         const staticStyle = node.staticStyle || '\'\'';
         const styleBinding = node.styleBinding ? transform(node.styleBinding).code : '{}';
         // eslint-disable-next-line max-len
-        node.attrsMap.style = `{{ _ms(${toSingleQuotes(staticStyle)}, ${styleBinding}${vShow ? `, ${vShow}` : ''}) }}`;
+        node.attrsMap.style = `{{ _ms(${toSingleQuotes(staticStyle)}, ${styleBinding}${vShow ? `, ${transform(vShow).code}` : ''}) }}`;
         bindKeys.forEach(key => delete node.attrsMap[key]);
     }
 }

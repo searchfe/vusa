@@ -25,7 +25,10 @@ module.exports = {
     optimization: {
         minimize: false
     },
-    stats: 'normal',
+    stats: {
+        children: false,
+        modules: false
+    },
     module: {
         rules: [{
                 test: /\.js$/,

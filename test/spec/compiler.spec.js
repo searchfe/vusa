@@ -33,7 +33,7 @@ describe('compiler', function () {
             <p style="color:blue"></p>
         </div>`;
         const result = await compile(source);
-        expect(result.template).toBe('<div style="{{ _ms({\'color\':\'red\'}, {\'font-size\': \'12px\'}) }}"><p style="{{ _ms(\'\', dataA) }}"></p><p style="color:blue"></p></div>');
+        expect(result.template).toBe('<div style="{{ _ms({\'color\':\'red\'}, {\'font-size\':\'12px\'} ) }}"><p style="{{ _ms(\'\', dataA) }}"></p><p style="color:blue"></p></div>');
     });
 
     it('merge bind', async () => {

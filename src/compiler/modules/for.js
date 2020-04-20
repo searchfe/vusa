@@ -3,6 +3,8 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+import transform from '../expression-transformer';
+
 function postTransformNode(node) {
     if (node.type !== 1 || !node.for) {
         return;
@@ -17,7 +19,9 @@ function postTransformNode(node) {
     fr += ` in _l(${node.for})`;
 
     if (node.key) {
-        fr += ` trackBy ${node.key}`;
+        const trackByExpr = transform(node.key);
+        // san 只支持变量
+        fr += trackByExpr.ast.type === 'Identifier' ? ` trackBy ${node.key}` : '';
     }
 
     node.attrsMap['s-for'] = fr;

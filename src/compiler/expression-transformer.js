@@ -20,11 +20,18 @@ const noBracketTypes = new Set([
     'Identifier',
     'MemberExpression',
     'CallExpression',
-    'TemplateExpression'
+    'TemplateExpression',
+    'UnaryExpression'
 ]);
 
 function wrapBacket(code, node) {
-    return noBracketTypes.has(node.type) ? code : `(${code})`;
+    if (noBracketTypes.has(node.type)) {
+        return code;
+    }
+    if (node.type === 'BinaryExpression' && ['==', '===', '!=', '!=='].includes(node.operator)) {
+        return code;
+    }
+    return `(${code})`;
 }
 
 const Syntax = {
@@ -217,7 +224,7 @@ const CodeGeneragor = {
         }
 
         let result = results[0];
-        return this.ret(`{${result.map(c => c.code).join(', ')}}`, 'object');
+        return this.ret(`{${result.map(c => c.code).join(',')}} `, 'object');
     },
 
     Property(node, results, ref) {
@@ -225,11 +232,11 @@ const CodeGeneragor = {
         if (node.computed) {
             ref.hasComputed = true;
             let keyCode = this.traverse(node.key, node).code;
-            return this.ret(`{k: ${keyCode}, v: ${results[0].code}}`);
+            return this.ret(`{k:${keyCode},v:${results[0].code}}`);
         }
 
         let keyCode = this.genPropertyKey(node.key).code;
-        return this.ret(`${keyCode}: ${results[0].code}`);
+        return this.ret(`${keyCode}:${results[0].code}`);
     }
 };
 
@@ -303,8 +310,7 @@ class CodeGen {
         let code;
         switch (node.type) {
             case 'Identifier':
-                code = `'${node.name}'`;
-                return this.ret(code, 'string', node.name);
+                return this.ret(node.name, 'string', node.name);
             case 'Literal':
                 code = toString(String(node.value));
                 return this.ret(code, 'string', String(node.value));
@@ -336,6 +342,12 @@ class CodeGen {
 
 export default function (code) {
 
+    if (!code) {
+        return {
+            code: ''
+        };
+    }
+
     let node;
     try {
         node = parse(code, {
@@ -350,5 +362,8 @@ export default function (code) {
         code
     });
 
-    return codegen.traverse(node, node);
+    return {
+        ast: node.expression,
+        ...codegen.traverse(node, node)
+    };
 }

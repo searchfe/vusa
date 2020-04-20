@@ -11,13 +11,11 @@ import fr from './for';
 import event from './event';
 import html from './html';
 import ref from './ref';
-import stripAttr from './strip-attr';
 import dynamicComponent from './dynamic-component';
 import bool from './boolean';
 
 export default [
     bool,
-    stripAttr,
     yf,
     fr,
     event,

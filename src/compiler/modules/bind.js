@@ -15,7 +15,9 @@ function postTransformNode(node) {
     for (const key of keys) {
         const value = node.attrsMap[key];
         delete node.attrsMap[key];
-        node.attrsMap[key.replace(reBind, '')] = `{{ ${transform(value).code} }}`;
+        const ret = transform(value);
+        const code = ret.code;
+        node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
     }
 
     if (node.attrsMap['v-bind']) {

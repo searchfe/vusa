@@ -27,7 +27,8 @@ const defaultSanOptions = {
     getComponentType,
     $emit: Component.prototype.fire,
     $on: Component.prototype.on,
-    $watch: Component.prototype.watch
+    $watch: Component.prototype.watch,
+    _noop: function () {}
 };
 /* eslint-enable fecs-camelcase */
 
@@ -59,7 +60,7 @@ export default function define(options) {
 
     const sanOptions = extend({
         template: options.__santemplate,
-        aNode: options.__sanaNode
+        aNode: options.__sanaNode,
     }, defaultSanOptions, mergeOptions(options));
 
     const compiledHook = sanOptions.compiled;
