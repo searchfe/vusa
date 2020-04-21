@@ -72,6 +72,18 @@ describe('compiler', function () {
         expect(result.template).toBe('<div s-html="{{ html }}"></div>');
     });
 
+    it('v-safe-html', async () => {
+        const source = `<div v-safe-html="html"></div>`;
+        const result = await compile(source);
+        expect(result.template).toBe('<div s-html="{{ _sf(html) }}"></div>');
+    });
+
+    it('v-dangerous-html', async () => {
+        const source = `<div v-dangerous-html="html"></div>`;
+        const result = await compile(source);
+        expect(result.template).toBe('<div s-html="{{ html }}"></div>');
+    });
+
     it('v-text', async () => {
         const source = `<div v-text="text"></div>`;
         const result = await compile(source);

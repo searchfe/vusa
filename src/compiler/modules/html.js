@@ -6,13 +6,17 @@
 function postTransformNode(node) {
 
     if (node.attrsMap && node.attrsMap['v-dangerous-html']) {
-        node.attrsMap['v-html'] = node.attrsMap['v-dangerous-html'];
+        const dir = node.directives.find(d => d.name === 'dangerous-html');
+        dir.name = 'html';
+        dir.value = node.attrsMap['v-html'] = node.attrsMap['v-dangerous-html'];
         delete node.attrsMap['v-dangerous-html'];
     }
 
     if (node.attrsMap && node.attrsMap['v-safe-html']) {
-        node.attrsMap['v-html'] = `_sf(${node.attrsMap['v-safe-html']})`;
-        delete node.attrsMap['v-dangerous-html'];
+        const dir = node.directives.find(d => d.name === 'safe-html');
+        dir.name = 'html';
+        dir.value = node.attrsMap['v-html'] = `_sf(${node.attrsMap['v-safe-html']})`;
+        delete node.attrsMap['v-safe-html'];
     }
 
     if (node.type === 1 && node.attrsMap['v-html']) {
