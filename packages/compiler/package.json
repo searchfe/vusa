@@ -17,7 +17,7 @@
     "atom-expression-compiler": "^2.2.3",
     "escape-quotes": "^1.0.2",
     "lodash": "^4.17.15",
-    "san": "^3.8.1",
+    "san": "^3.8.2",
     "to-single-quotes": "^3.0.0",
     "vue-template-compiler": "2.5.22"
   }
