@@ -58,6 +58,10 @@ const memberMap = {
 
 export default function define(options) {
 
+    if (options._SanCtor) {
+        return options._SanCtor;
+    }
+
     const sanOptions = extend({
         template: options.__santemplate,
         aNode: options.__sanaNode,
@@ -179,6 +183,6 @@ export default function define(options) {
 
     const Component = defineComponent(sanOptions);
 
-    return Component;
+    return options._SanCtor = Component;
 }
 
