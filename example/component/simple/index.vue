@@ -18,6 +18,8 @@
     <ssolt>default slot in main</ssolt>
     <ssolt><span slot="x">slot x in main</span>default</ssolt>
     <ssolt><child slot="y" name="slot y"></child></ssolt>
+    <wrapper></wrapper>
+    <empty><span>123123</span></empty>
   </div>
 </template>
 
@@ -29,6 +31,7 @@ import mixin1 from '../mixin1';
 import Bool from './bool';
 import Reactive from './reactive';
 import Slot from './slot';
+import Wrapper from './wrapper';
 
 export default {
     props: {
@@ -58,7 +61,16 @@ export default {
         Ref,
         Bool,
         Reactive,
-        ssolt: Slot
+        ssolt: Slot,
+        Wrapper,
+        // empty: {
+        //     render() {
+        //         return this.$slots.default[0]
+        //     },
+        //     mounted() {
+        //         console.log('empty ', this.$el);
+        //     }
+        // }
     },
     methods: {
         onClick(e) {

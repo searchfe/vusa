@@ -16,6 +16,7 @@ import ref from './ref';
 import mergeOptions from './merge-options';
 import bindData from './bind-data';
 import calcComputed from './calc-computed';
+import slot from './get-slots';
 
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = {
@@ -53,7 +54,8 @@ const memberMap = {
             }
         }
         return root;
-    }
+    },
+    $slots: slot
 };
 
 export default function define(options) {
@@ -117,6 +119,12 @@ export default function define(options) {
         }
 
         bindData.call(this);
+
+        if (options.watch) {
+            Object.keys(options.watch).forEach(key => {
+                this.watch(key, options.watch[key].bind(this));
+            });
+        }
     };
 
     sanOptions.initData = function () {

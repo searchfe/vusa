@@ -4,6 +4,7 @@
  */
 
 import {def} from '../shared/util';
+import slots from './get-slots';
 
 export default function (key) {
     let computedDeps = this.computedDeps[key];
@@ -18,6 +19,12 @@ export default function (key) {
     def(context, '$root', {
         get() {
             return me.$root;
+        }
+    });
+
+    def(context, '$slots', {
+        get() {
+            return slots.call(me);
         }
     });
 

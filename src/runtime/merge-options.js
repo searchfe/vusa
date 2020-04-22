@@ -9,7 +9,6 @@ import atomBuildInMixin from './atom-global-api';
 
 const keys = [
     'filters',
-    'watch',
     'computed'
 ];
 
