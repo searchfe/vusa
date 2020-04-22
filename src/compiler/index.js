@@ -10,6 +10,7 @@ import getCssModules from './modules/cssmodules';
 import atom from './modules/atom';
 import {isEmpty} from 'lodash';
 import {parseTemplate} from 'san';
+import optimize from './optimize-anode';
 
 export function compile(source, options = {}) {
 
@@ -54,7 +55,7 @@ export function compile(source, options = {}) {
 
     return {
         ast,
-        aNode,
+        aNode: optimize(aNode),
         template,
         refs: compilerOptions.refs,
         errors

@@ -58,10 +58,12 @@ const memberMap = {
     $slots: slot
 };
 
+const innerKey = '_SanCtor';
+
 export default function define(options) {
 
-    if (options._SanCtor) {
-        return options._SanCtor;
+    if (options[innerKey]) {
+        return options[innerKey];
     }
 
     const sanOptions = extend({
@@ -115,7 +117,7 @@ export default function define(options) {
 
         // merge css modules
         if (this.$style) {
-            this.data.merge('$style', this.$style);
+            extend(this.data.raw.$style, this.$style)
         }
 
         bindData.call(this);
@@ -147,11 +149,6 @@ export default function define(options) {
                             ? prop.default()
                             : prop.default;
                     }
-                    def(me, p, {
-                        get() {
-                            return me.data.get(p);
-                        }
-                    });
                 }
             }
         }
@@ -191,6 +188,6 @@ export default function define(options) {
 
     const Component = defineComponent(sanOptions);
 
-    return options._SanCtor = Component;
+    return options[innerKey] = Component;
 }
 

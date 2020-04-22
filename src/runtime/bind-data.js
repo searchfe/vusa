@@ -27,6 +27,7 @@ methodsToPatch.forEach(function (method) {
     const original = arrayProto[method]
     def(arrayMethods, method, {
         value(...args) {
+            const result = original.apply(this, args);
             const ob = this.__ob__;
             let inserted;
             switch (method) {
@@ -41,9 +42,8 @@ methodsToPatch.forEach(function (method) {
             if (inserted) {
                 ob.observeArray(inserted);
             }
-            ob.context.data[method](ob.expr, ...args);
-            const result = ob.context.data.get(ob.expr);
-            observe(result, ob.expr, ob.context);
+            ob.context.data[method].call(ob.context.data, ob.expr, ...args);
+            observe(ob.context.data.get(ob.expr), ob.expr, ob.context);
             return result;
         }
     })
