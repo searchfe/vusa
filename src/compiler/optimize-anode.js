@@ -8,4 +8,5 @@ export default function optimize(aNode) {
     if (aNode.children) {
         aNode.children = aNode.children.map(optimize);
     }
+    return aNode;
 }
