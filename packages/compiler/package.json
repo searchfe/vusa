@@ -1,6 +1,6 @@
 {
   "name": "@vusa/compiler",
-  "version": "1.0.1-alpha.5",
+  "version": "1.0.1-alpha.6",
   "description": "vue template compiler to generate san template string",
   "main": "index.js",
   "scripts": {
