@@ -19,7 +19,6 @@
     <ssolt><span slot="x">slot x in main</span>default</ssolt>
     <ssolt><child slot="y" name="slot y"></child></ssolt>
     <wrapper></wrapper>
-    <empty><span>123123</span></empty>
   </div>
 </template>
 
@@ -41,7 +40,6 @@ export default {
         }
     },
     mounted() {
-        console.log(this);
         console.log('index vue mounted');
     },
     created() {
@@ -62,15 +60,7 @@ export default {
         Bool,
         Reactive,
         ssolt: Slot,
-        Wrapper,
-        // empty: {
-        //     render() {
-        //         return this.$slots.default[0]
-        //     },
-        //     mounted() {
-        //         console.log('empty ', this.$el);
-        //     }
-        // }
+        Wrapper
     },
     methods: {
         onClick(e) {

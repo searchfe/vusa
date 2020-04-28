@@ -55,7 +55,10 @@ const memberMap = {
         }
         return root;
     },
-    $slots: slot
+    $slots: slot,
+    _isDestroyed() {
+        return !!this.lifeCycle.disposed;
+    }
 };
 
 const innerKey = '_SanCtor';
@@ -73,6 +76,9 @@ export default function define(options) {
 
     const compiledHook = sanOptions.compiled;
     sanOptions.compiled = function () {
+
+        this._isSan = true;
+
         this._calcComputed = calcComputed.bind(this);
         compiledHook && compiledHook.call(this);
 
@@ -127,6 +133,14 @@ export default function define(options) {
                 this.watch(key, options.watch[key].bind(this));
             });
         }
+
+        if (options.preprcessANode) {
+            options.preprcessANode.call(this);
+        }
+        else if (options.render && this.$super.render) {
+            this.$super.render = function () {};
+            options.render.call(this);
+        }
     };
 
     sanOptions.initData = function () {
@@ -151,6 +165,9 @@ export default function define(options) {
                     }
                 }
             }
+        }
+        else {
+            me._propKeys = [];
         }
 
         if (options.computed) {

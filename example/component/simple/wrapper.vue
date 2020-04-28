@@ -9,7 +9,7 @@ export default {
         cComponent
     },
     mounted() {
-        console.log('root el', this.$el);
+        // console.log('root el', this.$el);
     }
 };
 </script>

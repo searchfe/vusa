@@ -30,8 +30,8 @@ module.exports = function (content) {
     const sanANode = vesaResult.aNode;
     const template = vesaResult.template;
 
-    // content += `\ncomponent.options.__sanaNode = ${JSON.stringify(sanANode)}`;
-    content += `\ncomponent.options.__sanTemplate = ${JSON.stringify(template)}`;
+    content += `\ncomponent.options.__sanaNode = ${JSON.stringify(sanANode)}`;
+    // content += `\ncomponent.options.__santemplate = ${JSON.stringify(template)}`;
 
     if (vesaResult.refs && vesaResult.refs.length > 0) {
         content += `\ncomponent.options.__sanRefs = ${JSON.stringify(vesaResult.refs)}`;

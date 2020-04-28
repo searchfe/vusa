@@ -10,8 +10,8 @@ export const lifeCycleMap = {
     beforeMount: 'created',
     beforeDestroy: 'detached',
     destroy: 'disposed',
-    updated: 'updated'
-    // beforeUpdate: 'updated'
+    updated: 'updated',
+    beforeUpdate: 'beforeUpdate'
 };
 
 export const lifeCycleKeys = Object.keys(lifeCycleMap);

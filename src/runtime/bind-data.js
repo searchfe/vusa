@@ -153,7 +153,7 @@ const defaultExpr = {
 
 export default function () {
     const expr = extend({}, defaultExpr);
-    const keys = this._dataKeys;
+    const keys = [...this._dataKeys, ...this._propKeys];
     const keyLength = keys.length;
 
     observe(this.data.get(), expr, this);

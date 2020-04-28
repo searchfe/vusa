@@ -8,7 +8,7 @@
 
 <script>
 export default {
-    mounted() {
+    created() {
         console.log(this.$slots, this);
     }
 };
