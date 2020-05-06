@@ -8,6 +8,12 @@ export default function optimize(aNode) {
     if (aNode.children) {
         aNode.children = aNode.children.map(optimize);
     }
+    if (aNode.elses) {
+        aNode.elses = aNode.elses.map(optimize);
+    }
+    if (aNode.textExpr) {
+        delete aNode.textExpr.raw;
+    }
     if (aNode.props) {
         aNode.props = aNode.props.map(prop => {
             if (prop.raw) {
@@ -18,6 +24,17 @@ export default function optimize(aNode) {
                 delete prop.expr.raw;
             }
             return prop;
+        });
+    }
+    if (aNode.events) {
+        aNode.events = aNode.events.map(event => {
+            if (event.raw) {
+                delete event.raw;
+            }
+            if (event.expr) {
+                delete event.expr.raw;
+            }
+            return event;
         });
     }
     if (aNode.directives) {

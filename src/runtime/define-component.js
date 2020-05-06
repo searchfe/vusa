@@ -61,6 +61,15 @@ const memberMap = {
     }
 };
 
+const originalUpdate = Component.prototype._update;
+
+Component.prototype._update = function (changes) {
+    if (changes) {
+        this._toPhase('beforeUpdate');
+    }
+    originalUpdate.call(this, changes);
+};
+
 const innerKey = '_SanCtor';
 
 export default function define(options) {
@@ -136,10 +145,6 @@ export default function define(options) {
 
         if (options.preprcessANode) {
             options.preprcessANode.call(this);
-        }
-        else if (options.render && this.$super.render) {
-            this.$super.render = function () {};
-            options.render.call(this);
         }
     };
 
