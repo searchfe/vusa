@@ -151,6 +151,15 @@ export default function define(options) {
         }
     };
 
+    const beforeUpdateHook = sanOptions.beforeUpdate;
+    sanOptions.beforeUpdate = function () {
+        beforeUpdateHook && beforeUpdateHook.call(this);
+
+        if (options.preprcessANode) {
+            options.preprcessANode.call(this);
+        }
+    };
+
     sanOptions.initData = function () {
 
         const me = this;
