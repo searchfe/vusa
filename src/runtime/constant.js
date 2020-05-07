@@ -11,7 +11,9 @@ export const lifeCycleMap = {
     beforeDestroy: 'detached',
     destroy: 'disposed',
     updated: 'updated',
-    beforeUpdate: 'beforeUpdate'
+    beforeUpdate: 'beforeUpdate',
+    activated: 'activated',
+    deactivated: 'deactivated'
 };
 
 export const lifeCycleKeys = Object.keys(lifeCycleMap);

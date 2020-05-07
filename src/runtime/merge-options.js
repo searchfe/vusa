@@ -49,10 +49,13 @@ export default function mergeOptions(options) {
         const dk = lifeCycleMap[k];
         if (destOptions[dk]) {
             const hooks = destOptions[dk].slice();
-            destOptions[dk] = function () {
+            destOptions[dk] = hooks.length === 1 ? hooks[0] : function () {
                 hooks.forEach(hook => hook.call(this), this);
             };
         }
+    }
+    if (options.messages) {
+        destOptions.messages = options.messages;
     }
     return destOptions;
 }

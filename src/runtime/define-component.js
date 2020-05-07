@@ -17,9 +17,12 @@ import mergeOptions from './merge-options';
 import bindData from './bind-data';
 import calcComputed from './calc-computed';
 import slot from './get-slots';
+import {callActivited, callDeActivited} from './call-activated-hook';
 
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = {
+    $activate: callActivited,
+    $deactivate: callDeActivited,
     _mc: mergeClass,
     _ms: mergeStyle,
     _l: loopExpression,

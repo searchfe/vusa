@@ -41,6 +41,7 @@ export default {
     },
     mounted() {
         console.log('index vue mounted');
+        console.log(this);
     },
     created() {
         console.log('index vue created');
