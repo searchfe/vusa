@@ -216,13 +216,18 @@ export default function define(options) {
         sanOptions.components = Object
             .keys(options.components)
             .reduce((prev, key) => {
-                prev[key] = prev[hyphenate(key)] = define(options.components[key]);
+                const component = options.components[key];
+                prev[key] = prev[hyphenate(key)] = component instanceof Component
+                    ? component
+                    : (component.template || component.aNode ? defineComponent(component) : define(component));
                 return prev;
             }, {});
+
+        sanOptions._cmptReady = 1;
     }
 
-    const Component = defineComponent(sanOptions);
+    const cmpt = defineComponent(sanOptions);
 
-    return options[innerKey] = Component;
+    return options[innerKey] = cmpt;
 }
 
