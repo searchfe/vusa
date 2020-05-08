@@ -5,7 +5,7 @@
 
 import './override-data-get';
 
-import {defineComponent, inherits, Component} from 'san';
+import {defineComponent, inherits, Component, nextTick} from 'san';
 import {extend, hyphenate, def} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
@@ -28,11 +28,12 @@ const defaultSanOptions = {
     _l: loopExpression,
     _ex: extend,
     _ocp: objectComputedProperties,
+    _noop: function () {},
     getComponentType,
     $emit: Component.prototype.fire,
     $on: Component.prototype.on,
     $watch: Component.prototype.watch,
-    _noop: function () {}
+    $nextTick: nextTick
 };
 /* eslint-enable fecs-camelcase */
 
@@ -146,8 +147,8 @@ export default function define(options) {
             });
         }
 
-        if (options.preprcessANode) {
-            options.preprcessANode.call(this);
+        if (options.preprocessANode) {
+            options.preprocessANode.call(this);
         }
     };
 
@@ -155,8 +156,8 @@ export default function define(options) {
     sanOptions.beforeUpdate = function () {
         beforeUpdateHook && beforeUpdateHook.call(this);
 
-        if (options.preprcessANode) {
-            options.preprcessANode.call(this);
+        if (options.preprocessANode) {
+            options.preprocessANode.call(this);
         }
     };
 
