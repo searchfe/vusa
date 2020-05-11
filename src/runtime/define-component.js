@@ -18,6 +18,7 @@ import bindData from './bind-data';
 import calcComputed from './calc-computed';
 import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
+import Transition from './transition';
 
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = {
@@ -29,6 +30,7 @@ const defaultSanOptions = {
     _ex: extend,
     _ocp: objectComputedProperties,
     _noop: function () {},
+    _t: Transition,
     getComponentType,
     $emit: Component.prototype.fire,
     $on: Component.prototype.on,
@@ -85,12 +87,11 @@ export default function define(options) {
     const sanOptions = extend({
         template: options.__santemplate,
         aNode: options.__sanaNode,
+        _isSan: true,
     }, defaultSanOptions, mergeOptions(options));
 
     const compiledHook = sanOptions.compiled;
     sanOptions.compiled = function () {
-
-        this._isSan = true;
 
         this._calcComputed = calcComputed.bind(this);
         compiledHook && compiledHook.call(this);
@@ -222,7 +223,6 @@ export default function define(options) {
                     : (component.template || component.aNode ? defineComponent(component) : define(component));
                 return prev;
             }, {});
-
         sanOptions._cmptReady = 1;
     }
 

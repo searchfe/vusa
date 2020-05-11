@@ -19,6 +19,7 @@
     <ssolt><span slot="x">slot x in main</span>default</ssolt>
     <ssolt><child slot="y" name="slot y"></child></ssolt>
     <wrapper></wrapper>
+    <e-trans></e-trans>
   </div>
 </template>
 
@@ -31,6 +32,7 @@ import Bool from './bool';
 import Reactive from './reactive';
 import Slot from './slot';
 import Wrapper from './wrapper';
+import Transition from './transition';
 
 export default {
     props: {
@@ -61,7 +63,8 @@ export default {
         Bool,
         Reactive,
         ssolt: Slot,
-        Wrapper
+        Wrapper,
+        'e-trans': Transition
     },
     methods: {
         onClick(e) {

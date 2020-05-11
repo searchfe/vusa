@@ -22,6 +22,18 @@ export function toObject(arr) {
 }
 
 /**
+ * Remove an item from an array.
+ */
+export function remove(arr, item) {
+    if (arr.length) {
+        const index = arr.indexOf(item);
+        if (index > -1) {
+            return arr.splice(index, 1);
+        }
+    }
+}
+
+/**
  * Get the raw type string of a value, e.g., [object Object].
  */
 export const _toString = Object.prototype.toString;
@@ -81,3 +93,16 @@ export const hyphenate = cached((str) => {
 });
 
 export const camelize = str => str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ''));
+
+/**
+ * Ensure a function is called only once.
+ */
+export function once(fn) {
+    let called = false
+    return function () {
+      if (!called) {
+        called = true
+        fn.apply(this, arguments)
+      }
+    }
+}

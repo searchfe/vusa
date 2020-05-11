@@ -13,8 +13,11 @@ import html from './html';
 import ref from './ref';
 import dynamicComponent from './dynamic-component';
 import bool from './boolean';
+import template from './template';
+import transition from './transition';
 
 export default [
+    template,
     bool,
     yf,
     fr,
@@ -27,6 +30,7 @@ export default [
 
     // bind 放在所有处理完之后
     bind,
+    transition,
 
     dynamicComponent
 ];

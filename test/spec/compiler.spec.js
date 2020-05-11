@@ -121,5 +121,17 @@ describe('compiler', function () {
         expect(result.template).toBe('<a href="{{ url }}" s-if="url"></a><div href="{{ url }}" s-else></div>');
     });
 
+    it('template', async () => {
+        const source = `<template><div></div></template>`;
+        const result = await compile(source);
+        expect(result.template).toBe('<fragment><div></div></fragment>');
+    });
+
+    it('transition', async () => {
+        const source = `<transition name="fade"><div v-if="ok"></div></transition>`;
+        const result = await compile(source);
+        expect(result.template).toBe('<fragment><div s-if="ok" s-transition=\"_t({name:\'fade\'})\"></div></fragment>');
+    });
+
 });
 

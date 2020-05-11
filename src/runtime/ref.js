@@ -32,7 +32,7 @@ export default function (name) {
                 case 4:
                 case 3:
                     ref = element.aNode.directives.ref;
-                    value = san.evalExpr(ref.value, element.scope, owner);
+                    value = ref && san.evalExpr(ref.value, element.scope, owner);
                     if (ref && (value === name || camelize(value) === name)) {
                         return nodeType === 4 ? element.el : element.children.map(elementTraversal);
                     }
