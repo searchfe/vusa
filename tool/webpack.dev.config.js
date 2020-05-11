@@ -26,6 +26,9 @@ module.exports = {
     output: {
         filename: '[name].bundle.js'
     },
+    devServer: {
+        host: '0.0.0.0'
+    },
     module: {
         rules: [{
                 test: /\.js$/,

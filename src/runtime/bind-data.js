@@ -14,9 +14,9 @@ const methodsToPatch = [
     'pop',
     'shift',
     'unshift',
-    'splice'
-    // 'sort',
-    // 'reverse'
+    'splice',
+    'sort',
+    'reverse'
 ];
 
 /**
@@ -42,7 +42,7 @@ methodsToPatch.forEach(function (method) {
             if (inserted) {
                 ob.observeArray(inserted);
             }
-            ob.context.data[method].call(ob.context.data, ob.expr, ...args);
+            ob.context.data.set(ob.expr, this, {force: true});
             observe(ob.context.data.get(ob.expr), ob.expr, ob.context);
             return result;
         }

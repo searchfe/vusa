@@ -1,7 +1,7 @@
 <template>
     <div id="demo">
         <button @click="onClick">
-            Toggle
+            动画
         </button>
         <transition name="fade" @enter="onEnter">
             <p v-if="show">hello</p>
