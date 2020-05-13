@@ -40,7 +40,7 @@ export default function (name) {
 
                 case 5:
                     ref = element.source.directives.ref;
-                    value = san.evalExpr(ref.value, element.scope, owner);
+                    value = ref && san.evalExpr(ref.value, element.scope, owner);
                     if (ref && (value === name || camelize(value) === name)) {
                         return element;
                     }

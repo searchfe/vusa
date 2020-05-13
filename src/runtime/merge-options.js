@@ -5,7 +5,7 @@
 
 import {extend} from '../shared/util';
 import {lifeCycleKeys, lifeCycleMap} from './constant';
-import atomBuildInMixin from './atom-global-api';
+import * as atomBuildInMixin from './atom-global-api';
 
 const keys = [
     'filters',
@@ -27,9 +27,12 @@ export default function mergeOptions(options) {
     const list = Array.isArray(options.mixins)
         ? [atomBuildInMixin, ...options.mixins, options]
         : [atomBuildInMixin, options];
+
+    const methods = {};
+
     for (let i = 0, len = list.length; i < len; i++) {
         const opt = list[i];
-        opt.methods && extend(destOptions, opt.methods);
+        opt.methods && extend(methods, opt.methods);
         for (let j = 0; j < keys.length; j++) {
             const k = keys[j];
             if (opt[k]) {
@@ -54,6 +57,8 @@ export default function mergeOptions(options) {
             };
         }
     }
+    destOptions._methodKeys = Object.keys(methods);
+    extend(destOptions, methods);
     if (options.messages) {
         destOptions.messages = options.messages;
     }

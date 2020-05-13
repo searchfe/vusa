@@ -3,12 +3,14 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+import {toObject} from '../shared/util';
+
 const MATH_METHOD = [
     'floor', 'ceil', 'round',
     'abs', 'max', 'min', 'pow'
 ];
 
-const methods = exports.methods = {};
+export const methods = {};
 
 MATH_METHOD.forEach(name => {
     methods[`math_${name}`] = function (...args) {
@@ -33,7 +35,7 @@ methods.object_freeze = function (obj) {
     return Object.freeze(obj);
 };
 
-exports.filters = {
+export const filters = {
     json(obj) {
         return JSON.stringify(json);
     },

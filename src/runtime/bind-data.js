@@ -116,6 +116,8 @@ function defineReactive(obj, key, expr, context) {
         }]
     };
 
+    const dep = new Dep;
+
     let val = obj[key];
     observe(val, keyExpr, context);
     const newProperty = {
@@ -139,6 +141,7 @@ function defineReactive(obj, key, expr, context) {
             context.data.set(keyExpr, newVal, {force: true});
         },
         get() {
+            dep.depend(keyExpr);
             const value = getter ? getter.call(obj) : val;
             return value;
         }
@@ -173,8 +176,6 @@ export default function () {
             }
         });
     }
-
-    this.data.owner = this;
 }
 
 function observe(value, expr, context) {
@@ -192,4 +193,29 @@ function observe(value, expr, context) {
         ob = new Observer(value, expr, context);
     }
     return ob;
+}
+
+/**
+ * A dep is an observable that can have multiple
+ * directives subscribing to it.
+ */
+export function Dep() {}
+
+Dep.prototype.depend = function (expr) {
+    if (Dep.target) {
+        Dep.target.push(expr);
+    }
+};
+
+// The current target watcher being evaluated.
+// This is globally unique because only one watcher
+// can be evaluated at a time.
+Dep.target = null;
+
+export function resetTarget() {
+    Dep.target = [];
+}
+
+export function cleanTarget() {
+    Dep.target = null;
 }

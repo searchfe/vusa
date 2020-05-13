@@ -20,6 +20,8 @@ import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
 
+const noop = () => {};
+
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = {
     $activate: callActivited,
@@ -29,7 +31,7 @@ const defaultSanOptions = {
     _l: loopExpression,
     _ex: extend,
     _ocp: objectComputedProperties,
-    _noop: function () {},
+    _noop: noop,
     _t: Transition,
     getComponentType,
     $emit: Component.prototype.fire,
@@ -93,7 +95,7 @@ export default function define(options) {
     const compiledHook = sanOptions.compiled;
     sanOptions.compiled = function () {
 
-        this._calcComputed = calcComputed.bind(this);
+        this._calcComputed = noop;
         compiledHook && compiledHook.call(this);
 
         const properties = Object
@@ -133,14 +135,29 @@ export default function define(options) {
             me.ref = ref;
         }
 
-        initedHook && initedHook.call(this);
-
         // merge css modules
         if (this.$style) {
             extend(this.data.raw.$style, this.$style)
         }
 
         bindData.call(this);
+
+        for (let i = 0; i < this._computedKeys.length; i++) {
+            const key = this._computedKeys[i];
+            calcComputed.call(this, key);
+            def(this, key, {
+                get() {
+                    return me.data.get(k);
+                }
+            });
+        }
+
+        for (let i = 0; i < this._methodKeys.length; i++) {
+            const key = this._methodKeys[i];
+            this[key] = this[key].bind(this);
+        }
+
+        initedHook && initedHook.call(this);
 
         if (options.watch) {
             Object.keys(options.watch).forEach(key => {
@@ -191,14 +208,6 @@ export default function define(options) {
 
         if (options.computed) {
             me._computedKeys = Object.keys(options.computed);
-            for (let i = 0, len = me._computedKeys; i < len; i++) {
-                const k = me._computedKeys[i];
-                def(me, k, {
-                    get() {
-                        return me.data.get(k);
-                    }
-                });
-            }
         }
         else {
             me._computedKeys = [];

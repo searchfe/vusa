@@ -71,7 +71,7 @@ function nextFrame (fn) {
 
 const transformRE = /\b(transform|all)(,|$)/
 
-export function getTransitionInfo (el, expectedType) {
+export function getTransitionInfo(el, expectedType) {
     const styles = window.getComputedStyle(el)
     // JSDOM may return undefined for transition properties
     const transitionDelays = (styles[transitionProp + 'Delay'] || '').split(', ');
@@ -191,8 +191,6 @@ export function whenTransitionEnds(el, expectedType, cb) {
     el.addEventListener(event, onEnd);
 }
 
-
-
 export default function (options) {
 
     const data = resolveTransition(options);
@@ -211,7 +209,7 @@ export default function (options) {
         afterEnter,
         enterCancelled,
         beforeAppear,
-        appear = false,
+        appear,
         afterAppear,
         appearCancelled,
         leaveClass,
@@ -232,6 +230,20 @@ export default function (options) {
         enter: enterHandler,
         leave: leaveHandler
     };
+
+    function getHook(fn) {
+        if (!fn) {
+            return false;
+        }
+        if (typeof fn === 'function') {
+            return fn;
+        }
+        const invokerFn = context.owner[fn];
+        if (invokerFn && typeof invokerFn === 'function') {
+            return invokerFn;
+        }
+        return false;
+    }
 
     function enterHandler(el, done) {
         const isAppear = !context.lifeCycle.attached;
@@ -262,19 +274,20 @@ export default function (options) {
             : enterToClass;
 
         const beforeEnterHook = isAppear
-            ? (beforeAppear || beforeEnter)
-            : beforeEnter;
+            ? (getHook(beforeAppear) || getHook(beforeEnter))
+            : getHook(beforeEnter);
         const enterHook = isAppear
-            ? (typeof appear === 'function' ? appear : enter)
-            : enter;
+            ? (getHook(appear) || getHook(enter))
+            : getHook(enter);
         const afterEnterHook = isAppear
-            ? (afterAppear || afterEnter)
-            : afterEnter;
+            ? (getHook(afterAppear) || getHook(afterEnter))
+            : getHook(afterEnter);
         const enterCancelledHook = isAppear
-            ? (appearCancelled || enterCancelled)
-            : enterCancelled;
+            ? (getHook(appearCancelled) || getHook(enterCancelled))
+            : getHook(enterCancelled);
 
         const explicitEnterDuration = +(isObject(duration) ? duration.enter : duration);
+        const userWantsControl = enterHook && enterHook.length > 1;
 
         const cb = el._enterCb = once(() => {
             if (expectsCSS) {
@@ -294,6 +307,7 @@ export default function (options) {
         });
 
         // start enter transition
+        enterHook && enterHook(el, cb);
         beforeEnterHook && beforeEnterHook(el);
         if (expectsCSS) {
             addTransitionClass(el, startClass);
@@ -301,15 +315,21 @@ export default function (options) {
             nextFrame(() => {
                 removeTransitionClass(el, startClass)
                 if (!cb.cancelled) {
-                    addTransitionClass(el, toClass)
-                    if (isValidDuration(explicitEnterDuration)) {
-                        setTimeout(cb, explicitEnterDuration)
-                    }
-                    else {
-                        whenTransitionEnds(el, type, cb)
+                    addTransitionClass(el, toClass);
+                    if (!userWantsControl) {
+                        if (isValidDuration(explicitEnterDuration)) {
+                            setTimeout(cb, explicitEnterDuration)
+                        }
+                        else {
+                            whenTransitionEnds(el, type, cb)
+                        }
                     }
                 }
             });
+        }
+
+        if (!expectsCSS && !userWantsControl) {
+            cb();
         }
 
         done();
@@ -328,7 +348,13 @@ export default function (options) {
             return;
         }
 
+        const leaveHook = getHook(leave);
+        const delayLeaveHook = getHook(delayLeave);
+        const beforeLeaveHook = getHook(beforeLeave);
+        const afterLeaveHook = getHook(afterLeave);
+
         const explicitLeaveDuration = +(isObject(duration) ? duration.leave : duration);
+        const userWantsControl = leaveHook && leaveHook.length > 1;
 
         const cb = el._leaveCb = once(() => {
             if (expectsCSS) {
@@ -343,13 +369,13 @@ export default function (options) {
             }
             else {
                 done()
-                afterLeave && afterLeave(el);
+                afterLeaveHook && afterLeaveHook(el);
             }
             el._leaveCb = null;
         });
 
-        if (delayLeave) {
-            delayLeave(performLeave);
+        if (delayLeaveHook) {
+            delayLeaveHook(performLeave);
         }
         else {
             performLeave();
@@ -358,28 +384,30 @@ export default function (options) {
         function performLeave() {
             // the delayed leave may have already been cancelled
             if (cb.cancelled) {
-                return
+                return;
             }
-            beforeLeave && beforeLeave(el)
+            beforeLeaveHook && beforeLeaveHook(el);
             if (expectsCSS) {
-                addTransitionClass(el, leaveClass)
-                addTransitionClass(el, leaveActiveClass)
+                addTransitionClass(el, leaveClass);
+                addTransitionClass(el, leaveActiveClass);
                 nextFrame(() => {
-                    removeTransitionClass(el, leaveClass)
+                    removeTransitionClass(el, leaveClass);
                     if (!cb.cancelled) {
-                        addTransitionClass(el, leaveToClass)
-                        if (isValidDuration(explicitLeaveDuration)) {
-                            setTimeout(cb, explicitLeaveDuration)
-                        }
-                        else {
-                            whenTransitionEnds(el, type, cb)
+                        addTransitionClass(el, leaveToClass);
+                        if (!userWantsControl) {
+                            if (isValidDuration(explicitLeaveDuration)) {
+                                setTimeout(cb, explicitLeaveDuration);
+                            }
+                            else {
+                                whenTransitionEnds(el, type, cb);
+                            }
                         }
                     }
                 });
             }
-            leave && leave(el, cb)
+            leaveHook && leaveHook(el, cb);
             if (!expectsCSS && !userWantsControl) {
-                cb()
+                cb();
             }
         }
     }

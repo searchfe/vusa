@@ -5,51 +5,34 @@
 
 import {def} from '../shared/util';
 import slots from './get-slots';
+import {resetTarget, cleanTarget, Dep} from './bind-data';
 
-export default function (key) {
+export default function calcComputed(key) {
     let computedDeps = this.computedDeps[key];
     if (!computedDeps) {
         computedDeps = this.computedDeps[key] = {};
     }
 
-    const me = this;
-    const data = me.data.get();
-    const context = {};
+    resetTarget();
+    const value = this.computed[key].call(this);
 
-    def(context, '$root', {
-        get() {
-            return me.$root;
-        }
-    });
+    const deps = Dep.target;
+    for (let i = 0; i < deps.length; i++) {
+        const dep = deps[i];
+        const expr = dep.paths.map(a => a.value).join('.');
+        if (!computedDeps[expr]) {
+            computedDeps[expr] = 1;
 
-    def(context, '$slots', {
-        get() {
-            return slots.call(me);
-        }
-    });
-
-    const keys = Object.keys(data);
-
-    for (let i = 0; i < keys.length; i++) {
-        const k = keys[i];
-        def(context, k, {
-            get() {
-                if (!computedDeps[k]) {
-                    computedDeps[k] = 1;
-
-                    if (me.computed[k] && !me.computedDeps[k]) {
-                        me._calcComputed(k);
-                    }
-
-                    me.watch(k, function () {
-                        me._calcComputed(key);
-                    });
-                }
-
-                return me.data.get(k);
+            if (this.computed[expr] && !this.computedDeps[expr]) {
+                calcComputed.call(this, expr);
             }
-        });
-    }
 
-    this.data.set(key, this.computed[key].call(context));
+            this.watch(expr, function () {
+                calcComputed.call(this, key);
+            });
+        }
+    }
+    cleanTarget();
+
+    this.data.set(key, value);
 }
