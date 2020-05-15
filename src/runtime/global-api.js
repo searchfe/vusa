@@ -44,5 +44,8 @@ export const filters = {
     },
     upper(str) {
         return str.toUpperCase();
+    },
+    _cat(a, b) {
+        return a.toString() + b;
     }
 };

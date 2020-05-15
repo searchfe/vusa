@@ -10,7 +10,7 @@
       </div>
       <div>
           <button @click="onClick(4)">对象内key赋值</button>
-          <span>{{ d.a }}</span>
+          <span>{{ d.a }}</span><child v-bind="x" /><span>{{ xName }}</span>
       </div>
       <div>
           <button @click="onClick(3)">数组内对象赋值</button>
@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import Child from './child';
+
 export default {
     data() {
         return {
@@ -42,8 +44,14 @@ export default {
             }],
             d: {
                 a: 1
+            },
+            x: {
+                name: 'xxx'
             }
         }
+    },
+    components: {
+        Child
     },
     computed: {
         e() {
@@ -57,6 +65,9 @@ export default {
         },
         h() {
             return this.c[0].a;
+        },
+        xName() {
+            return this.x.name;
         }
     },
     mounted() {
@@ -75,6 +86,7 @@ export default {
             }
             if (type === 4) {
                 this.d.a++;
+                this.x.name = 'xxx' + this.d.a;
             }
         }
     }

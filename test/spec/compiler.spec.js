@@ -133,5 +133,11 @@ describe('compiler', function () {
         expect(result.template).toBe('<fragment><div s-if="ok" s-transition=\"_t({name:\'fade\'})\"></div></fragment>');
     });
 
+    it('combine text', async () => {
+        const source = `<div>{{ a }}xx{{ b + 'a' }}<span></span>112'323{{ c }}</div>`;
+        const result = await compile(source);
+        expect(result.template).toBe('<div>{{ a | _cat(\'xx\') | _cat(b + \'a\') }}<span></span>{{ \'112\\\'323\' | _cat(c) }}</div>');
+    });
+
 });
 

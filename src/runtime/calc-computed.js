@@ -6,6 +6,7 @@
 import {def} from '../shared/util';
 import slots from './get-slots';
 import {resetTarget, cleanTarget, Dep} from './bind-data';
+import {nextTick} from 'san';
 
 export default function calcComputed(key) {
     let computedDeps = this.computedDeps[key];
@@ -13,26 +14,32 @@ export default function calcComputed(key) {
         computedDeps = this.computedDeps[key] = {};
     }
 
+    const me = this;
+
+    const oldValue = this.data.get(key);
+
     resetTarget();
     const value = this.computed[key].call(this);
-
     const deps = Dep.target;
     for (let i = 0; i < deps.length; i++) {
         const dep = deps[i];
-        const expr = dep.paths.map(a => a.value).join('.');
-        if (!computedDeps[expr]) {
-            computedDeps[expr] = 1;
-
-            if (this.computed[expr] && !this.computedDeps[expr]) {
-                calcComputed.call(this, expr);
-            }
-
-            this.watch(expr, function () {
-                calcComputed.call(this, key);
+        const {expr, context} = dep;
+        const exprPrefix = this === context ? '' : 'upper';
+        const exprSuffix = expr.paths.map(a => a.value).join('.');
+        const exprStr = exprPrefix + exprSuffix;
+        if (!computedDeps[exprStr]) {
+            computedDeps[exprStr] = 1;
+            delete expr.changeCache;
+            nextTick(function () {
+                context.watch(expr, function (change) {
+                    calcComputed.call(me, key);
+                });
             });
         }
     }
     cleanTarget();
 
-    this.data.set(key, value);
+    if (oldValue !== value) {
+        this.data.set(key, value);
+    }
 }

@@ -141,7 +141,10 @@ function defineReactive(obj, key, expr, context) {
             context.data.set(keyExpr, newVal, {force: true});
         },
         get() {
-            dep.depend(keyExpr);
+            dep.depend({
+                context,
+                expr: keyExpr
+            });
             const value = getter ? getter.call(obj) : val;
             return value;
         }
@@ -176,6 +179,8 @@ export default function () {
             }
         });
     }
+
+    this.data.owner = this;
 }
 
 function observe(value, expr, context) {

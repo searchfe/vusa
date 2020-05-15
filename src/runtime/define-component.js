@@ -147,7 +147,7 @@ export default function define(options) {
             calcComputed.call(this, key);
             def(this, key, {
                 get() {
-                    return me.data.get(k);
+                    return me.data.get(key);
                 }
             });
         }

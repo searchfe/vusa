@@ -5,7 +5,7 @@
 
 import {extend} from '../shared/util';
 import {lifeCycleKeys, lifeCycleMap} from './constant';
-import * as atomBuildInMixin from './atom-global-api';
+import * as atomBuildInMixin from './global-api';
 
 const keys = [
     'filters',

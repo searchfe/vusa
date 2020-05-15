@@ -51,7 +51,9 @@ export function compile(source, options = {}) {
 
     const template = stringify(ast, { scopeId, strip, atom: isAtom });
     // console.log(template);
-    const aNode = parseTemplate(template).children[0];
+    const aNode = parseTemplate(template, {
+        trimWhitespace: 'blank'
+    }).children[0];
 
     return {
         ast,

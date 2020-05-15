@@ -15,6 +15,7 @@ import dynamicComponent from './dynamic-component';
 import bool from './boolean';
 import template from './template';
 import transition from './transition';
+import textCombine from './text-combine';
 
 export default [
     template,
@@ -24,6 +25,7 @@ export default [
     event,
     html,
     ref,
+    textCombine,
 
     clazz,
     style,

@@ -11,7 +11,8 @@ Data.prototype.get = function (expr, callee) {
     if (expr && typeof expr !== 'object') {
         expr = parseExpr(expr);
     }
-    let value = originalGet.call(this, expr, callee);
+    let value = originalGet.call(this, expr && expr.paths.length ? expr : undefined, callee);
+    expr && expr.paths[0] && expr.paths[0].value === 'a' && console.log(value, expr, this);
     if (!expr || value !== undefined || !this.owner || expr.type !== ExprType.ACCESSOR) {
         return value;
     }
