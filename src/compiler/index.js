@@ -42,7 +42,8 @@ export function compile(source, options = {}) {
         error(msg) {
             console.error(`[vusa error] ${msg}`);
             errors.push(msg);
-        }
+        },
+        strip
     };
 
     // console.log(source);
