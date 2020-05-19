@@ -12,7 +12,7 @@ function postTransformNode(el, state) {
             if (child.type !== 2 || !child.tokens || child.tokens.length <= 1) {
                 continue;
             }
-            child.text = child.tokens.map((token, index) => {
+            let tokens = child.tokens.map((token, index) => {
                 let text = '\'\'';
                 if (token['@binding']) {
                     text = token['@binding'];
@@ -20,9 +20,12 @@ function postTransformNode(el, state) {
                 if (typeof token === 'string') {
                     text = `'${escapeQuotes(state.strip ? trim(token, ' \n\t') : token)}'`;
                 }
-                return index === 0 ? text : `_cat(${text})`;
-            }).join(' | ');
+                return text;
+            });
 
+            tokens = tokens.filter(t => t !== '\'\'');
+
+            child.text = tokens.map((t, i) => (i === 0 ? t : `_cat(${t})`)).join(' | ');
             child.text = `{{ ${child.text} }}`;
         }
     }
