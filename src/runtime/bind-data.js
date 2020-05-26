@@ -157,32 +157,6 @@ const defaultExpr = {
     paths: []
 };
 
-export default function () {
-    const expr = extend({}, defaultExpr);
-    const keys = [...this._dataKeys, ...this._propKeys];
-    const keyLength = keys.length;
-
-    observe(this.data.get(), expr, this);
-
-    const context = this;
-
-    this._data = this.data.get();
-
-    for (let i = 0; i < keyLength; i++) {
-        const key = keys[i];
-        def(context, key, {
-            get() {
-                return context._data[key];
-            },
-            set(newVal) {
-                context._data[key] = newVal;
-            }
-        });
-    }
-
-    this.data.owner = this;
-}
-
 function observe(value, expr, context) {
     if (!isObject(value)) {
         return;
@@ -198,6 +172,32 @@ function observe(value, expr, context) {
         ob = new Observer(value, expr, context);
     }
     return ob;
+}
+
+export default function () {
+    const expr = extend({}, defaultExpr);
+    const keys = [...this._dataKeys, ...this._propKeys];
+    const keyLength = keys.length;
+
+    this._data = this.data.get();
+
+    observe(this._data, expr, this);
+
+    const context = this;
+
+    for (let i = 0; i < keyLength; i++) {
+        const key = keys[i];
+        def(context, key, {
+            get() {
+                return context._data[key];
+            },
+            set(newVal) {
+                context._data[key] = newVal;
+            }
+        });
+    }
+
+    this.data.owner = this;
 }
 
 /**

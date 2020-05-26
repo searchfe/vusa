@@ -14,7 +14,7 @@ import getComponentType from './get-component-type';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
 import mergeOptions from './merge-options';
-import bindData from './bind-data';
+import bindData from './bind-data-proxy';
 import calcComputed from './calc-computed';
 import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
@@ -140,16 +140,20 @@ export default function define(options) {
             extend(this.data.raw.$style, this.$style)
         }
 
+        for (let i = 0; i < this._computedKeys.length; i++) {
+            const key = this._computedKeys[i];
+            this.data.raw[key] = null;
+            def(this, key, {
+                get() {
+                    return me.data.raw[key];
+                }
+            });
+        }
+
         bindData.call(this);
 
         for (let i = 0; i < this._computedKeys.length; i++) {
-            const key = this._computedKeys[i];
             calcComputed.call(this, key);
-            def(this, key, {
-                get() {
-                    return me.data.get(key);
-                }
-            });
         }
 
         for (let i = 0; i < this._methodKeys.length; i++) {

@@ -18,7 +18,8 @@ function postTransformNode(el, state) {
                     text = token['@binding'];
                 }
                 if (typeof token === 'string') {
-                    text = `'${escapeQuotes(state.strip ? trim(token, ' \n\t') : token)}'`;
+                    const str = escapeQuotes(token.replace(/\s+/, ' '));
+                    text = str === ' ' && (index === 0 || index === child.tokens.length - 1) ? text : `'${str}'`;
                 }
                 return text;
             });

@@ -46,6 +46,6 @@ export const filters = {
         return str.toUpperCase();
     },
     _cat(a, b) {
-        return a.toString() + b;
+        return (a || '').toString() + (b || '');
     }
 };

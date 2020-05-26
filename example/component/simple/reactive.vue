@@ -10,7 +10,7 @@
       </div>
       <div>
           <button @click="onClick(4)">对象内key赋值</button>
-          <span>{{ d.a }}</span><child v-bind="x" /><span>{{ xName }}</span>
+          <span>{{ d.a }}</span><child :name="x.name" /><span>{{ xName }}</span>
       </div>
       <div>
           <button @click="onClick(3)">数组内对象赋值</button>

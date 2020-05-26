@@ -5,7 +5,7 @@
 
 import {def} from '../shared/util';
 import slots from './get-slots';
-import {resetTarget, cleanTarget, Dep} from './bind-data';
+import {resetTarget, cleanTarget, Dep} from './bind-data-proxy';
 import {nextTick} from 'san';
 
 export default function calcComputed(key) {
@@ -21,6 +21,8 @@ export default function calcComputed(key) {
     resetTarget();
     const value = this.computed[key].call(this);
     const deps = Dep.target;
+    cleanTarget();
+    console.log(key, deps);
     for (let i = 0; i < deps.length; i++) {
         const dep = deps[i];
         const {expr, context} = dep;
@@ -30,16 +32,11 @@ export default function calcComputed(key) {
         if (!computedDeps[exprStr]) {
             computedDeps[exprStr] = 1;
             delete expr.changeCache;
-            nextTick(function () {
-                context.watch(expr, function (change) {
-                    calcComputed.call(me, key);
-                });
+            context.watch(expr, function (change) {
+                calcComputed.call(me, key);
             });
         }
     }
-    cleanTarget();
 
-    if (oldValue !== value) {
-        this.data.set(key, value);
-    }
+    this.data.raw[key] = value;
 }
