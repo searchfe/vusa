@@ -6,7 +6,7 @@
 import './override-data-get';
 
 import {defineComponent, inherits, Component, nextTick} from 'san';
-import {extend, hyphenate, def} from '../shared/util';
+import {extend, hyphenate, def, freeze} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
@@ -137,7 +137,7 @@ export default function define(options) {
 
         // merge css modules
         if (this.$style) {
-            extend(this.data.raw.$style, this.$style)
+            extend(this.data.raw.$style, freeze(this.$style));
         }
 
         for (let i = 0; i < this._computedKeys.length; i++) {

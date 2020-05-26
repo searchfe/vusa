@@ -106,3 +106,9 @@ export function once(fn) {
       }
     }
 }
+
+const supportFreeze = typeof Object.freeze === 'function';
+
+export function freeze(obj) {
+    return supportFreeze && isObject(obj) ? Object.freeze(obj) : obj;
+}
