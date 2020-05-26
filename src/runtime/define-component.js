@@ -153,6 +153,7 @@ export default function define(options) {
         bindData.call(this);
 
         for (let i = 0; i < this._computedKeys.length; i++) {
+            const key = this._computedKeys[i];
             calcComputed.call(this, key);
         }
 
