@@ -4,7 +4,7 @@
  */
 
 import escapeQuotes from 'escape-quotes';
-import {trim} from 'lodash';
+import {trimStart, trimEnd} from 'lodash';
 
 function postTransformNode(el, state) {
     if (el.children && el.children.length > 0) {
@@ -18,8 +18,9 @@ function postTransformNode(el, state) {
                     text = token['@binding'];
                 }
                 if (typeof token === 'string') {
-                    const str = escapeQuotes(token.replace(/\s+/, ' '));
-                    text = str === ' ' && (index === 0 || index === child.tokens.length - 1) ? text : `'${str}'`;
+                    let str = escapeQuotes(token.replace(/\s+/, ' '));
+                    str = index === 0 ? trimStart(str, ' ') : (index === child.tokens.length - 1 ? trimEnd(str, ' ') : str);
+                    text = `'${str}'`;
                 }
                 return text;
             });
