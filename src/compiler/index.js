@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import buildInModules from './modules';
+import buildInModules from './modules/index';
 import {compile as vueCompile} from 'vue-template-compiler';
 import stringify from './stringify';
 import getCssModules from './modules/cssmodules';
