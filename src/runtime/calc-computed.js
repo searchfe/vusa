@@ -1,42 +1,41 @@
 /**
- * @file 覆盖 san 原生的 _calcComputed
+ * @file calcComputed override
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {def} from '../shared/util';
-import slots from './get-slots';
-import {resetTarget, cleanTarget, Dep} from './bind-data-proxy';
-import {nextTick} from 'san';
+import {resetTarget, cleanTarget, Dep} from './bind-data';
 
-export default function calcComputed(key) {
-    let computedDeps = this.computedDeps[key];
-    if (!computedDeps) {
-        computedDeps = this.computedDeps[key] = {};
+export default function calcComputed(computedExpr) {
+
+    if (typeof computedExpr === 'object') {
+        computedExpr = computedExpr.paths.map(a => a.value).join('.');
     }
+
+    let computedDeps = this.computedDeps[computedExpr];
+    if (!computedDeps) {
+        computedDeps = this.computedDeps[computedExpr] = {};
+    }
+
+    resetTarget();
+    const value = this.computed[computedExpr].call(this);
+    const deps = Dep.target;
+    cleanTarget();
 
     const me = this;
 
-    const oldValue = this.data.get(key);
-
-    resetTarget();
-    const value = this.computed[key].call(this);
-    const deps = Dep.target;
-    cleanTarget();
-    console.log(key, deps);
     for (let i = 0; i < deps.length; i++) {
         const dep = deps[i];
-        const {expr, context} = dep;
-        const exprPrefix = this === context ? '' : 'upper';
-        const exprSuffix = expr.paths.map(a => a.value).join('.');
-        const exprStr = exprPrefix + exprSuffix;
-        if (!computedDeps[exprStr]) {
-            computedDeps[exprStr] = 1;
-            delete expr.changeCache;
-            context.watch(expr, function (change) {
-                calcComputed.call(me, key);
+        const {
+            expr,
+            key
+        } = dep;
+        if (!computedDeps[key]) {
+            computedDeps[key] = 1;
+            this.watch(expr, function (change) {
+                calcComputed.call(me, computedExpr);
             });
         }
     }
 
-    this.data.raw[key] = value;
+    this.data.set(computedExpr, value);
 }

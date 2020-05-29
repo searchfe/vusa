@@ -4,14 +4,28 @@
  */
 
 import {Data, parseExpr, ExprType, evalExpr} from 'san';
+import { Dep } from './bind-data';
 
-const originalGet = Data.prototype.get;
+const original = Data.prototype.get;
 
 Data.prototype.get = function (expr, callee) {
-    if (expr && typeof expr !== 'object') {
+    if (!expr) {
+        return this.raw;
+    }
+    let key = expr;
+    if (typeof expr == 'string') {
         expr = parseExpr(expr);
     }
-    let value = originalGet.call(this, expr && expr.paths.length ? expr : undefined, callee);
+    else {
+        key = expr.paths.map(a => a.value).join('.');
+    }
+
+    this._dep && this._dep.depend({
+        key,
+        expr
+    });
+
+    let value = original.call(this, expr, callee);
     if (!expr || value !== undefined || !this.owner || expr.type !== ExprType.ACCESSOR) {
         return value;
     }
@@ -32,3 +46,4 @@ Data.prototype.get = function (expr, callee) {
     }
     return value;
 };
+

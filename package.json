@@ -34,6 +34,7 @@
     "@commitlint/config-conventional": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^2.3.0",
     "@typescript-eslint/parser": "^2.3.0",
+    "@vue/component-compiler-utils": "^3.1.2",
     "babel-loader": "^8.0.6",
     "core-js": "^3.6.5",
     "css-loader": "^3.4.2",

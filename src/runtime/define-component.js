@@ -14,8 +14,7 @@ import getComponentType from './get-component-type';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
 import mergeOptions from './merge-options';
-import bindData from './bind-data-proxy';
-import calcComputed from './calc-computed';
+import bindData from './bind-data';
 import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
@@ -86,7 +85,26 @@ export default function define(options) {
         return options[innerKey];
     }
 
-    const sanOptions = extend({
+    const prePareOptions = {};
+
+    if (options.components) {
+        prePareOptions.components = Object
+            .keys(options.components)
+            .reduce((prev, key) => {
+                const component = options.components[key];
+                prev[key] = prev[hyphenate(key)] = component instanceof Component
+                    ? component
+                    : (component.template || component.aNode ? defineComponent(component) : define(component));
+                return prev;
+            }, {});
+        prePareOptions._cmptReady = 1;
+    }
+
+    if (options.template || options.aNode || options instanceof Component) {
+        return defineComponent(extend({}, options, prePareOptions));
+    }
+
+    const sanOptions = extend(prePareOptions, {
         template: options.__santemplate,
         aNode: options.__sanaNode,
         _isSan: true,
@@ -96,6 +114,7 @@ export default function define(options) {
     sanOptions.compiled = function () {
 
         this._calcComputed = noop;
+
         compiledHook && compiledHook.call(this);
 
         const properties = Object
@@ -137,25 +156,10 @@ export default function define(options) {
 
         // merge css modules
         if (this.$style) {
-            extend(this.data.raw.$style, freeze(this.$style));
-        }
-
-        for (let i = 0; i < this._computedKeys.length; i++) {
-            const key = this._computedKeys[i];
-            this.data.raw[key] = null;
-            def(this, key, {
-                get() {
-                    return me.data.raw[key];
-                }
-            });
+            this.data.set(getExpr('$style', freeze(this.$style)));
         }
 
         bindData.call(this);
-
-        for (let i = 0; i < this._computedKeys.length; i++) {
-            const key = this._computedKeys[i];
-            calcComputed.call(this, key);
-        }
 
         for (let i = 0; i < this._methodKeys.length; i++) {
             const key = this._methodKeys[i];
@@ -226,19 +230,6 @@ export default function define(options) {
 
         return extend({$style: {}}, defaultProps, data);
     };
-
-    if (options.components) {
-        sanOptions.components = Object
-            .keys(options.components)
-            .reduce((prev, key) => {
-                const component = options.components[key];
-                prev[key] = prev[hyphenate(key)] = component instanceof Component
-                    ? component
-                    : (component.template || component.aNode ? defineComponent(component) : define(component));
-                return prev;
-            }, {});
-        sanOptions._cmptReady = 1;
-    }
 
     const cmpt = defineComponent(sanOptions);
 
