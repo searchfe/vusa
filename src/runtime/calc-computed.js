@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {resetTarget, cleanTarget, Dep} from './bind-data';
+import {resetTarget, cleanTarget, Dep} from './override-data-get';
 
 export default function calcComputed(computedExpr) {
 
@@ -31,7 +31,7 @@ export default function calcComputed(computedExpr) {
         } = dep;
         if (!computedDeps[key]) {
             computedDeps[key] = 1;
-            this.watch(expr, function (change) {
+            this.watch(expr, function () {
                 calcComputed.call(me, computedExpr);
             });
         }

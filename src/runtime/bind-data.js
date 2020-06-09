@@ -53,29 +53,3 @@ export default function () {
         calcComputed.call(this, key);
     }
 }
-
-/**
- * A dep is an observable that can have multiple
- * directives subscribing to it.
- */
-export function Dep() {}
-
-Dep.prototype.depend = function (expr) {
-    if (Dep.target) {
-        Dep.target.push(expr);
-    }
-};
-
-// The current target watcher being evaluated.
-// This is globally unique because only one watcher
-// can be evaluated at a time.
-Dep.target = null;
-
-export function resetTarget() {
-    Dep.target = [];
-}
-
-export function cleanTarget() {
-    Dep.target = null;
-}
-
