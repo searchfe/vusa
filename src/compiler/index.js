@@ -9,8 +9,7 @@ import stringify from './stringify';
 import getCssModules from './modules/cssmodules';
 import atom from './modules/atom';
 import {isEmpty} from 'lodash';
-import {parseTemplate} from 'san';
-import optimize from './optimize-anode';
+import {parseTemplate, pack} from 'san-anode-utils';
 
 export function compile(source, options = {}) {
 
@@ -19,7 +18,7 @@ export function compile(source, options = {}) {
         cssModules = null,
         scopeId = '',
         strip = true,
-        atom: isAtom = false
+        atom: isAtom = false,
     } = options;
 
     if (!isEmpty(cssModules)) {
@@ -34,33 +33,34 @@ export function compile(source, options = {}) {
     const compilerOptions = {
         modules: [
             ...buildInModules,
-            ...modules
+            ...modules,
         ],
         preserveWhitespace: false,
         useDynamicComponent: false,
         refs: [],
         error(msg) {
+            // eslint-disable-next-line no-console
             console.error(`[vusa error] ${msg}`);
             errors.push(msg);
         },
-        strip
+        strip,
     };
 
     // console.log(source);
 
     const {ast} = vueCompile(source.trim(), compilerOptions);
 
-    const template = stringify(ast, { scopeId, strip, atom: isAtom });
-    console.log(template);
+    const template = stringify(ast, {scopeId, strip, atom: isAtom});
     const aNode = parseTemplate(template, {
-        trimWhitespace: 'blank'
+        trimWhitespace: 'blank',
     }).children[0];
 
     return {
         ast,
-        aNode: optimize(aNode),
+        aNode,
+        aPack: pack.stringify(pack(aNode)),
         template,
         refs: compilerOptions.refs,
-        errors
+        errors,
     };
 }

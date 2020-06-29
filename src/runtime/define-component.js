@@ -107,6 +107,7 @@ export default function define(options) {
     const sanOptions = extend(prePareOptions, {
         template: options.__santemplate,
         aNode: options.__sanaNode,
+        aPack: options.__sanaPack,
         _isSan: true,
     }, defaultSanOptions, mergeOptions(options));
 

@@ -45,5 +45,5 @@ export const filters = {
     },
     _cat(a, b) {
         return (a || '').toString() + (b || '');
-    }
+    },
 };

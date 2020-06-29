@@ -21,8 +21,6 @@ export default function calcComputed(key) {
     const deps = Dep.target;
     cleanTarget();
 
-    console.log(deps);
-
     for (let i = 0; i < deps.length; i++) {
         const dep = deps[i];
         const {expr, context} = dep;

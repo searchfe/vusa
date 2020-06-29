@@ -15,7 +15,8 @@ var escapeQuotes = _interopDefault(require('escape-quotes'));
 var toSingleQuotes = _interopDefault(require('to-single-quotes'));
 var lodash = require('lodash');
 var vueTemplateCompiler = require('vue-template-compiler');
-var san = require('san');
+require('san');
+var sanAnodeUtils = require('san-anode-utils');
 
 /**
  * @file vue 的 expression 转 san，主要是处理 es6 语法
@@ -1115,56 +1116,6 @@ var atom = {
 };
 
 /**
- * @file 优化 aNode 的体积
- * @author cxtom(cxtom2008@gmail.com)
- */
-
-function optimize(aNode) {
-    delete aNode.raw;
-    if (aNode.children) {
-        aNode.children = aNode.children.map(optimize);
-    }
-    if (aNode.elses) {
-        aNode.elses = aNode.elses.map(optimize);
-    }
-    if (aNode.textExpr) {
-        delete aNode.textExpr.raw;
-    }
-    if (aNode.props) {
-        aNode.props = aNode.props.map(prop => {
-            if (prop.raw) {
-                // 不能删除，运行时有用
-                prop.raw = 1;
-            }
-            if (prop.expr) {
-                delete prop.expr.raw;
-            }
-            return prop;
-        });
-    }
-    if (aNode.events) {
-        aNode.events = aNode.events.map(event => {
-            if (event.raw) {
-                delete event.raw;
-            }
-            if (event.expr) {
-                delete event.expr.raw;
-            }
-            return event;
-        });
-    }
-    if (aNode.directives) {
-        Object.keys(aNode.directives).forEach(dir => {
-            delete aNode.directives[dir].raw;
-            if (aNode.directives[dir].value) {
-                delete aNode.directives[dir].value.raw;
-            }
-        });
-    }
-    return aNode;
-}
-
-/**
  * @file compiler
  * @author cxtom(cxtom2008@gmail.com)
  */
@@ -1176,7 +1127,7 @@ function compile(source, options = {}) {
         cssModules = null,
         scopeId = '',
         strip = true,
-        atom: isAtom = false
+        atom: isAtom = false,
     } = options;
 
     if (!lodash.isEmpty(cssModules)) {
@@ -1191,34 +1142,35 @@ function compile(source, options = {}) {
     const compilerOptions = {
         modules: [
             ...buildInModules,
-            ...modules
+            ...modules,
         ],
         preserveWhitespace: false,
         useDynamicComponent: false,
         refs: [],
         error(msg) {
+            // eslint-disable-next-line no-console
             console.error(`[vusa error] ${msg}`);
             errors.push(msg);
         },
-        strip
+        strip,
     };
 
     // console.log(source);
 
     const {ast} = vueTemplateCompiler.compile(source.trim(), compilerOptions);
 
-    const template = stringify(ast, { scopeId, strip, atom: isAtom });
-    console.log(template);
-    const aNode = san.parseTemplate(template, {
-        trimWhitespace: 'blank'
+    const template = stringify(ast, {scopeId, strip, atom: isAtom});
+    const aNode = sanAnodeUtils.parseTemplate(template, {
+        trimWhitespace: 'blank',
     }).children[0];
 
     return {
         ast,
-        aNode: optimize(aNode),
+        aNode,
+        aPack: sanAnodeUtils.pack.stringify(sanAnodeUtils.pack(aNode)),
         template,
         refs: compilerOptions.refs,
-        errors
+        errors,
     };
 }
 

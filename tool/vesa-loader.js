@@ -10,7 +10,7 @@ const {parseComponent} = require('vue-template-compiler');
 module.exports = function (content) {
     const {
         resourcePath,
-        resourceQuery
+        resourceQuery,
     } = this;
 
     if (resourceQuery) {
@@ -25,12 +25,10 @@ module.exports = function (content) {
     const vesaResult = compile(templateCode, {
         strip: true,
         atom: false,
-        scopeId: m && m[1] ? m[1] : ''
+        scopeId: m && m[1] ? m[1] : '',
     });
-    const sanANode = vesaResult.aNode;
-    const template = vesaResult.template;
-
-    content += `\ncomponent.options.__sanaNode = ${JSON.stringify(sanANode)}`;
+    const aPack = vesaResult.aPack;
+    content += `\ncomponent.options.__sanaPack = ${aPack};`;
     // content += `\ncomponent.options.__santemplate = ${JSON.stringify(template)}`;
 
     if (vesaResult.refs && vesaResult.refs.length > 0) {
