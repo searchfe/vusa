@@ -12,7 +12,7 @@ Data.prototype.get = function (expr, callee) {
         return this.raw;
     }
     let key = expr;
-    if (typeof expr == 'string') {
+    if (typeof expr === 'string') {
         expr = parseExpr(expr);
     }
     else {
@@ -21,7 +21,7 @@ Data.prototype.get = function (expr, callee) {
 
     this._dep && this._dep.depend({
         key,
-        expr
+        expr,
     });
 
     let value = original.call(this, expr, callee);
@@ -34,40 +34,15 @@ Data.prototype.get = function (expr, callee) {
         [
             ...this.owner._propKeys,
             ...this.owner._dataKeys,
-            ...this.owner._computedKeys
+            ...this.owner._computedKeys,
         ].indexOf(first) >= 0
     ) {
         return value;
     }
     value = this.owner[first];
-    for (var i = 1, l = paths.length; value != null && i < l; i++) {
+    for (let i = 1, l = paths.length; value != null && i < l; i++) {
         value = value[paths[i].value || evalExpr(paths[i], callee)];
     }
     return value;
 };
-
-/**
- * A dep is an observable that can have multiple
- * directives subscribing to it.
- */
-export function Dep() {}
-
-Dep.prototype.depend = function (expr) {
-    if (Dep.target) {
-        Dep.target.push(expr);
-    }
-};
-
-// The current target watcher being evaluated.
-// This is globally unique because only one watcher
-// can be evaluated at a time.
-Dep.target = null;
-
-export function resetTarget() {
-    Dep.target = [];
-}
-
-export function cleanTarget() {
-    Dep.target = null;
-}
 

@@ -9,7 +9,7 @@ export default function () {
     const {
         slotChildren,
         lifeCycle,
-        sourceSlots
+        sourceSlots,
     } = this;
 
     if (lifeCycle.attached) {
@@ -33,5 +33,4 @@ export default function () {
     }
 
     return slots;
-
 }

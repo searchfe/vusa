@@ -3,11 +3,9 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {toObject} from '../shared/util';
-
 const MATH_METHOD = [
     'floor', 'ceil', 'round',
-    'abs', 'max', 'min', 'pow'
+    'abs', 'max', 'min', 'pow',
 ];
 
 export const methods = {};
@@ -19,7 +17,7 @@ MATH_METHOD.forEach(name => {
 });
 
 methods.array_slice = function (arr, start, len) {
-    var end = len == null ? void 0 : (len >= 0 ? (start + len) : (arr.length + len));
+    let end = len == null ? void 0 : (len >= 0 ? (start + len) : (arr.length + len));
     return arr.slice(start, end);
 };
 
@@ -37,7 +35,7 @@ methods.object_freeze = function (obj) {
 
 export const filters = {
     json(obj) {
-        return JSON.stringify(json);
+        return JSON.stringify(obj);
     },
     lower(str) {
         return str.toLowerCase();

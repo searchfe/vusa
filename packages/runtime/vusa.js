@@ -14,13 +14,26 @@
      * @author cxtom(cxtom2008@gmail.com)
      */
 
-    var originalGet = san.Data.prototype.get;
+    var original = san.Data.prototype.get;
 
     san.Data.prototype.get = function (expr, callee) {
-        if (expr && typeof expr !== 'object') {
+        if (!expr) {
+            return this.raw;
+        }
+        var key = expr;
+        if (typeof expr === 'string') {
             expr = san.parseExpr(expr);
         }
-        var value = originalGet.call(this, expr && expr.paths.length ? expr : undefined, callee);
+        else {
+            key = expr.paths.map(function (a) { return a.value; }).join('.');
+        }
+
+        this._dep && this._dep.depend({
+            key: key,
+            expr: expr,
+        });
+
+        var value = original.call(this, expr, callee);
         if (!expr || value !== undefined || !this.owner || expr.type !== san.ExprType.ACCESSOR) {
             return value;
         }
@@ -28,8 +41,7 @@
         var first = paths[0].value;
         if (
             ( this.owner._propKeys ).concat( this.owner._dataKeys,
-                this.owner._computedKeys
-            ).indexOf(first) >= 0
+                this.owner._computedKeys ).indexOf(first) >= 0
         ) {
             return value;
         }
@@ -76,11 +88,6 @@
     }
 
     /**
-     * Get the raw type string of a value, e.g., [object Object].
-     */
-    var _toString = Object.prototype.toString;
-
-    /**
      * Quick object check - this is primarily used to tell
      * Objects from primitive values when we know the value
      * is a JSON-compliant type.
@@ -89,18 +96,10 @@
         return obj !== null && typeof obj === 'object';
     }
 
-    /**
-     * Strict object type check. Only returns true
-     * for plain JavaScript objects.
-     */
-    function isPlainObject(obj) {
-        return _toString.call(obj) === '[object Object]';
-    }
-
     function def(obj, key, property) {
         Object.defineProperty(obj, key, extend({
             enumerable: false,
-            configurable: true
+            configurable: true,
         }, property));
     }
 
@@ -134,17 +133,30 @@
     function once(fn) {
         var called = false;
         return function () {
-          if (!called) {
-            called = true;
-            fn.apply(this, arguments);
-          }
-        }
+            var args = [], len = arguments.length;
+            while ( len-- ) args[ len ] = arguments[ len ];
+
+            if (!called) {
+                called = true;
+                fn.apply(this, args);
+            }
+        };
     }
 
     var supportFreeze = typeof Object.freeze === 'function';
 
     function freeze(obj) {
         return supportFreeze && isObject(obj) ? Object.freeze(obj) : obj;
+    }
+
+    function createAccesser(key) {
+        return {
+            type: san.ExprType.ACCESSOR,
+            paths: [{
+                type: 1,
+                value: key,
+            }],
+        };
     }
 
     /**
@@ -373,7 +385,7 @@
         updated: 'updated',
         beforeUpdate: 'beforeUpdate',
         activated: 'activated',
-        deactivated: 'deactivated'
+        deactivated: 'deactivated',
     };
 
     var lifeCycleKeys = Object.keys(lifeCycleMap);
@@ -503,183 +515,12 @@
     }
 
     /**
-     * @file 数据绑定
+     * @file san dep
      * @author cxtom(cxtom2008@gmail.com)
      */
 
-    var arrayProto = Array.prototype;
 
-    var methodsToPatch = [
-        'push',
-        'pop',
-        'shift',
-        'unshift',
-        'splice'
-    ];
-
-    var proxyKey = '__proxy__';
-
-    function proxy(obj, expr, context) {
-
-        var dep = new Dep();
-        var isArray = Array.isArray(obj);
-
-        function getKeyExpr(key) {
-            var paths = expr && expr.paths || [];
-            return extend({}, expr, {
-                paths: paths.concat( [{
-                    type: san.ExprType.STRING,
-                    value: key
-                }])
-            });
-        }
-
-        var handler = {
-            set: function set(target, prop, newVal) {
-                if (target[prop] === newVal) {
-                    return true;
-                }
-                var keyExpr = getKeyExpr(prop);
-                target[prop] = observe(newVal);
-                context.data.fire({
-                    type: 1,
-                    expr: keyExpr,
-                    value: target[prop],
-                    option: {}
-                });
-                return true;
-            },
-            get: function get(target, prop) {
-                if (prop === proxyKey) {
-                    return true
-                }
-                var keyExpr = getKeyExpr(prop);
-                dep.depend({
-                    context: context,
-                    expr: keyExpr
-                });
-                if (isArray && methodsToPatch.indexOf(prop) >= 0) {
-                    var original = arrayProto[prop];
-                    return function () {
-                        var args = [], len$1 = arguments.length;
-                        while ( len$1-- ) args[ len$1 ] = arguments[ len$1 ];
-
-                        var insertions = [];
-                        switch (prop) {
-                            case 'push':
-                            case 'unshift':
-                                args[0] = observe(args[0], keyExpr, context);
-                                insertions = [args[0]];
-                                break;
-                            case 'splice':
-                                insertions = args.slice(2).map(function (t) { return observe(t, keyExpr, context); });
-                                args = args.slice(0, 2).concat( insertions
-                                );
-                                break;
-                        }
-
-                        var index;
-                        switch (prop) {
-                            case 'push':
-                            case 'pop':
-                                index = Math.max(target.length - 1, 0);
-                                break;
-                            case 'shift':
-                            case 'unshift':
-                                index = 0;
-                                break;
-                            case 'splice':
-                                index = args[0];
-                                var len = target.length;
-                                if (index > len) {
-                                    index = len;
-                                }
-                                else if (index < 0) {
-                                    index = len + index;
-                                    if (index < 0) {
-                                        index = 0;
-                                    }
-                                }
-                                break;
-                        }
-
-                        var result = original.apply(target, args);
-
-                        context.data.fire({
-                            expr: expr,
-                            type: 2,
-                            index: index,
-                            deleteCount: result.length,
-                            value: result,
-                            insertions: insertions,
-                            option: {}
-                        });
-
-                        return result;
-                    };
-                }
-                return observe(target[prop], keyExpr, context);
-            }
-        };
-
-        return new Proxy(obj, handler);
-    }
-
-    var defaultExpr = {
-        type: san.ExprType.ACCESSOR,
-        paths: []
-    };
-
-    function observe(value, expr, context) {
-        if (!isObject(value)) {
-            return value;
-        }
-
-        if (value[proxyKey]) {
-            return value;
-        }
-
-        if (
-            (Array.isArray(value) || isPlainObject(value))
-            && Object.isExtensible(value)
-        ) {
-            return proxy(value, expr, context);
-        }
-    }
-
-    function bindData () {
-        var this$1 = this;
-
-        var expr = extend({}, defaultExpr);
-        var keys = ( this._dataKeys ).concat( this._propKeys);
-        var keyLength = keys.length;
-
-        this.data.raw = observe(this.data.raw, expr, this);
-
-        var context = this;
-
-        var loop = function ( i ) {
-            var key = keys[i];
-            def(this$1, key, {
-                get: function get() {
-                    return context.data.raw[key];
-                },
-                set: function set(newVal) {
-                    context.data.raw[key] = newVal;
-                }
-            });
-        };
-
-        for (var i = 0; i < keyLength; i++) loop( i );
-
-        this.data.owner = this;
-    }
-
-    /**
-     * A dep is an observable that can have multiple
-     * directives subscribing to it.
-     */
-    function Dep(context, expr) {}
+    function Dep() {}
 
     Dep.prototype.depend = function (expr) {
         if (Dep.target) {
@@ -687,9 +528,6 @@
         }
     };
 
-    // The current target watcher being evaluated.
-    // This is globally unique because only one watcher
-    // can be evaluated at a time.
     Dep.target = null;
 
     function resetTarget() {
@@ -698,6 +536,89 @@
 
     function cleanTarget() {
         Dep.target = null;
+    }
+
+    /**
+     * @file calcComputed override
+     * @author cxtom(cxtom2008@gmail.com)
+     */
+
+    function calcComputed(computedExpr) {
+
+        if (typeof computedExpr === 'object') {
+            computedExpr = computedExpr.paths.map(function (a) { return a.value; }).join('.');
+        }
+
+        var computedDeps = this.computedDeps[computedExpr];
+        if (!computedDeps) {
+            computedDeps = this.computedDeps[computedExpr] = {};
+        }
+
+        resetTarget();
+        var value = this.computed[computedExpr].call(this);
+        var deps = Dep.target;
+        cleanTarget();
+
+        var me = this;
+
+        for (var i = 0; i < deps.length; i++) {
+            var dep = deps[i];
+            var expr = dep.expr;
+            var key = dep.key;
+            if (!computedDeps[key]) {
+                computedDeps[key] = 1;
+                this.watch(expr, function () {
+                    calcComputed.call(me, computedExpr);
+                });
+            }
+        }
+
+        this.data.set(computedExpr, value);
+    }
+
+    /**
+     * @file 数据绑定
+     * @author cxtom(cxtom2008@gmail.com)
+     */
+
+
+    function bindData () {
+        var this$1 = this;
+
+        var keys = ( this._dataKeys ).concat( this._propKeys);
+        var keyLength = keys.length;
+
+        var context = this;
+
+        var loop = function ( i ) {
+            var key = keys[i];
+            def(context, key, {
+                get: function get() {
+                    return context.data.get(createAccesser(key));
+                },
+                set: function set(newVal) {
+                    context.data.set(createAccesser(key), newVal);
+                },
+            });
+        };
+
+        for (var i = 0; i < keyLength; i++) loop( i );
+
+        var me = this.data.owner = this;
+        this.data._dep = new Dep();
+
+        // define computed
+        var loop$1 = function ( i ) {
+            var key$1 = this$1._computedKeys[i];
+            def(this$1, key$1, {
+                get: function get() {
+                    return me.data.get(createAccesser(key$1));
+                },
+            });
+            calcComputed.call(this$1, key$1);
+        };
+
+        for (var i$1 = 0; i$1 < this$1._computedKeys.length; i$1++) loop$1( i$1 );
     }
 
     /**
@@ -732,46 +653,6 @@
         }
 
         return slots;
-
-    }
-
-    /**
-     * @file 覆盖 san 原生的 _calcComputed
-     * @author cxtom(cxtom2008@gmail.com)
-     */
-
-    function calcComputed(key) {
-        var computedDeps = this.computedDeps[key];
-        if (!computedDeps) {
-            computedDeps = this.computedDeps[key] = {};
-        }
-
-        var me = this;
-
-        var oldValue = this.data.get(key);
-
-        resetTarget();
-        var value = this.computed[key].call(this);
-        var deps = Dep.target;
-        cleanTarget();
-        console.log(key, deps);
-        for (var i = 0; i < deps.length; i++) {
-            var dep = deps[i];
-            var expr = dep.expr;
-            var context = dep.context;
-            var exprPrefix = this === context ? '' : 'upper';
-            var exprSuffix = expr.paths.map(function (a) { return a.value; }).join('.');
-            var exprStr = exprPrefix + exprSuffix;
-            if (!computedDeps[exprStr]) {
-                computedDeps[exprStr] = 1;
-                delete expr.changeCache;
-                context.watch(expr, function (change) {
-                    calcComputed.call(me, key);
-                });
-            }
-        }
-
-        this.data.raw[key] = value;
     }
 
     /**
@@ -788,7 +669,7 @@
             if (ele.children && ele.children.length > 1) {
                 ele.children.forEach(call);
             }
-        }
+        };
     }
 
     var callActivited = createCallFactory('activited');
@@ -805,7 +686,7 @@
      * Add class with compatibility for SVG since classList is not supported on
      * SVG elements in IE
      */
-    function addClass (el, cls) {
+    function addClass(el, cls) {
         /* istanbul ignore if */
         if (!cls || !(cls = cls.trim())) {
             return;
@@ -832,7 +713,7 @@
      * Remove class with compatibility for SVG since classList is not supported on
      * SVG elements in IE
      */
-    function removeClass (el, cls) {
+    function removeClass(el, cls) {
         /* istanbul ignore if */
         if (!cls || !(cls = cls.trim())) {
             return;
@@ -871,6 +752,17 @@
      * @author cxtom(cxtom2008@gmail.com)
      */
 
+    var autoCssTransition = cached(function (name) {
+        return {
+            enterClass: (name + "-enter"),
+            enterToClass: (name + "-enter-to"),
+            enterActiveClass: (name + "-enter-active"),
+            leaveClass: (name + "-leave"),
+            leaveToClass: (name + "-leave-to"),
+            leaveActiveClass: (name + "-leave-active"),
+        };
+    });
+
     function resolveTransition(def) {
         if (!def) {
             return;
@@ -882,23 +774,12 @@
                 extend(res, autoCssTransition(def.name || 'v'));
             }
             extend(res, def);
-            return res
+            return res;
         }
         else if (typeof def === 'string') {
-            return autoCssTransition(def)
+            return autoCssTransition(def);
         }
     }
-
-    var autoCssTransition = cached(function (name) {
-        return {
-            enterClass: (name + "-enter"),
-            enterToClass: (name + "-enter-to"),
-            enterActiveClass: (name + "-enter-active"),
-            leaveClass: (name + "-leave"),
-            leaveToClass: (name + "-leave-to"),
-            leaveActiveClass: (name + "-leave-active")
-        };
-    });
 
     var TRANSITION = 'transition';
     var ANIMATION = 'animation';
@@ -928,7 +809,7 @@
         ? window.requestAnimationFrame.bind(window)
         : setTimeout;
 
-    function nextFrame (fn) {
+    function nextFrame(fn) {
         raf(function () {
             raf(fn);
         });
@@ -984,7 +865,7 @@
             type: type,
             timeout: timeout,
             propCount: propCount,
-            hasTransform: hasTransform
+            hasTransform: hasTransform,
         };
     }
 
@@ -1036,16 +917,17 @@
         }
         var event = type === TRANSITION ? transitionEndEvent : animationEndEvent;
         var ended = 0;
-        var end = function () {
-            el.removeEventListener(event, onEnd);
-            cb();
-        };
         var onEnd = function (e) {
             if (e.target === el) {
                 if (++ended >= propCount) {
+                    // eslint-disable-next-line no-use-before-define
                     end();
                 }
             }
+        };
+        var end = function () {
+            el.removeEventListener(event, onEnd);
+            cb();
         };
         setTimeout(function () {
             if (ended < propCount) {
@@ -1056,8 +938,6 @@
     }
 
     function Transition (options) {
-
-        var data = resolveTransition(options);
 
         var ref = resolveTransition(options);
         var css = ref.css;
@@ -1091,7 +971,7 @@
 
         return {
             enter: enterHandler,
-            leave: leaveHandler
+            leave: leaveHandler,
         };
 
         function getHook(fn) {
@@ -1298,7 +1178,7 @@
         $emit: san.Component.prototype.fire,
         $on: san.Component.prototype.on,
         $watch: san.Component.prototype.watch,
-        $nextTick: san.nextTick
+        $nextTick: san.nextTick,
     };
     /* eslint-enable fecs-camelcase */
 
@@ -1327,7 +1207,7 @@
         $slots: slot,
         _isDestroyed: function _isDestroyed() {
             return !!this.lifeCycle.disposed;
-        }
+        },
     };
 
     var originalUpdate = san.Component.prototype._update;
@@ -1347,7 +1227,26 @@
             return options[innerKey];
         }
 
-        var sanOptions = extend({
+        var prePareOptions = {};
+
+        if (options.components) {
+            prePareOptions.components = Object
+                .keys(options.components)
+                .reduce(function (prev, key) {
+                    var component = options.components[key];
+                    prev[key] = prev[hyphenate(key)] = component instanceof san.Component
+                        ? component
+                        : (component.template || component.aNode ? san.defineComponent(component) : define(component));
+                    return prev;
+                }, {});
+            prePareOptions._cmptReady = 1;
+        }
+
+        if (options.template || options.aNode || options instanceof san.Component) {
+            return san.defineComponent(extend({}, options, prePareOptions));
+        }
+
+        var sanOptions = extend(prePareOptions, {
             template: options.__santemplate,
             aNode: options.__sanaNode,
             _isSan: true,
@@ -1357,6 +1256,7 @@
         sanOptions.compiled = function () {
 
             this._calcComputed = noop;
+
             compiledHook && compiledHook.call(this);
 
             var properties = Object
@@ -1365,13 +1265,13 @@
                     props[key] = {
                         get: function get() {
                             return memberMap[key].call(this);
-                        }
+                        },
                     };
                     return props;
                 }, {});
 
             properties.$options = {
-                value: options
+                value: options,
             };
 
             Object.defineProperties(this, properties);
@@ -1391,7 +1291,7 @@
                     def(me.$refs, r.name, {
                         get: function get() {
                             return r.root ? me.el : me.ref(r.name);
-                        }
+                        },
                     });
                 };
 
@@ -1402,31 +1302,14 @@
 
             // merge css modules
             if (this.$style) {
-                extend(this.data.raw.$style, freeze(this.$style));
+                this.data.set(createAccesser('$style'), freeze(this.$style));
             }
-
-            var loop$1 = function ( i ) {
-                var key = this$1._computedKeys[i];
-                this$1.data.raw[key] = null;
-                def(this$1, key, {
-                    get: function get() {
-                        return me.data.raw[key];
-                    }
-                });
-            };
-
-            for (var i$1 = 0; i$1 < this$1._computedKeys.length; i$1++) loop$1( i$1 );
 
             bindData.call(this);
 
-            for (var i$2 = 0; i$2 < this._computedKeys.length; i$2++) {
-                var key$1 = this._computedKeys[i$2];
-                calcComputed.call(this, key$1);
-            }
-
-            for (var i$3 = 0; i$3 < this._methodKeys.length; i$3++) {
-                var key$2 = this._methodKeys[i$3];
-                this[key$2] = this[key$2].bind(this);
+            for (var i$1 = 0; i$1 < this._methodKeys.length; i$1++) {
+                var key = this._methodKeys[i$1];
+                this[key] = this[key].bind(this);
             }
 
             initedHook && initedHook.call(this);
@@ -1493,19 +1376,6 @@
 
             return extend({$style: {}}, defaultProps, data);
         };
-
-        if (options.components) {
-            sanOptions.components = Object
-                .keys(options.components)
-                .reduce(function (prev, key) {
-                    var component = options.components[key];
-                    prev[key] = prev[hyphenate(key)] = component instanceof san.Component
-                        ? component
-                        : (component.template || component.aNode ? san.defineComponent(component) : define(component));
-                    return prev;
-                }, {});
-            sanOptions._cmptReady = 1;
-        }
 
         var cmpt = san.defineComponent(sanOptions);
 

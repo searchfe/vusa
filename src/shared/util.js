@@ -3,6 +3,8 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+import {ExprType} from 'san';
+
 /**
  * Mix properties into target object.
  */
@@ -66,7 +68,7 @@ export function isPlainObject(obj) {
 export function def(obj, key, property) {
     Object.defineProperty(obj, key, extend({
         enumerable: false,
-        configurable: true
+        configurable: true,
     }, property));
 }
 
@@ -85,7 +87,7 @@ export function cached(fn) {
  * Hyphenate a camelCase string.
  */
 const hyphenateRE = /([^-])([A-Z])/g;
-export const hyphenate = cached((str) => {
+export const hyphenate = cached(str => {
     return str
         .replace(hyphenateRE, '$1-$2')
         .replace(hyphenateRE, '$1-$2')
@@ -98,17 +100,27 @@ export const camelize = str => str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCas
  * Ensure a function is called only once.
  */
 export function once(fn) {
-    let called = false
-    return function () {
-      if (!called) {
-        called = true
-        fn.apply(this, arguments)
-      }
-    }
+    let called = false;
+    return function (...args) {
+        if (!called) {
+            called = true;
+            fn.apply(this, args);
+        }
+    };
 }
 
 const supportFreeze = typeof Object.freeze === 'function';
 
 export function freeze(obj) {
     return supportFreeze && isObject(obj) ? Object.freeze(obj) : obj;
+}
+
+export function createAccesser(key) {
+    return {
+        type: ExprType.ACCESSOR,
+        paths: [{
+            type: 1,
+            value: key,
+        }],
+    };
 }

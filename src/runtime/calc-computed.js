@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {resetTarget, cleanTarget, Dep} from './override-data-get';
+import {resetTarget, cleanTarget, Dep} from './dep';
 
 export default function calcComputed(computedExpr) {
 
@@ -27,7 +27,7 @@ export default function calcComputed(computedExpr) {
         const dep = deps[i];
         const {
             expr,
-            key
+            key,
         } = dep;
         if (!computedDeps[key]) {
             computedDeps[key] = 1;

@@ -6,6 +6,17 @@
 import {cached, remove, extend, once, isObject} from '../shared/util';
 import {addClass, removeClass} from './class-util';
 
+const autoCssTransition = cached(name => {
+    return {
+        enterClass: `${name}-enter`,
+        enterToClass: `${name}-enter-to`,
+        enterActiveClass: `${name}-enter-active`,
+        leaveClass: `${name}-leave`,
+        leaveToClass: `${name}-leave-to`,
+        leaveActiveClass: `${name}-leave-active`,
+    };
+});
+
 function resolveTransition(def) {
     if (!def) {
         return;
@@ -17,23 +28,12 @@ function resolveTransition(def) {
             extend(res, autoCssTransition(def.name || 'v'));
         }
         extend(res, def);
-        return res
+        return res;
     }
     else if (typeof def === 'string') {
-        return autoCssTransition(def)
+        return autoCssTransition(def);
     }
 }
-
-const autoCssTransition = cached(name => {
-    return {
-        enterClass: `${name}-enter`,
-        enterToClass: `${name}-enter-to`,
-        enterActiveClass: `${name}-enter-active`,
-        leaveClass: `${name}-leave`,
-        leaveToClass: `${name}-leave-to`,
-        leaveActiveClass: `${name}-leave-active`
-    };
-});
 
 const TRANSITION = 'transition';
 const ANIMATION = 'animation';
@@ -63,16 +63,16 @@ const raf = window.requestAnimationFrame
     ? window.requestAnimationFrame.bind(window)
     : setTimeout;
 
-function nextFrame (fn) {
+function nextFrame(fn) {
     raf(() => {
         raf(fn);
     });
 }
 
-const transformRE = /\b(transform|all)(,|$)/
+const transformRE = /\b(transform|all)(,|$)/;
 
 export function getTransitionInfo(el, expectedType) {
-    const styles = window.getComputedStyle(el)
+    const styles = window.getComputedStyle(el);
     // JSDOM may return undefined for transition properties
     const transitionDelays = (styles[transitionProp + 'Delay'] || '').split(', ');
     const transitionDurations = (styles[transitionProp + 'Duration'] || '').split(', ');
@@ -100,7 +100,7 @@ export function getTransitionInfo(el, expectedType) {
         }
     }
     else {
-        timeout = Math.max(transitionTimeout, animationTimeout)
+        timeout = Math.max(transitionTimeout, animationTimeout);
         type = timeout > 0
             ? transitionTimeout > animationTimeout
                 ? TRANSITION
@@ -112,14 +112,13 @@ export function getTransitionInfo(el, expectedType) {
                 : animationDurations.length
             : 0;
     }
-    const hasTransform =
-        type === TRANSITION
+    const hasTransform = type === TRANSITION
         && transformRE.test(styles[transitionProp + 'Property']);
     return {
         type,
         timeout,
         propCount,
-        hasTransform
+        hasTransform,
     };
 }
 
@@ -165,23 +164,24 @@ export function whenTransitionEnds(el, expectedType, cb) {
     const {
         type,
         timeout,
-        propCount
+        propCount,
     } = getTransitionInfo(el, expectedType);
     if (!type) {
         return cb();
     }
     const event = type === TRANSITION ? transitionEndEvent : animationEndEvent;
     let ended = 0;
-    const end = () => {
-        el.removeEventListener(event, onEnd)
-        cb()
-    };
     const onEnd = e => {
         if (e.target === el) {
             if (++ended >= propCount) {
+                // eslint-disable-next-line no-use-before-define
                 end();
             }
         }
+    };
+    const end = () => {
+        el.removeEventListener(event, onEnd);
+        cb();
     };
     setTimeout(() => {
         if (ended < propCount) {
@@ -192,8 +192,6 @@ export function whenTransitionEnds(el, expectedType, cb) {
 }
 
 export default function (options) {
-
-    const data = resolveTransition(options);
 
     const {
         css,
@@ -220,7 +218,7 @@ export default function (options) {
         afterLeave,
         leaveCancelled,
         delayLeave,
-        duration
+        duration,
     } = resolveTransition(options);
 
     const context = this;
@@ -228,7 +226,7 @@ export default function (options) {
 
     return {
         enter: enterHandler,
-        leave: leaveHandler
+        leave: leaveHandler,
     };
 
     function getHook(fn) {
@@ -250,8 +248,8 @@ export default function (options) {
 
         // call leave callback now
         if (el._leaveCb) {
-            el._leaveCb.cancelled = true
-            el._leaveCb()
+            el._leaveCb.cancelled = true;
+            el._leaveCb();
         }
 
         /* istanbul ignore if */
@@ -291,19 +289,19 @@ export default function (options) {
 
         const cb = el._enterCb = once(() => {
             if (expectsCSS) {
-                removeTransitionClass(el, toClass)
-                removeTransitionClass(el, activeClass)
+                removeTransitionClass(el, toClass);
+                removeTransitionClass(el, activeClass);
             }
             if (cb.cancelled) {
                 if (expectsCSS) {
-                    removeTransitionClass(el, startClass)
+                    removeTransitionClass(el, startClass);
                 }
-                enterCancelledHook && enterCancelledHook(el)
+                enterCancelledHook && enterCancelledHook(el);
             }
             else {
-                afterEnterHook && afterEnterHook(el)
+                afterEnterHook && afterEnterHook(el);
             }
-            el._enterCb = null
+            el._enterCb = null;
         });
 
         // start enter transition
@@ -313,15 +311,15 @@ export default function (options) {
             addTransitionClass(el, startClass);
             addTransitionClass(el, activeClass);
             nextFrame(() => {
-                removeTransitionClass(el, startClass)
+                removeTransitionClass(el, startClass);
                 if (!cb.cancelled) {
                     addTransitionClass(el, toClass);
                     if (!userWantsControl) {
                         if (isValidDuration(explicitEnterDuration)) {
-                            setTimeout(cb, explicitEnterDuration)
+                            setTimeout(cb, explicitEnterDuration);
                         }
                         else {
-                            whenTransitionEnds(el, type, cb)
+                            whenTransitionEnds(el, type, cb);
                         }
                     }
                 }
@@ -368,7 +366,7 @@ export default function (options) {
                 leaveCancelled && leaveCancelled(el);
             }
             else {
-                done()
+                done();
                 afterLeaveHook && afterLeaveHook(el);
             }
             el._leaveCb = null;

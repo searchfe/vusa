@@ -15,7 +15,7 @@ function string(cls = '') {
             }
             return {
                 ...prev,
-                [name]: 1
+                [name]: 1,
             };
         }, {});
 }
@@ -29,7 +29,7 @@ function object(cls = {}) {
             }
             return {
                 ...prev,
-                ...string(key)
+                ...string(key),
             };
         }, {});
 }
@@ -45,9 +45,9 @@ function array(cls = []) {
             ...clazz,
             ...(
                 typeof element === 'string'
-                ? string(element)
-                : (Array.isArray(element) ? array(element) : object(element))
-            )
+                    ? string(element)
+                    : (Array.isArray(element) ? array(element) : object(element))
+            ),
         };
     }
     return clazz;

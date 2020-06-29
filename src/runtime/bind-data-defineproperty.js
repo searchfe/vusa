@@ -3,8 +3,10 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {isObject, hasOwn, isPlainObject, extend, def} from '../shared/util';
+import {isObject, hasOwn, isPlainObject, extend, def, createAccesser} from '../shared/util';
 import {ExprType} from 'san';
+import {Dep} from './dep';
+import calcComputed from './calc-computed-observe';
 
 const arrayProto = Array.prototype;
 const arrayMethods = Object.create(arrayProto);
@@ -16,7 +18,7 @@ const methodsToPatch = [
     'unshift',
     'splice',
     'sort',
-    'reverse'
+    'reverse',
 ];
 
 /**
@@ -24,7 +26,7 @@ const methodsToPatch = [
  */
 methodsToPatch.forEach(function (method) {
     // cache original method
-    const original = arrayProto[method]
+    const original = arrayProto[method];
     def(arrayMethods, method, {
         value(...args) {
             const result = original.apply(this, args);
@@ -45,8 +47,8 @@ methodsToPatch.forEach(function (method) {
             ob.context.data.set(ob.expr, this, {force: true});
             observe(ob.context.data.get(ob.expr), ob.expr, ob.context);
             return result;
-        }
-    })
+        },
+    });
 });
 
 class Observer {
@@ -55,12 +57,13 @@ class Observer {
         this.expr = expr;
         this.context = context;
         def(value, '__ob__', {
-            value: this
+            value: this,
         });
 
         this.value = value;
 
         if (Array.isArray(value)) {
+            // eslint-disable-next-line no-proto
             value.__proto__ = arrayMethods;
             this.observeArray(value);
         }
@@ -90,8 +93,8 @@ class Observer {
             observe(items[i], extend({}, this.expr, {
                 paths: [...this.expr.paths, {
                     type: ExprType.NUMBER,
-                    value: i
-                }]
+                    value: i,
+                }],
             }), this.context);
         }
     }
@@ -112,11 +115,11 @@ function defineReactive(obj, key, expr, context) {
         type: ExprType.ACCESSOR,
         paths: [...expr.paths, {
             type: ExprType.STRING,
-            value: key
-        }]
+            value: key,
+        }],
     };
 
-    const dep = new Dep;
+    const dep = new Dep();
 
     let val = obj[key];
     observe(val, keyExpr, context);
@@ -143,18 +146,18 @@ function defineReactive(obj, key, expr, context) {
         get() {
             dep.depend({
                 context,
-                expr: keyExpr
+                expr: keyExpr,
             });
             const value = getter ? getter.call(obj) : val;
             return value;
-        }
+        },
     };
     def(obj, key, newProperty);
 }
 
 const defaultExpr = {
     type: ExprType.ACCESSOR,
-    paths: []
+    paths: [],
 };
 
 function observe(value, expr, context) {
@@ -163,7 +166,7 @@ function observe(value, expr, context) {
     }
     let ob;
     if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
-        ob = value.__ob__
+        ob = value.__ob__;
     }
     else if (
         (Array.isArray(value) || isPlainObject(value))
@@ -193,34 +196,20 @@ export default function () {
             },
             set(newVal) {
                 context._data[key] = newVal;
-            }
+            },
         });
     }
 
-    this.data.owner = this;
-}
+    const me = this.data.owner = this;
 
-/**
- * A dep is an observable that can have multiple
- * directives subscribing to it.
- */
-export function Dep() {}
-
-Dep.prototype.depend = function (expr) {
-    if (Dep.target) {
-        Dep.target.push(expr);
+    // define computed
+    for (let i = 0; i < this._computedKeys.length; i++) {
+        const key = this._computedKeys[i];
+        calcComputed.call(this, key);
+        def(this, key, {
+            get() {
+                return me.data.get(createAccesser(key));
+            },
+        });
     }
-};
-
-// The current target watcher being evaluated.
-// This is globally unique because only one watcher
-// can be evaluated at a time.
-Dep.target = null;
-
-export function resetTarget() {
-    Dep.target = [];
-}
-
-export function cleanTarget() {
-    Dep.target = null;
 }

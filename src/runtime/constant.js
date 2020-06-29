@@ -13,7 +13,7 @@ export const lifeCycleMap = {
     updated: 'updated',
     beforeUpdate: 'beforeUpdate',
     activated: 'activated',
-    deactivated: 'deactivated'
+    deactivated: 'deactivated',
 };
 
 export const lifeCycleKeys = Object.keys(lifeCycleMap);

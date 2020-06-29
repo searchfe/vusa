@@ -5,8 +5,8 @@
 
 import './override-data-get';
 
-import {defineComponent, inherits, Component, nextTick} from 'san';
-import {extend, hyphenate, def, freeze} from '../shared/util';
+import {defineComponent, Component, nextTick} from 'san';
+import {extend, hyphenate, def, freeze, createAccesser} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
@@ -14,7 +14,7 @@ import getComponentType from './get-component-type';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
 import mergeOptions from './merge-options';
-import bindData from './bind-data';
+import bindData from './bind-data-defineproperty';
 import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
@@ -36,7 +36,7 @@ const defaultSanOptions = {
     $emit: Component.prototype.fire,
     $on: Component.prototype.on,
     $watch: Component.prototype.watch,
-    $nextTick: nextTick
+    $nextTick: nextTick,
 };
 /* eslint-enable fecs-camelcase */
 
@@ -57,7 +57,7 @@ const memberMap = {
         let root = this;
         if (this.parentComponent) {
             while (root.parentComponent) {
-                root = root.parentComponent
+                root = root.parentComponent;
             }
         }
         return root;
@@ -65,7 +65,7 @@ const memberMap = {
     $slots: slot,
     _isDestroyed() {
         return !!this.lifeCycle.disposed;
-    }
+    },
 };
 
 const originalUpdate = Component.prototype._update;
@@ -123,13 +123,13 @@ export default function define(options) {
                 props[key] = {
                     get() {
                         return memberMap[key].call(this);
-                    }
+                    },
                 };
                 return props;
             }, {});
 
         properties.$options = {
-            value: options
+            value: options,
         };
 
         Object.defineProperties(this, properties);
@@ -147,7 +147,7 @@ export default function define(options) {
                 def(me.$refs, r.name, {
                     get() {
                         return r.root ? me.el : me.ref(r.name);
-                    }
+                    },
                 });
             }
             // overwrite san component api for support v-for + ref
@@ -156,7 +156,7 @@ export default function define(options) {
 
         // merge css modules
         if (this.$style) {
-            this.data.set(getExpr('$style', freeze(this.$style)));
+            this.data.set(createAccesser('$style'), freeze(this.$style));
         }
 
         bindData.call(this);

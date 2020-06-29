@@ -3,8 +3,9 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {isObject, hasOwn, isPlainObject, extend, def} from '../shared/util';
+import {isObject, isPlainObject, extend, def} from '../shared/util';
 import {ExprType} from 'san';
+import {Dep} from './dep';
 
 const arrayProto = Array.prototype;
 
@@ -13,7 +14,7 @@ const methodsToPatch = [
     'pop',
     'shift',
     'unshift',
-    'splice'
+    'splice',
 ];
 
 const proxyKey = '__proxy__';
@@ -21,7 +22,6 @@ const proxyKey = '__proxy__';
 function proxy(obj, expr, context) {
 
     const dep = new Dep();
-    const keys = Object.keys(obj);
     const isArray = Array.isArray(obj);
 
     function getKeyExpr(key) {
@@ -29,8 +29,8 @@ function proxy(obj, expr, context) {
         return extend({}, expr, {
             paths: [...paths, {
                 type: ExprType.STRING,
-                value: key
-            }]
+                value: key,
+            }],
         });
     }
 
@@ -45,18 +45,18 @@ function proxy(obj, expr, context) {
                 type: 1,
                 expr: keyExpr,
                 value: target[prop],
-                option: {}
+                option: {},
             });
             return true;
         },
         get(target, prop) {
             if (prop === proxyKey) {
-                return true
+                return true;
             }
             const keyExpr = getKeyExpr(prop);
             dep.depend({
                 context,
-                expr: keyExpr
+                expr: keyExpr,
             });
             if (isArray && methodsToPatch.indexOf(prop) >= 0) {
                 const original = arrayProto[prop];
@@ -72,7 +72,7 @@ function proxy(obj, expr, context) {
                             insertions = args.slice(2).map(t => observe(t, keyExpr, context));
                             args = [
                                 ...args.slice(0, 2),
-                                ...insertions
+                                ...insertions,
                             ];
                             break;
                     }
@@ -89,7 +89,7 @@ function proxy(obj, expr, context) {
                             break;
                         case 'splice':
                             index = args[0];
-                            var len = target.length;
+                            let len = target.length;
                             if (index > len) {
                                 index = len;
                             }
@@ -111,14 +111,14 @@ function proxy(obj, expr, context) {
                         deleteCount: result.length,
                         value: result,
                         insertions,
-                        option: {}
+                        option: {},
                     });
 
                     return result;
                 };
             }
             return observe(target[prop], keyExpr, context);
-        }
+        },
     };
 
     return new Proxy(obj, handler);
@@ -126,7 +126,7 @@ function proxy(obj, expr, context) {
 
 const defaultExpr = {
     type: ExprType.ACCESSOR,
-    paths: []
+    paths: [],
 };
 
 function observe(value, expr, context) {
@@ -163,34 +163,9 @@ export default function () {
             },
             set(newVal) {
                 context.data.raw[key] = newVal;
-            }
+            },
         });
     }
 
     this.data.owner = this;
-}
-
-/**
- * A dep is an observable that can have multiple
- * directives subscribing to it.
- */
-export function Dep(context, expr) {}
-
-Dep.prototype.depend = function (expr) {
-    if (Dep.target) {
-        Dep.target.push(expr);
-    }
-};
-
-// The current target watcher being evaluated.
-// This is globally unique because only one watcher
-// can be evaluated at a time.
-Dep.target = null;
-
-export function resetTarget() {
-    Dep.target = [];
-}
-
-export function cleanTarget() {
-    Dep.target = null;
 }

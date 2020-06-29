@@ -3,7 +3,8 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {resetTarget, cleanTarget, Dep} from './bind-data-proxy';
+import {resetTarget, cleanTarget, Dep} from './dep';
+import {createAccesser} from '../shared/util';
 
 export default function calcComputed(key) {
     let computedDeps = this.computedDeps[key];
@@ -12,28 +13,29 @@ export default function calcComputed(key) {
     }
 
     const me = this;
-
-    const oldValue = this.data.get(key);
+    const computedExpr = createAccesser(key);
+    const oldValue = this.data.get(computedExpr);
 
     resetTarget();
     const value = this.computed[key].call(this);
     const deps = Dep.target;
     cleanTarget();
-    console.log(key, deps);
+
+    console.log(deps);
+
     for (let i = 0; i < deps.length; i++) {
         const dep = deps[i];
         const {expr, context} = dep;
-        const exprPrefix = this === context ? '' : 'upper';
-        const exprSuffix = expr.paths.map(a => a.value).join('.');
-        const exprStr = exprPrefix + exprSuffix;
+        const exprStr = expr.paths.map(a => a.value).join('.');
         if (!computedDeps[exprStr]) {
             computedDeps[exprStr] = 1;
-            delete expr.changeCache;
-            context.watch(expr, function (change) {
+            context.watch(expr, function () {
                 calcComputed.call(me, key);
             });
         }
     }
 
-    this.data.raw[key] = value;
+    if (oldValue !== value) {
+        this.data.set(computedExpr, value);
+    }
 }

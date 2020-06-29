@@ -3,23 +3,10 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {extend, def} from '../shared/util';
-import {ExprType} from 'san';
+import {def, createAccesser} from '../shared/util';
 import calcComputed from './calc-computed';
+import {Dep} from './dep';
 
-const defaultExpr = {
-    type: ExprType.ACCESSOR,
-    paths: []
-};
-
-export function getExpr(key) {
-    return extend({}, defaultExpr, {
-        paths: [{
-            type: 1,
-            value: key
-        }]
-    });
-}
 
 export default function () {
     const keys = [...this._dataKeys, ...this._propKeys];
@@ -31,15 +18,15 @@ export default function () {
         const key = keys[i];
         def(context, key, {
             get() {
-                return context.data.get(getExpr(key));
+                return context.data.get(createAccesser(key));
             },
             set(newVal) {
-                context.data.set(getExpr(key), newVal);
-            }
+                context.data.set(createAccesser(key), newVal);
+            },
         });
     }
 
-    this.data.owner = this;
+    const me = this.data.owner = this;
     this.data._dep = new Dep();
 
     // define computed
@@ -47,8 +34,8 @@ export default function () {
         const key = this._computedKeys[i];
         def(this, key, {
             get() {
-                return me.data.get(getExpr(key));
-            }
+                return me.data.get(createAccesser(key));
+            },
         });
         calcComputed.call(this, key);
     }

@@ -14,7 +14,7 @@ function createCallFactory(name) {
         if (ele.children && ele.children.length > 1) {
             ele.children.forEach(call);
         }
-    }
+    };
 }
 
 export const callActivited = createCallFactory('activited');

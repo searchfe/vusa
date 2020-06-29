@@ -9,7 +9,7 @@ import * as atomBuildInMixin from './global-api';
 
 const keys = [
     'filters',
-    'computed'
+    'computed',
 ];
 
 function mergeHook(parentVal, childVal) {
@@ -19,7 +19,7 @@ function mergeHook(parentVal, childVal) {
             : Array.isArray(childVal)
                 ? childVal
                 : [childVal]
-            : parentVal;
+        : parentVal;
 }
 
 export default function mergeOptions(options) {
