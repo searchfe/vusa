@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {cached, extend, toObject} from '../shared/util';
+import {cached, extend, toObject, hyphenate} from '../shared/util';
 
 const parseStyleText = cached(function (cssText) {
     const res = {};
@@ -18,15 +18,25 @@ const parseStyleText = cached(function (cssText) {
     return res;
 });
 
+function hyphenateKey(object) {
+    const ret = {};
+    for (const key in object) {
+        if (Object.hasOwnProperty.call(object, key)) {
+            ret[hyphenate(key)] = object[key];
+        }
+    }
+    return ret;
+}
+
 // normalize possible array / string values into Object
 function normalizeStyleBinding(bindingStyle) {
     if (Array.isArray(bindingStyle)) {
-        return toObject(bindingStyle);
+        return hyphenateKey(toObject(bindingStyle));
     }
     if (typeof bindingStyle === 'string') {
         return parseStyleText(bindingStyle);
     }
-    return bindingStyle;
+    return hyphenateKey(bindingStyle);
 }
 
 

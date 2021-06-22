@@ -1,22 +1,25 @@
 /*!
  * vusa v1.0.0
- * (c) 2019-2020 * Released under the MIT License.
+ * (c) 2019-2021 * Released under the MIT License.
  */
 /* eslint-disable */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
 var codeFrame = require('@babel/code-frame');
 var atomExpressionCompiler = require('atom-expression-compiler');
-var escapeQuotes = _interopDefault(require('escape-quotes'));
-var toSingleQuotes = _interopDefault(require('to-single-quotes'));
+var escapeQuotes = require('escape-quotes');
+var toSingleQuotes = require('to-single-quotes');
 var lodash = require('lodash');
 var vueTemplateCompiler = require('vue-template-compiler');
 require('san');
 var sanAnodeUtils = require('san-anode-utils');
+
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var escapeQuotes__default = /*#__PURE__*/_interopDefaultLegacy(escapeQuotes);
+var toSingleQuotes__default = /*#__PURE__*/_interopDefaultLegacy(toSingleQuotes);
 
 /**
  * @file vue 的 expression 转 san，主要是处理 es6 语法
@@ -87,7 +90,7 @@ function toString(a) {
         return a + '';
     }
     if (typeof a === 'string') {
-        return `'${escapeQuotes(a)}'`
+        return `'${escapeQuotes__default['default'](a)}'`
     }
     return JSON.stringify(a);
 }
@@ -389,19 +392,19 @@ function transform (code) {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-const bindKeys = [':class', 'v-bind:class'];
+const bindKeys$1 = [':class', 'v-bind:class'];
 
-function postTransformNode(node) {
+function postTransformNode$b(node) {
     if (node.type === 1 && node.classBinding) {
         const staticClass = node.attrsMap.class || '';
         const classBinding = transform(node.classBinding).code;
         node.attrsMap.class = `{{ _mc('${staticClass}', ${classBinding}) }}`;
-        bindKeys.forEach(key => delete node.attrsMap[key]);
+        bindKeys$1.forEach(key => delete node.attrsMap[key]);
     }
 }
 
 var clazz = {
-    postTransformNode
+    postTransformNode: postTransformNode$b
 };
 
 /**
@@ -409,21 +412,21 @@ var clazz = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-const bindKeys$1 = [':style', 'v-bind:style', 'v-show'];
+const bindKeys = [':style', 'v-bind:style', 'v-show'];
 
-function postTransformNode$1(node) {
+function postTransformNode$a(node) {
     const vShow = node.attrsMap['v-show'];
     if (node.type === 1 && (node.styleBinding || vShow)) {
         const staticStyle = node.staticStyle || '\'\'';
         const styleBinding = node.styleBinding ? transform(node.styleBinding).code : '{}';
         // eslint-disable-next-line max-len
-        node.attrsMap.style = `{{ _ms(${toSingleQuotes(staticStyle)}, ${styleBinding}${vShow ? `, ${transform(vShow).code}` : ''}) }}`;
-        bindKeys$1.forEach(key => delete node.attrsMap[key]);
+        node.attrsMap.style = `{{ _ms(${toSingleQuotes__default['default'](staticStyle)}, ${styleBinding}${vShow ? `, ${transform(vShow).code}` : ''}) }}`;
+        bindKeys.forEach(key => delete node.attrsMap[key]);
     }
 }
 
 var style = {
-    postTransformNode: postTransformNode$1
+    postTransformNode: postTransformNode$a
 };
 
 /**
@@ -433,7 +436,7 @@ var style = {
 
 const reBind = /^(v-bind)?\:/;
 
-function postTransformNode$2(node) {
+function postTransformNode$9(node) {
     if (node.type !== 1) {
         return;
     }
@@ -454,7 +457,7 @@ function postTransformNode$2(node) {
 }
 
 var bind = {
-    postTransformNode: postTransformNode$2
+    postTransformNode: postTransformNode$9
 };
 
 /**
@@ -462,7 +465,7 @@ var bind = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$3(node) {
+function postTransformNode$8(node) {
     if (node.type !== 1) {
         return;
     }
@@ -484,7 +487,7 @@ function postTransformNode$3(node) {
 }
 
 var yf = {
-    postTransformNode: postTransformNode$3
+    postTransformNode: postTransformNode$8
 };
 
 /**
@@ -492,7 +495,7 @@ var yf = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$4(node) {
+function postTransformNode$7(node) {
     if (node.type !== 1 || !node.for) {
         return;
     }
@@ -520,7 +523,7 @@ function postTransformNode$4(node) {
 }
 
 var fr = {
-    postTransformNode: postTransformNode$4
+    postTransformNode: postTransformNode$7
 };
 
 /**
@@ -530,7 +533,7 @@ var fr = {
 
 const reEvent = /^(@|v-on:)/;
 
-function postTransformNode$5(node) {
+function postTransformNode$6(node) {
     const eventAttrs = node.attrsList.filter(n => reEvent.test(n.name));
     for (const attr of eventAttrs) {
         delete node.attrsMap[attr.name];
@@ -542,7 +545,7 @@ function postTransformNode$5(node) {
 }
 
 var event = {
-    postTransformNode: postTransformNode$5
+    postTransformNode: postTransformNode$6
 };
 
 /**
@@ -550,7 +553,7 @@ var event = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$6(node) {
+function postTransformNode$5(node) {
 
     if (node.attrsMap && node.attrsMap['v-dangerous-html']) {
         const dir = node.directives.find(d => d.name === 'dangerous-html');
@@ -584,7 +587,7 @@ function postTransformNode$6(node) {
 }
 
 var html = {
-    postTransformNode: postTransformNode$6
+    postTransformNode: postTransformNode$5
 };
 
 /**
@@ -592,7 +595,7 @@ var html = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$7(node, options) {
+function postTransformNode$4(node, options) {
     if (node.type !== 1 || !node.attrsMap.ref && !node.attrsMap[':ref']) {
         return;
     }
@@ -618,7 +621,7 @@ function postTransformNode$7(node, options) {
 }
 
 var ref = {
-    postTransformNode: postTransformNode$7
+    postTransformNode: postTransformNode$4
 };
 
 /**
@@ -626,7 +629,7 @@ var ref = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$8(node, options) {
+function postTransformNode$3(node, options) {
     if (!(node.type === 1 && node.tag === 'component')) {
         return;
     }
@@ -676,7 +679,7 @@ function postTransformNode$8(node, options) {
 }
 
 var dynamicComponent = {
-    postTransformNode: postTransformNode$8
+    postTransformNode: postTransformNode$3
 };
 
 /**
@@ -880,7 +883,7 @@ const htmlTag = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$9(node) {
+function postTransformNode$2(node) {
     if (!node.type === 1 || !node.attrsMap) {
         return;
     }
@@ -895,7 +898,7 @@ function postTransformNode$9(node) {
 }
 
 var bool = {
-    postTransformNode: postTransformNode$9
+    postTransformNode: postTransformNode$2
 };
 
 /**
@@ -903,14 +906,14 @@ var bool = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function preTransformNode(el) {
+function preTransformNode$1(el) {
     if (el.tag === 'template') {
         el.tag = 'fragment';
     }
 }
 
 var template = {
-    preTransformNode
+    preTransformNode: preTransformNode$1
 };
 
 /**
@@ -918,7 +921,7 @@ var template = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$a(el) {
+function postTransformNode$1(el) {
     if (el.tag === 'transition') {
         el.tag = 'fragment';
 
@@ -944,7 +947,7 @@ function postTransformNode$a(el) {
 }
 
 var transition = {
-    postTransformNode: postTransformNode$a
+    postTransformNode: postTransformNode$1
 };
 
 /**
@@ -952,7 +955,7 @@ var transition = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$b(el, state) {
+function postTransformNode(el, state) {
     if (el.children && el.children.length > 0) {
         for (const child of el.children) {
             if (child.type !== 2 || !child.tokens || child.tokens.length <= 1) {
@@ -964,7 +967,7 @@ function postTransformNode$b(el, state) {
                     text = token['@binding'];
                 }
                 if (typeof token === 'string') {
-                    let str = escapeQuotes(token.replace(/\s+/, ' '));
+                    let str = escapeQuotes__default['default'](token.replace(/\s+/, ' '));
                     str = index === 0 ? lodash.trimStart(str, ' ') : (index === child.tokens.length - 1 ? lodash.trimEnd(str, ' ') : str);
                     text = `'${str}'`;
                 }
@@ -980,7 +983,7 @@ function postTransformNode$b(el, state) {
 }
 
 var textCombine = {
-    postTransformNode: postTransformNode$b
+    postTransformNode
 };
 
 /**
@@ -1099,7 +1102,7 @@ function getCssModules (cssModules) {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function preTransformNode$1(el) {
+function preTransformNode(el) {
     el.attrsList = el.attrsList.map(({name, value}) => {
         delete el.attrsMap[name];
         name = name.replace(/^a-/, 'v-');
@@ -1112,7 +1115,7 @@ function preTransformNode$1(el) {
 }
 
 var atom = {
-    preTransformNode: preTransformNode$1
+    preTransformNode
 };
 
 /**

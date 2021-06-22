@@ -1,13 +1,35 @@
 /*!
  * vusa v1.0.0
- * (c) 2019-2020 * Released under the MIT License.
+ * (c) 2019-2021 * Released under the MIT License.
  */
 /* eslint-disable */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('san')) :
     typeof define === 'function' && define.amd ? define(['exports', 'san'], factory) :
-    (global = global || self, factory(global.Vusa = {}, global.san));
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Vusa = {}, global.san));
 }(this, (function (exports, san) { 'use strict';
+
+    function _interopNamespace(e) {
+        if (e && e.__esModule) return e;
+        var n = Object.create(null);
+        if (e) {
+            Object.keys(e).forEach(function (k) {
+                if (k !== 'default') {
+                    var d = Object.getOwnPropertyDescriptor(e, k);
+                    Object.defineProperty(n, k, d.get ? d : {
+                        enumerable: true,
+                        get: function () {
+                            return e[k];
+                        }
+                    });
+                }
+            });
+        }
+        n['default'] = e;
+        return Object.freeze(n);
+    }
+
+    var san__namespace = /*#__PURE__*/_interopNamespace(san);
 
     /**
      * @file override eval expr
@@ -88,12 +110,33 @@
     }
 
     /**
+     * Get the raw type string of a value, e.g., [object Object].
+     */
+    var _toString = Object.prototype.toString;
+
+    /**
      * Quick object check - this is primarily used to tell
      * Objects from primitive values when we know the value
      * is a JSON-compliant type.
      */
     function isObject(obj) {
         return obj !== null && typeof obj === 'object';
+    }
+
+    /**
+     * Check whether an object has the property.
+     */
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
+    function hasOwn(obj, key) {
+        return hasOwnProperty.call(obj, key);
+    }
+
+    /**
+     * Strict object type check. Only returns true
+     * for plain JavaScript objects.
+     */
+    function isPlainObject(obj) {
+        return _toString.call(obj) === '[object Object]';
     }
 
     function def(obj, key, property) {
@@ -209,8 +252,8 @@
             clazz = Object.assign({}, clazz,
                 (
                     typeof element === 'string'
-                    ? string(element)
-                    : (Array.isArray(element) ? array(element) : object(element))
+                        ? string(element)
+                        : (Array.isArray(element) ? array(element) : object(element))
                 ));
         }
         return clazz;
@@ -241,15 +284,25 @@
         return res;
     });
 
+    function hyphenateKey(object) {
+        var ret = {};
+        for (var key in object) {
+            if (Object.hasOwnProperty.call(object, key)) {
+                ret[hyphenate(key)] = object[key];
+            }
+        }
+        return ret;
+    }
+
     // normalize possible array / string values into Object
     function normalizeStyleBinding(bindingStyle) {
         if (Array.isArray(bindingStyle)) {
-            return toObject(bindingStyle);
+            return hyphenateKey(toObject(bindingStyle));
         }
         if (typeof bindingStyle === 'string') {
             return parseStyleText(bindingStyle);
         }
-        return bindingStyle;
+        return hyphenateKey(bindingStyle);
     }
 
 
@@ -347,7 +400,7 @@
                     case 4:
                     case 3:
                         ref = element.aNode.directives.ref;
-                        value = ref && san.evalExpr(ref.value, element.scope, owner);
+                        value = ref && san__namespace.evalExpr(ref.value, element.scope, owner);
                         if (ref && (value === name || camelize(value) === name)) {
                             return nodeType === 4 ? element.el : element.children.map(elementTraversal);
                         }
@@ -355,7 +408,7 @@
 
                     case 5:
                         ref = element.source.directives.ref;
-                        value = ref && san.evalExpr(ref.value, element.scope, owner);
+                        value = ref && san__namespace.evalExpr(ref.value, element.scope, owner);
                         if (ref && (value === name || camelize(value) === name)) {
                             return element;
                         }
@@ -397,8 +450,7 @@
 
     var MATH_METHOD = [
         'floor', 'ceil', 'round',
-        'abs', 'max', 'min', 'pow'
-    ];
+        'abs', 'max', 'min', 'pow' ];
 
     var methods = {};
 
@@ -429,8 +481,8 @@
     };
 
     var filters = {
-        json: function json$1(obj) {
-            return JSON.stringify(json);
+        json: function json(obj) {
+            return JSON.stringify(obj);
         },
         lower: function lower(str) {
             return str.toLowerCase();
@@ -440,7 +492,7 @@
         },
         _cat: function _cat(a, b) {
             return (a || '').toString() + (b || '');
-        }
+        },
     };
 
     var atomBuildInMixin = /*#__PURE__*/Object.freeze({
@@ -455,9 +507,7 @@
      */
 
     var keys = [
-        'filters',
-        'computed'
-    ];
+        'filters' ];
 
     function mergeHook(parentVal, childVal) {
         return childVal
@@ -466,7 +516,7 @@
                 : Array.isArray(childVal)
                     ? childVal
                     : [childVal]
-                : parentVal;
+            : parentVal;
     }
 
     function mergeOptions(options) {
@@ -500,9 +550,9 @@
             if (destOptions[dk$1]) {
                 var hooks = destOptions[dk$1].slice();
                 destOptions[dk$1] = hooks.length === 1 ? hooks[0] : function () {
-                    var this$1 = this;
+                    var this$1$1 = this;
 
-                    hooks.forEach(function (hook) { return hook.call(this$1); }, this);
+                    hooks.forEach(function (hook) { return hook.call(this$1$1); }, this);
                 };
             }
         }
@@ -543,7 +593,7 @@
      * @author cxtom(cxtom2008@gmail.com)
      */
 
-    function calcComputed(computedExpr) {
+    function calcComputed(computedExpr, computed) {
 
         if (typeof computedExpr === 'object') {
             computedExpr = computedExpr.paths.map(function (a) { return a.value; }).join('.');
@@ -555,7 +605,7 @@
         }
 
         resetTarget();
-        var value = this.computed[computedExpr].call(this);
+        var value = computed[computedExpr].call(this);
         var deps = Dep.target;
         cleanTarget();
 
@@ -568,7 +618,7 @@
             if (!computedDeps[key]) {
                 computedDeps[key] = 1;
                 this.watch(expr, function () {
-                    calcComputed.call(me, computedExpr);
+                    calcComputed.call(me, computedExpr, computed);
                 });
             }
         }
@@ -581,23 +631,193 @@
      * @author cxtom(cxtom2008@gmail.com)
      */
 
+    var arrayProto = Array.prototype;
+    var arrayMethods = Object.create(arrayProto);
 
-    function bindData () {
-        var this$1 = this;
+    var methodsToPatch = [
+        'push',
+        'pop',
+        'shift',
+        'unshift',
+        'splice',
+        'sort',
+        'reverse' ];
 
+    /**
+     * Intercept mutating methods and emit events
+     */
+    methodsToPatch.forEach(function (method) {
+        // cache original method
+        var original = arrayProto[method];
+        def(arrayMethods, method, {
+            value: function value() {
+                var args = [], len = arguments.length;
+                while ( len-- ) args[ len ] = arguments[ len ];
+
+                var result = original.apply(this, args);
+                var ob = this.__ob__;
+                var inserted;
+                switch (method) {
+                    case 'push':
+                    case 'unshift':
+                        inserted = args;
+                        break;
+                    case 'splice':
+                        inserted = args.slice(2);
+                        break;
+                }
+                if (inserted) {
+                    ob.observeArray(inserted);
+                }
+                ob.context.data.set(ob.expr, this, {force: true});
+                observe(ob.context.data.get(ob.expr), ob.expr, ob.context);
+                return result;
+            },
+        });
+    });
+
+    var Observer = function Observer(value, expr, context) {
+        this.expr = expr;
+        this.context = context;
+        def(value, '__ob__', {
+            value: this,
+        });
+
+        this.value = value;
+
+        if (Array.isArray(value)) {
+            // eslint-disable-next-line no-proto
+            value.__proto__ = arrayMethods;
+            this.observeArray(value);
+        }
+        else {
+            this.keys = Object.keys(value) || [];
+            this.walk(value);
+        }
+    };
+
+    /**
+     * Walk through all properties and convert them into
+     * getter/setters. This method should only be called when
+     * value type is Object.
+     */
+    Observer.prototype.walk = function walk (obj) {
+        var keys = this.keys;
+        for (var i = 0; i < keys.length; i++) {
+            defineReactive(obj, keys[i], this.expr, this.context);
+        }
+    };
+
+    /**
+     * Observe a list of Array items.
+     */
+    Observer.prototype.observeArray = function observeArray (items) {
+        for (var i = 0, l = items.length; i < l; i++) {
+            observe(items[i], extend({}, this.expr, {
+                paths: ( this.expr.paths ).concat( [{
+                    type: san.ExprType.NUMBER,
+                    value: i,
+                }]),
+            }), this.context);
+        }
+    };
+
+    function defineReactive(obj, key, expr, context) {
+
+        var property = Object.getOwnPropertyDescriptor(obj, key);
+        if (property && property.configurable === false) {
+            return;
+        }
+
+        // cater for pre-defined getter/setters
+        var getter = property && property.get;
+        var setter = property && property.set;
+
+        var keyExpr = {
+            type: san.ExprType.ACCESSOR,
+            paths: ( expr.paths ).concat( [{
+                type: san.ExprType.STRING,
+                value: key,
+            }]),
+        };
+
+        var dep = new Dep();
+
+        var val = obj[key];
+        observe(val, keyExpr, context);
+        var newProperty = {
+            enumerable: true,
+            configurable: true,
+            set: function set(newVal) {
+                var value = getter ? getter.call(obj) : val;
+                if (newVal === value) {
+                    return;
+                }
+                if (getter && !setter) {
+                    return;
+                }
+                if (setter) {
+                    setter.call(obj, newVal);
+                }
+                else {
+                    val = newVal;
+                }
+                observe(newVal, keyExpr, context);
+                context.data.set(keyExpr, newVal, {force: true});
+            },
+            get: function get() {
+                dep.depend({
+                    context: context,
+                    expr: keyExpr,
+                });
+                var value = getter ? getter.call(obj) : val;
+                return value;
+            },
+        };
+        def(obj, key, newProperty);
+    }
+
+    var defaultExpr = {
+        type: san.ExprType.ACCESSOR,
+        paths: [],
+    };
+
+    function observe(value, expr, context) {
+        if (!isObject(value)) {
+            return;
+        }
+        var ob;
+        if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
+            ob = value.__ob__;
+        }
+        else if (
+            (Array.isArray(value) || isPlainObject(value))
+            && Object.isExtensible(value)
+        ) {
+            ob = new Observer(value, expr, context);
+        }
+        return ob;
+    }
+
+    function bindData (computed) {
+        var this$1$1 = this;
+
+        var expr = extend({}, defaultExpr);
         var keys = ( this._dataKeys ).concat( this._propKeys);
         var keyLength = keys.length;
 
+        this._data = this.data.get();
+        observe(this._data, expr, this);
         var context = this;
 
         var loop = function ( i ) {
             var key = keys[i];
             def(context, key, {
                 get: function get() {
-                    return context.data.get(createAccesser(key));
+                    return context._data[key];
                 },
                 set: function set(newVal) {
-                    context.data.set(createAccesser(key), newVal);
+                    context._data[key] = newVal;
                 },
             });
         };
@@ -605,20 +825,20 @@
         for (var i = 0; i < keyLength; i++) loop( i );
 
         var me = this.data.owner = this;
-        this.data._dep = new Dep();
 
         // define computed
+        this.computedDeps = {};
         var loop$1 = function ( i ) {
-            var key$1 = this$1._computedKeys[i];
-            def(this$1, key$1, {
+            var key$1 = this$1$1._computedKeys[i];
+            calcComputed.call(this$1$1, key$1, computed);
+            def(this$1$1, key$1, {
                 get: function get() {
                     return me.data.get(createAccesser(key$1));
                 },
             });
-            calcComputed.call(this$1, key$1);
         };
 
-        for (var i$1 = 0; i$1 < this$1._computedKeys.length; i$1++) loop$1( i$1 );
+        for (var i$1 = 0; i$1 < this$1$1._computedKeys.length; i$1++) loop$1( i$1 );
     }
 
     /**
@@ -781,6 +1001,7 @@
         }
     }
 
+    var inBrowser = typeof window !== 'undefined';
     var TRANSITION = 'transition';
     var ANIMATION = 'animation';
 
@@ -789,25 +1010,29 @@
     var transitionEndEvent = 'transitionend';
     var animationProp = 'animation';
     var animationEndEvent = 'animationend';
-    /* istanbul ignore if */
-    if (
-        window.ontransitionend === undefined
-        && window.onwebkittransitionend !== undefined
-    ) {
-        transitionProp = 'WebkitTransition';
-        transitionEndEvent = 'webkitTransitionEnd';
-    }
-    if (
-        window.onanimationend === undefined
-        && window.onwebkitanimationend !== undefined
-    ) {
-        animationProp = 'WebkitAnimation';
-        animationEndEvent = 'webkitAnimationEnd';
+
+    if (inBrowser) {
+        if (
+            window.ontransitionend === undefined
+            && window.onwebkittransitionend !== undefined
+        ) {
+            transitionProp = 'WebkitTransition';
+            transitionEndEvent = 'webkitTransitionEnd';
+        }
+        if (
+            window.onanimationend === undefined
+            && window.onwebkitanimationend !== undefined
+        ) {
+            animationProp = 'WebkitAnimation';
+            animationEndEvent = 'webkitAnimationEnd';
+        }
     }
 
-    var raf = window.requestAnimationFrame
-        ? window.requestAnimationFrame.bind(window)
-        : setTimeout;
+    var raf = inBrowser
+        ? window.requestAnimationFrame
+            ? window.requestAnimationFrame.bind(window)
+            : setTimeout
+        : function (fn) { return fn(); };
 
     function nextFrame(fn) {
         raf(function () {
@@ -858,8 +1083,7 @@
                     : animationDurations.length
                 : 0;
         }
-        var hasTransform =
-            type === TRANSITION
+        var hasTransform = type === TRANSITION
             && transformRE.test(styles[transitionProp + 'Property']);
         return {
             type: type,
@@ -1221,6 +1445,8 @@
 
     var innerKey = '_SanCtor';
 
+    var styleAccesser = createAccesser('$style');
+
     function define(options) {
 
         if (options[innerKey]) {
@@ -1246,9 +1472,12 @@
             return san.defineComponent(extend({}, options, prePareOptions));
         }
 
+        var optimizeSSR = options.__sanOptimizeSSR || false;
+
         var sanOptions = extend(prePareOptions, {
             template: options.__santemplate,
             aNode: options.__sanaNode,
+            aPack: options.__sanaPack,
             _isSan: true,
         }, defaultSanOptions, mergeOptions(options));
 
@@ -1280,43 +1509,56 @@
         var refs = options.__sanRefs;
         var initedHook = sanOptions.inited;
         sanOptions.inited = function () {
-            var this$1 = this;
+            var this$1$1 = this;
 
             var me = this;
-            this.$refs = Object.create(null);
 
-            if (refs) {
-                var loop = function ( i, len ) {
-                    var r = refs[i];
-                    def(me.$refs, r.name, {
-                        get: function get() {
-                            return r.root ? me.el : me.ref(r.name);
-                        },
-                    });
-                };
+            if (!optimizeSSR) {
+                this.$refs = Object.create(null);
 
-                for (var i = 0, len = refs.length; i < len; i++) loop( i, len );
-                // overwrite san component api for support v-for + ref
-                me.ref = ref;
+                if (refs) {
+                    var loop = function ( i, len ) {
+                        var r = refs[i];
+                        def(me.$refs, r.name, {
+                            get: function get() {
+                                return r.root ? me.el : me.ref(r.name);
+                            },
+                        });
+                    };
+
+                    for (var i = 0, len = refs.length; i < len; i++) loop( i, len );
+                    // overwrite san component api for support v-for + ref
+                    me.ref = ref;
+                }
             }
 
             // merge css modules
             if (this.$style) {
-                this.data.set(createAccesser('$style'), freeze(this.$style));
+                this.data.set(styleAccesser, freeze(this.$style));
             }
 
-            bindData.call(this);
-
-            for (var i$1 = 0; i$1 < this._methodKeys.length; i$1++) {
-                var key = this._methodKeys[i$1];
-                this[key] = this[key].bind(this);
+            if (!optimizeSSR) {
+                bindData.call(this, options.computed);
             }
+            else if (options.computed && optimizeSSR) {
+                for (var key in options.computed) {
+                    if (Object.hasOwnProperty.call(options.computed, key)) {
+                        var element = options.computed[key];
+                        this.data.data[key] = element.call(this.data.data);
+                    }
+                }
+            }
+
+            // for (let i = 0; i < this._methodKeys.length; i++) {
+            //     const key = this._methodKeys[i];
+            //     this[key] = this[key].bind(this);
+            // }
 
             initedHook && initedHook.call(this);
 
-            if (options.watch) {
+            if (options.watch && !optimizeSSR) {
                 Object.keys(options.watch).forEach(function (key) {
-                    this$1.watch(key, options.watch[key].bind(this$1));
+                    this$1$1.watch(key, options.watch[key].bind(this$1$1));
                 });
             }
 
@@ -1340,16 +1582,22 @@
 
             var defaultProps = {};
             if (options.props) {
-                var propKeys = me._propKeys = options._propKeys = options.props
+                var propKeys = options.props
                     ? (Array.isArray(options.props) ? options.props : Object.keys(options.props))
                     : [];
 
+                if (!optimizeSSR) {
+                    me._propKeys = options._propKeys = propKeys;
+                }
+
+                var propKeyLength = propKeys.length;
+
                 // 默认属性
-                if (!Array.isArray(options.props)) {
+                if (propKeyLength > 0 && !Array.isArray(options.props)) {
                     for (var i = 0, len = propKeys.length; i < len; i++) {
                         var p = propKeys[i];
                         var prop = options.props[p];
-                        if ('default' in prop) {
+                        if (prop.default) {
                             defaultProps[p] = typeof prop.default === 'function'
                                 ? prop.default()
                                 : prop.default;
@@ -1361,20 +1609,24 @@
                 me._propKeys = [];
             }
 
-            if (options.computed) {
-                me._computedKeys = Object.keys(options.computed);
-            }
-            else {
-                me._computedKeys = [];
-            }
-
             var data = typeof options.data === 'function'
                 ? options.data.call(extend({}, defaultProps, this._srcSbindData))
                 : (options.data || {});
 
-            this._dataKeys = Object.keys(data) || [];
+            if (!optimizeSSR) {
+                this._dataKeys = Object.keys(data) || [];
+            }
 
-            return extend({$style: {}}, defaultProps, data);
+            var initialData = extend({$style: {}}, defaultProps, data);
+
+            if (!optimizeSSR && options.computed) {
+                me._computedKeys = Object.keys(options.computed);
+            }
+            else if (!optimizeSSR) {
+                me._computedKeys = [];
+            }
+
+            return initialData;
         };
 
         var cmpt = san.defineComponent(sanOptions);

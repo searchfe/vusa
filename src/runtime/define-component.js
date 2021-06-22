@@ -79,6 +79,8 @@ Component.prototype._update = function (changes) {
 
 const innerKey = '_SanCtor';
 
+const styleAccesser = createAccesser('$style');
+
 export default function define(options) {
 
     if (options[innerKey]) {
@@ -103,6 +105,8 @@ export default function define(options) {
     if (options.template || options.aNode || options instanceof Component) {
         return defineComponent(extend({}, options, prePareOptions));
     }
+
+    const optimizeSSR = options.__sanOptimizeSSR || false;
 
     const sanOptions = extend(prePareOptions, {
         template: options.__santemplate,
@@ -140,36 +144,49 @@ export default function define(options) {
     const initedHook = sanOptions.inited;
     sanOptions.inited = function () {
         const me = this;
-        this.$refs = Object.create(null);
 
-        if (refs) {
-            for (let i = 0, len = refs.length; i < len; i++) {
-                const r = refs[i];
-                def(me.$refs, r.name, {
-                    get() {
-                        return r.root ? me.el : me.ref(r.name);
-                    },
-                });
+        if (!optimizeSSR) {
+            this.$refs = Object.create(null);
+
+            if (refs) {
+                for (let i = 0, len = refs.length; i < len; i++) {
+                    const r = refs[i];
+                    def(me.$refs, r.name, {
+                        get() {
+                            return r.root ? me.el : me.ref(r.name);
+                        },
+                    });
+                }
+                // overwrite san component api for support v-for + ref
+                me.ref = ref;
             }
-            // overwrite san component api for support v-for + ref
-            me.ref = ref;
         }
 
         // merge css modules
         if (this.$style) {
-            this.data.set(createAccesser('$style'), freeze(this.$style));
+            this.data.set(styleAccesser, freeze(this.$style));
         }
 
-        bindData.call(this);
-
-        for (let i = 0; i < this._methodKeys.length; i++) {
-            const key = this._methodKeys[i];
-            this[key] = this[key].bind(this);
+        if (!optimizeSSR) {
+            bindData.call(this, options.computed);
         }
+        else if (options.computed && optimizeSSR) {
+            for (const key in options.computed) {
+                if (Object.hasOwnProperty.call(options.computed, key)) {
+                    const element = options.computed[key];
+                    this.data.data[key] = element.call(this.data.data);
+                }
+            }
+        }
+
+        // for (let i = 0; i < this._methodKeys.length; i++) {
+        //     const key = this._methodKeys[i];
+        //     this[key] = this[key].bind(this);
+        // }
 
         initedHook && initedHook.call(this);
 
-        if (options.watch) {
+        if (options.watch && !optimizeSSR) {
             Object.keys(options.watch).forEach(key => {
                 this.watch(key, options.watch[key].bind(this));
             });
@@ -195,16 +212,22 @@ export default function define(options) {
 
         const defaultProps = {};
         if (options.props) {
-            const propKeys = me._propKeys = options._propKeys = options.props
+            const propKeys = options.props
                 ? (Array.isArray(options.props) ? options.props : Object.keys(options.props))
                 : [];
 
+            if (!optimizeSSR) {
+                me._propKeys = options._propKeys = propKeys;
+            }
+
+            const propKeyLength = propKeys.length;
+
             // 默认属性
-            if (!Array.isArray(options.props)) {
+            if (propKeyLength > 0 && !Array.isArray(options.props)) {
                 for (let i = 0, len = propKeys.length; i < len; i++) {
                     const p = propKeys[i];
                     const prop = options.props[p];
-                    if ('default' in prop) {
+                    if (prop.default) {
                         defaultProps[p] = typeof prop.default === 'function'
                             ? prop.default()
                             : prop.default;
@@ -216,20 +239,24 @@ export default function define(options) {
             me._propKeys = [];
         }
 
-        if (options.computed) {
-            me._computedKeys = Object.keys(options.computed);
-        }
-        else {
-            me._computedKeys = [];
-        }
-
         const data = typeof options.data === 'function'
             ? options.data.call(extend({}, defaultProps, this._srcSbindData))
             : (options.data || {});
 
-        this._dataKeys = Object.keys(data) || [];
+        if (!optimizeSSR) {
+            this._dataKeys = Object.keys(data) || [];
+        }
 
-        return extend({$style: {}}, defaultProps, data);
+        const initialData = extend({$style: {}}, defaultProps, data);
+
+        if (!optimizeSSR && options.computed) {
+            me._computedKeys = Object.keys(options.computed);
+        }
+        else if (!optimizeSSR) {
+            me._computedKeys = [];
+        }
+
+        return initialData;
     };
 
     const cmpt = defineComponent(sanOptions);

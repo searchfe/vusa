@@ -9,7 +9,6 @@ import * as atomBuildInMixin from './global-api';
 
 const keys = [
     'filters',
-    'computed',
 ];
 
 function mergeHook(parentVal, childVal) {

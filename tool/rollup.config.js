@@ -5,7 +5,6 @@
 
 const path = require('path');
 const buble = require('rollup-plugin-buble');
-const alias = require('rollup-plugin-alias');
 const replace = require('rollup-plugin-replace');
 const builtins = require('rollup-plugin-node-builtins');
 const terser = require('rollup-plugin-terser').terser;
@@ -20,7 +19,6 @@ const banner = ''
   + '/* eslint-disable */';
 
 const resolve = p => {
-    const base = p.split('/')[0];
     return path.resolve(__dirname, '../', p);
 };
 
@@ -33,9 +31,9 @@ const builds = {
         external: Object.keys(require('../packages/runtime/package.json').dependencies),
         plugins: [
             buble({
-                objectAssign: 'Object.assign'
-            })
-        ]
+                objectAssign: 'Object.assign',
+            }),
+        ],
     },
     'runtime-prod': {
         entry: resolve('src/runtime/index.js'),
@@ -45,10 +43,10 @@ const builds = {
         external: Object.keys(require('../packages/runtime/package.json').dependencies),
         plugins: [
             buble({
-                objectAssign: 'Object.assign'
+                objectAssign: 'Object.assign',
             }),
-            terser(require('./terser.config'))
-        ]
+            terser(require('./terser.config')),
+        ],
     },
     'compiler': {
         entry: resolve('src/compiler/index.js'),
@@ -57,9 +55,9 @@ const builds = {
         external: Object.keys(require('../packages/compiler/package.json').dependencies),
         banner,
         plugins: [
-            builtins()
-        ]
-    }
+            builtins(),
+        ],
+    },
 };
 
 function genConfig(opts) {
@@ -71,18 +69,18 @@ function genConfig(opts) {
             banner: opts.banner,
             sourcemap: !!opts.sourceMap,
             name: 'Vusa',
-            globals: 'Vusa'
+            globals: 'Vusa',
         },
         external: opts.external,
         plugins: [
             replace({
-                __VERSION__: version
-            })
-        ].concat(opts.plugins || [])
+                __VERSION__: version,
+            }),
+        ].concat(opts.plugins || []),
     };
     if (opts.env) {
         config.plugins.push(replace({
-            'process.env.NODE_ENV': JSON.stringify(opts.env)
+            'process.env.NODE_ENV': JSON.stringify(opts.env),
         }));
     }
     return config;
@@ -90,7 +88,7 @@ function genConfig(opts) {
 
 const targets = {
     runtime: ['runtime', 'runtime-prod'],
-    compiler: ['compiler']
+    compiler: ['compiler'],
 };
 
 if (process.env.TARGET) {

@@ -6,7 +6,7 @@
 import {isObject, hasOwn, isPlainObject, extend, def, createAccesser} from '../shared/util';
 import {ExprType} from 'san';
 import {Dep} from './dep';
-import calcComputed from './calc-computed-observe';
+import calcComputed from './calc-computed';
 
 const arrayProto = Array.prototype;
 const arrayMethods = Object.create(arrayProto);
@@ -177,15 +177,13 @@ function observe(value, expr, context) {
     return ob;
 }
 
-export default function () {
+export default function (computed) {
     const expr = extend({}, defaultExpr);
     const keys = [...this._dataKeys, ...this._propKeys];
     const keyLength = keys.length;
 
     this._data = this.data.get();
-
     observe(this._data, expr, this);
-
     const context = this;
 
     for (let i = 0; i < keyLength; i++) {
@@ -203,9 +201,10 @@ export default function () {
     const me = this.data.owner = this;
 
     // define computed
+    this.computedDeps = {};
     for (let i = 0; i < this._computedKeys.length; i++) {
         const key = this._computedKeys[i];
-        calcComputed.call(this, key);
+        calcComputed.call(this, key, computed);
         def(this, key, {
             get() {
                 return me.data.get(createAccesser(key));

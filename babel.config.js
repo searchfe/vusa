@@ -5,9 +5,9 @@ module.exports = {
             {
                 targets: {
                     node: 10,
-                }
-            }
-        ]
+                },
+            },
+        ],
     ],
     env: {
         runtime: {
@@ -15,12 +15,12 @@ module.exports = {
                 ['@babel/preset-env', {
                     targets: {
                         android: '4.1',
-                        ios: '7'
+                        ios: '7',
                     },
-                    modules: 'commonjs'
-                }]
+                    modules: 'commonjs',
+                }],
             ],
-            comments: false
-        }
-    }
+            comments: false,
+        },
+    },
 };

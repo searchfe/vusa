@@ -5,7 +5,7 @@
 
 import {resetTarget, cleanTarget, Dep} from './dep';
 
-export default function calcComputed(computedExpr) {
+export default function calcComputed(computedExpr, computed) {
 
     if (typeof computedExpr === 'object') {
         computedExpr = computedExpr.paths.map(a => a.value).join('.');
@@ -17,7 +17,7 @@ export default function calcComputed(computedExpr) {
     }
 
     resetTarget();
-    const value = this.computed[computedExpr].call(this);
+    const value = computed[computedExpr].call(this);
     const deps = Dep.target;
     cleanTarget();
 
@@ -32,7 +32,7 @@ export default function calcComputed(computedExpr) {
         if (!computedDeps[key]) {
             computedDeps[key] = 1;
             this.watch(expr, function () {
-                calcComputed.call(me, computedExpr);
+                calcComputed.call(me, computedExpr, computed);
             });
         }
     }

@@ -35,6 +35,7 @@ function resolveTransition(def) {
     }
 }
 
+const inBrowser = typeof window !== 'undefined';
 const TRANSITION = 'transition';
 const ANIMATION = 'animation';
 
@@ -43,25 +44,29 @@ let transitionProp = 'transition';
 let transitionEndEvent = 'transitionend';
 let animationProp = 'animation';
 let animationEndEvent = 'animationend';
-/* istanbul ignore if */
-if (
-    window.ontransitionend === undefined
-    && window.onwebkittransitionend !== undefined
-) {
-    transitionProp = 'WebkitTransition';
-    transitionEndEvent = 'webkitTransitionEnd';
-}
-if (
-    window.onanimationend === undefined
-    && window.onwebkitanimationend !== undefined
-) {
-    animationProp = 'WebkitAnimation';
-    animationEndEvent = 'webkitAnimationEnd';
+
+if (inBrowser) {
+    if (
+        window.ontransitionend === undefined
+        && window.onwebkittransitionend !== undefined
+    ) {
+        transitionProp = 'WebkitTransition';
+        transitionEndEvent = 'webkitTransitionEnd';
+    }
+    if (
+        window.onanimationend === undefined
+        && window.onwebkitanimationend !== undefined
+    ) {
+        animationProp = 'WebkitAnimation';
+        animationEndEvent = 'webkitAnimationEnd';
+    }
 }
 
-const raf = window.requestAnimationFrame
-    ? window.requestAnimationFrame.bind(window)
-    : setTimeout;
+const raf = inBrowser
+    ? window.requestAnimationFrame
+        ? window.requestAnimationFrame.bind(window)
+        : setTimeout
+    : fn => fn();
 
 function nextFrame(fn) {
     raf(() => {
