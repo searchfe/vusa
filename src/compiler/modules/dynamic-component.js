@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {parse} from 'atom-expression-compiler';
+import transform from '../expression-transformer';
 
 function postTransformNode(node, options) {
     if (!(node.type === 1 && node.tag === 'component')) {
@@ -19,41 +19,37 @@ function postTransformNode(node, options) {
     }
 
     const value = is.slice(2, is.length - 2).trim();
-    const expr = parse(value, {
-        startRule: 'VueExpression'
-    });
-
-    if (node.if || node.elseif || node.else) {
-        options.error('dynamic component can not use with v-if.');
-        return;
-    }
+    const {ast, code} = transform(value);
 
     if (
-        expr.expression.type === 'ConditionalExpression'
-        && expr.expression.consequent.type === 'Literal'
-        && expr.expression.alternate.type === 'Literal'
+        ast.type === 'ConditionalExpression'
+        && ast.consequent.type === 'Literal'
+        && ast.alternate.type === 'Literal'
     ) {
-        const testLocation = expr.expression.test.location;
+        const testLocation = ast.test.location;
         const test = value.slice(testLocation.start.offset, testLocation.end.offset);
         const attrs = {
             ...node.attrsMap,
-            's-else': ''
+            's-else': '',
         };
-        node.tag = expr.expression.consequent.value;
+        node.tag = ast.consequent.value;
         node.attrsMap['s-if'] = test;
         node.ifConditions = [{
             exp: test,
-            block: node
+            block: node,
         }, {
             block: {
                 ...node,
                 attrsMap: attrs,
-                tag: expr.expression.alternate.value
-            }
+                tag: ast.alternate.value,
+            },
         }];
+    }
+    else {
+        node.attrsMap['s-is'] = code;
     }
 }
 
 export default {
-    postTransformNode
+    postTransformNode,
 };

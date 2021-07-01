@@ -27,6 +27,7 @@ module.exports = function (content) {
         atom: false,
         scopeId: m && m[1] ? m[1] : '',
     });
+    console.log(vesaResult.template);
     const aPack = vesaResult.aPack;
     content += `\ncomponent.options.__sanaPack = ${aPack};`;
     // content += `\ncomponent.options.__santemplate = ${JSON.stringify(template)}`;

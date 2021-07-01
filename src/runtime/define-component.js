@@ -10,7 +10,6 @@ import {extend, hyphenate, def, freeze, createAccesser} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
-import getComponentType from './get-component-type';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
 import mergeOptions from './merge-options';
@@ -18,6 +17,7 @@ import bindData from './bind-data-defineproperty';
 import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
+import toSafeString from './safe-html';
 
 const noop = () => {};
 
@@ -32,7 +32,7 @@ const defaultSanOptions = {
     _ocp: objectComputedProperties,
     _noop: noop,
     _t: Transition,
-    getComponentType,
+    _sf: toSafeString,
     $emit: Component.prototype.fire,
     $on: Component.prototype.on,
     $watch: Component.prototype.watch,

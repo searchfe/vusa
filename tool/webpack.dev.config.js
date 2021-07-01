@@ -12,54 +12,53 @@ module.exports = {
     entry: {
         app: './example/index.js',
     },
-    devtool: 'inline-source-map',
+    devtool: false,
     resolve: {
-        extensions: ['.js', '.ts', '.vue']
+        extensions: ['.js', '.ts', '.vue'],
     },
     plugins: [
         new HtmlWebpackPlugin({
             title: 'Vusa',
             template: path.resolve(__dirname, '../example/index.html')
         }),
-        new VueLoaderPlugin()
+        new VueLoaderPlugin(),
     ],
     output: {
-        filename: '[name].bundle.js'
+        filename: '[name].bundle.js',
     },
     devServer: {
-        host: '0.0.0.0'
+        host: '0.0.0.0',
     },
     module: {
         rules: [{
-                test: /\.js$/,
-                use: 'babel-loader'
-            },
-            {
-                test: /\.ts$/,
-                use: 'ts-loader'
-            },
-            {
-                test: /\.vue$/,
-                use: [
-                    require.resolve('./vesa-loader'),
-                    {
-                        loader: 'vue-loader',
-                        options: {
-                            compilerOptions: {
-                                preserveWhitespace: false
-                            }
-                        }
-                    }
-                ]
-            },
-            {
-                test: /\.styl(us)?$/,
-                use: [
-                    'vue-style-loader',
-                    'css-loader',
-                    'stylus-loader'
-                ]
-            }
-        ]
-    }
+            test: /\.js$/,
+            use: 'babel-loader',
+        },
+        {
+            test: /\.ts$/,
+            use: 'ts-loader',
+        },
+        {
+            test: /\.vue$/,
+            use: [
+                require.resolve('./vesa-loader'),
+                {
+                    loader: 'vue-loader',
+                    options: {
+                        compilerOptions: {
+                            preserveWhitespace: false,
+                        },
+                    },
+                },
+            ],
+        },
+        {
+            test: /\.styl(us)?$/,
+            use: [
+                'vue-style-loader',
+                'css-loader',
+                'stylus-loader',
+            ],
+        }],
+    },
 };

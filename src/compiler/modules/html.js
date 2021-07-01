@@ -31,11 +31,11 @@ function postTransformNode(node) {
         delete node.attrsMap['v-text'];
         node.children = [{
             type: 2,
-            text: `{{ ${value} }}`
+            text: `{{ ${value} }}`,
         }];
     }
 }
 
 export default {
-    postTransformNode
+    postTransformNode,
 };

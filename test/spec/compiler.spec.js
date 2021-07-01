@@ -118,7 +118,7 @@ describe('compiler', function () {
     it('dynamic component', async () => {
         const source = `<component :is="url ? 'a' : 'div'" :href="url"></component>`;
         const result = await compile(source);
-        expect(result.template).toBe('<a href="{{ url }}" s-if="url"></a><div href="{{ url }}" s-else></div>');
+        expect(result.template).toBe('<component href=\"{{ url }}\" s-is=\"url?\'a\':\'div\'\"></component>');
     });
 
     it('template', async () => {
