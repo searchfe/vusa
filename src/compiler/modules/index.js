@@ -34,5 +34,5 @@ export default [
     bind,
     transition,
 
-    dynamicComponent
+    dynamicComponent,
 ];

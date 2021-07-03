@@ -502,6 +502,10 @@ function postTransformNode$7(node) {
 
     let fr = node.alias;
 
+    if (node.parent && node.parent.tag === 'transition-group') {
+        node.iterator1 = 'xxx';
+    }
+
     if (node.iterator1) {
         fr += `,${node.iterator1}`;
     }
@@ -517,13 +521,13 @@ function postTransformNode$7(node) {
     node.attrsMap['s-for'] = fr;
 
     delete node.attrsMap['v-for'];
-    delete node.attrsMap['key'];
+    delete node.attrsMap.key;
     delete node.attrsMap[':key'];
     delete node.attrsMap['v-bind:key'];
 }
 
 var fr = {
-    postTransformNode: postTransformNode$7
+    postTransformNode: postTransformNode$7,
 };
 
 /**
@@ -545,7 +549,7 @@ function postTransformNode$6(node) {
 }
 
 var event = {
-    postTransformNode: postTransformNode$6
+    postTransformNode: postTransformNode$6,
 };
 
 /**
@@ -917,16 +921,20 @@ var template = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+function getAttrs(attrsMap) {
+    return Object.keys(attrsMap).map(name => {
+        let value = attrsMap[name];
+        value = value.startsWith('{{') ? value.slice(2, value.length - 2) : `'${value}'`;
+        delete attrsMap[name];
+        return `${lodash.camelCase(name)}:${value}`;
+    });
+}
+
 function postTransformNode$1(el) {
     if (el.tag === 'transition') {
         el.tag = 'fragment';
 
-        const attrs = Object.keys(el.attrsMap).map(name => {
-            let value = el.attrsMap[name];
-            value = value.startsWith('{{') ? value.slice(2, value.length - 2) : `'${value}'`;
-            delete el.attrsMap[name];
-            return `${lodash.camelCase(name)}:${value}`;
-        });
+        const attrs = getAttrs(el.attrsMap);
 
         if (el.children && el.children[0]) {
             el.children[0].attrsMap['s-transition'] = `_t({${attrs.join(',')}})`;
@@ -940,10 +948,27 @@ function postTransformNode$1(el) {
             }
         }
     }
+
+    if (el.tag === 'transition-group') {
+        el.tag = el.attrsMap.tag;
+        delete el.attrsMap.tag;
+
+        if (!el.children || el.children.length <= 0) {
+            return;
+        }
+
+        for (const node of el.children) {
+            const attrs = getAttrs(el.attrsMap);
+            if (node.for) {
+                attrs.push(`iterator:${node.iterator1}`);
+            }
+            node.attrsMap['s-transition'] = `_t({${attrs.join(',')}})`;
+        }
+    }
 }
 
 var transition = {
-    postTransformNode: postTransformNode$1
+    postTransformNode: postTransformNode$1,
 };
 
 /**
@@ -1004,7 +1029,7 @@ var buildInModules = [
     bind,
     transition,
 
-    dynamicComponent
+    dynamicComponent,
 ];
 
 /**

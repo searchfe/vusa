@@ -20,6 +20,7 @@
     <ssolt><child slot="y" name="slot y"></child></ssolt>
     <wrapper></wrapper>
     <e-trans></e-trans>
+    <e-trans-group></e-trans-group>
   </div>
 </template>
 
@@ -33,6 +34,7 @@ import Reactive from './reactive';
 import Slot from './slot';
 import Wrapper from './wrapper';
 import Transition from './transition';
+import TransitionGroup from './transition-group';
 
 export default {
     props: {
@@ -64,7 +66,8 @@ export default {
         Reactive,
         ssolt: Slot,
         Wrapper,
-        'e-trans': Transition
+        'e-trans': Transition,
+        'e-trans-group': TransitionGroup,
     },
     methods: {
         onClick(e) {

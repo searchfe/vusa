@@ -12,6 +12,10 @@ function postTransformNode(node) {
 
     let fr = node.alias;
 
+    if (node.parent && node.parent.tag === 'transition-group') {
+        node.iterator1 = 'xxx';
+    }
+
     if (node.iterator1) {
         fr += `,${node.iterator1}`;
     }
@@ -27,11 +31,11 @@ function postTransformNode(node) {
     node.attrsMap['s-for'] = fr;
 
     delete node.attrsMap['v-for'];
-    delete node.attrsMap['key'];
+    delete node.attrsMap.key;
     delete node.attrsMap[':key'];
     delete node.attrsMap['v-bind:key'];
 }
 
 export default {
-    postTransformNode
+    postTransformNode,
 };
