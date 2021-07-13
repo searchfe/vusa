@@ -7,14 +7,21 @@
         {{ item }}
         </span>
     </transition-group>
+    <button v-on:click="shuffle">Shuffle</button>
+    <transition-group name="flip-list" tag="ul">
+        <li v-for="item in items" v-bind:key="item">
+        {{ item }}
+        </li>
+    </transition-group>
   </div>
 </template>
 
 <script>
+import _ from 'lodash';
 export default {
     data() {
         return {
-            items: [1,2,3,4,5,6,7,8,9],
+            items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
             nextNum: 10
         };
     },
@@ -30,6 +37,9 @@ export default {
         remove() {
             this.items.splice(this.randomIndex(), 1)
         },
+        shuffle() {
+            this.items = _.shuffle(this.items)
+        }
     }
 };
 </script>
@@ -45,5 +55,8 @@ export default {
 .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
     opacity: 0;
     transform: translateY(30px);
+}
+.flip-list-move {
+  transition: transform 1s;
 }
 </style>

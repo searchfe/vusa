@@ -29,23 +29,24 @@ methodsToPatch.forEach(function (method) {
     const original = arrayProto[method];
     def(arrayMethods, method, {
         value(...args) {
-            const result = original.apply(this, args);
             const ob = this.__ob__;
-            let inserted;
             switch (method) {
                 case 'push':
                 case 'unshift':
-                    inserted = args;
+                    ob.context.data[method](ob.expr, args[0]);
+                    break;
+                case 'pop':
+                case 'shift':
+                    ob.context.data[method](ob.expr);
                     break;
                 case 'splice':
-                    inserted = args.slice(2);
+                    ob.context.data.splice(ob.expr, args);
                     break;
+                default:
+                    ob.context.data.set(ob.expr, original.apply(this.slice(), args));
             }
-            if (inserted) {
-                ob.observeArray(inserted);
-            }
-            ob.context.data.set(ob.expr, this, {force: true});
-            observe(ob.context.data.get(ob.expr), ob.expr, ob.context);
+            const result = ob.context.data.get(ob.expr);
+            observe(result, ob.expr, ob.context);
             return result;
         },
     });
@@ -178,22 +179,35 @@ function observe(value, expr, context) {
 }
 
 export default function (computed) {
-    const expr = extend({}, defaultExpr);
+    // const expr = extend({}, defaultExpr);
     const keys = [...this._dataKeys, ...this._propKeys];
     const keyLength = keys.length;
 
-    this._data = this.data.get();
-    observe(this._data, expr, this);
     const context = this;
+
+    const dep = new Dep();
 
     for (let i = 0; i < keyLength; i++) {
         const key = keys[i];
+        const keyExpr = {
+            type: ExprType.ACCESSOR,
+            paths: [{
+                type: ExprType.STRING,
+                value: key,
+            }],
+        };
         def(context, key, {
             get() {
-                return context._data[key];
+                dep.depend({
+                    context,
+                    expr: keyExpr,
+                });
+                const val = context.data.get(keyExpr);
+                observe(val, keyExpr, context);
+                return val;
             },
             set(newVal) {
-                context._data[key] = newVal;
+                context.data.set(keyExpr, newVal);
             },
         });
     }
