@@ -646,36 +646,8 @@ function postTransformNode$3(node, options) {
         return;
     }
 
-    const value = is.slice(2, is.length - 2).trim();
-    const {ast, code} = transform(value);
-
-    if (
-        ast.type === 'ConditionalExpression'
-        && ast.consequent.type === 'Literal'
-        && ast.alternate.type === 'Literal'
-    ) {
-        const testLocation = ast.test.location;
-        const test = value.slice(testLocation.start.offset, testLocation.end.offset);
-        const attrs = {
-            ...node.attrsMap,
-            's-else': '',
-        };
-        node.tag = ast.consequent.value;
-        node.attrsMap['s-if'] = test;
-        node.ifConditions = [{
-            exp: test,
-            block: node,
-        }, {
-            block: {
-                ...node,
-                attrsMap: attrs,
-                tag: ast.alternate.value,
-            },
-        }];
-    }
-    else {
-        node.attrsMap['s-is'] = code;
-    }
+    const {code} = transform(is.replace(/(^{{|}}$)/g, ''));
+    node.attrsMap['s-is'] = code;
 }
 
 var dynamicComponent = {
