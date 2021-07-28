@@ -1,5 +1,5 @@
 <template>
-  <div>child {{ name }} {{ a }}</div>
+  <div>child {{ name }} {{ a }} {{ $root.message }}</div>
 </template>
 
 <script>

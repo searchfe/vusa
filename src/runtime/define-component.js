@@ -115,31 +115,6 @@ export default function define(options) {
         _isSan: true,
     }, defaultSanOptions, mergeOptions(options));
 
-    const compiledHook = sanOptions.compiled;
-    sanOptions.compiled = function () {
-
-        this._calcComputed = noop;
-
-        compiledHook && compiledHook.call(this);
-
-        const properties = Object
-            .keys(memberMap)
-            .reduce((props, key) => {
-                props[key] = {
-                    get() {
-                        return memberMap[key].call(this);
-                    },
-                };
-                return props;
-            }, {});
-
-        properties.$options = {
-            value: options,
-        };
-
-        Object.defineProperties(this, properties);
-    };
-
     const refs = options.__sanRefs;
     const initedHook = sanOptions.inited;
     sanOptions.inited = function () {
@@ -179,11 +154,6 @@ export default function define(options) {
             }
         }
 
-        // for (let i = 0; i < this._methodKeys.length; i++) {
-        //     const key = this._methodKeys[i];
-        //     this[key] = this[key].bind(this);
-        // }
-
         initedHook && initedHook.call(this);
 
         if (options.watch && !optimizeSSR) {
@@ -206,7 +176,30 @@ export default function define(options) {
         }
     };
 
+    const compiledHook = sanOptions.compiled;
     sanOptions.initData = function () {
+
+        this._calcComputed = noop;
+
+        // san-ssr 下没有执行 compiled 生命周期
+        compiledHook && compiledHook.call(this);
+
+        const properties = Object
+            .keys(memberMap)
+            .reduce((props, key) => {
+                props[key] = {
+                    get() {
+                        return memberMap[key].call(this);
+                    },
+                };
+                return props;
+            }, {});
+
+        properties.$options = {
+            value: options,
+        };
+
+        Object.defineProperties(this, properties);
 
         const me = this;
 

@@ -26,6 +26,7 @@ export default {
     },
     methods: {
         onClick() {
+            console.log(this);
             this.show = !this.show;
         },
         onEnter() {
