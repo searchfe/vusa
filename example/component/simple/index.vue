@@ -21,6 +21,7 @@
     <wrapper></wrapper>
     <e-trans></e-trans>
     <e-trans-group></e-trans-group>
+    <a-sync :name="'async'"></a-sync>
   </div>
 </template>
 
@@ -66,6 +67,9 @@ export default {
         ssolt: Slot,
         'e-trans': Transition,
         'e-trans-group': TransitionGroup,
+        'a-sync': function (resolve) {
+            import('./async.vue').then(c => resolve(c.default));
+        }
     },
     methods: {
         onClick(e) {

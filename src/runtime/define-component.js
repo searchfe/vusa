@@ -5,7 +5,7 @@
 
 import './override-data-get';
 
-import {defineComponent, Component, nextTick} from 'san';
+import {defineComponent, Component, nextTick, createComponentLoader} from 'san';
 import {extend, hyphenate, def, freeze, createAccesser} from '../shared/util';
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
@@ -84,10 +84,32 @@ const innerKey = '_SanCtor';
 
 const styleAccesser = createAccesser('$style');
 
+function normalizeComponent(component) {
+    if (component instanceof Component || component instanceof VusaComponent) {
+        return component;
+    }
+    if (typeof component === 'function') {
+        return createComponentLoader(() => {
+            return new Promise(resolve => {
+                component(function (cmpt) {
+                    resolve(define(cmpt));
+                });
+            });
+        });
+    }
+    return component.template || component.aNode || component.aPack
+        ? defineComponent(component)
+        : define(component);
+}
+
 export default function define(options) {
 
     if (options[innerKey]) {
         return options[innerKey];
+    }
+
+    if (typeof options === 'function') {
+        return normalizeComponent(options);
     }
 
     const prePareOptions = {};
@@ -97,13 +119,7 @@ export default function define(options) {
             .keys(options.components)
             .reduce((prev, key) => {
                 const component = options.components[key];
-                prev[key] = prev[hyphenate(key)] = component instanceof Component || options instanceof VusaComponent
-                    ? component
-                    : (
-                        component.template || component.aNode || component.aPack
-                            ? defineComponent(component)
-                            : define(component)
-                    );
+                prev[key] = prev[hyphenate(key)] = normalizeComponent(component);
                 return prev;
             }, extend({}, globalOptions.components));
         prePareOptions._cmptReady = 1;
