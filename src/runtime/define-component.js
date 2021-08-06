@@ -12,13 +12,12 @@ import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
-import mergeOptions from './merge-options';
+import mergeOptions, {globalOptions} from './merge-options';
 import bindData from './bind-data-defineproperty';
 import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
 import toSafeString from './safe-html';
-import {globalOptions} from './merge-options';
 
 const noop = () => {};
 

@@ -340,21 +340,6 @@
     }
 
     /**
-     * @file get component type
-     * @author cxtom(cxtom2008@gmail.com)
-     */
-
-    function getComponentType (aNode, data) {
-        if (aNode.tagName !== 'component' || aNode.hotspot.props.is == null) {
-            return this.components[aNode.tagName];
-        }
-
-        var is = aNode.props[aNode.hotspot.props.is];
-        var isValue = san.evalExpr(is.expr, data);
-        return this.components[isValue];
-    }
-
-    /**
      * @file object computed properties merge
      * @author cxtom(cxtom2008@gmail.com)
      */
@@ -495,12 +480,6 @@
         },
     };
 
-    var atomBuildInMixin = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        methods: methods,
-        filters: filters
-    });
-
     /**
      * @file merge options
      * @author cxtom(cxtom2008@gmail.com)
@@ -508,6 +487,11 @@
 
     var keys = [
         'filters' ];
+
+    var globalOptions = {
+        methods: methods,
+        filters: filters,
+    };
 
     function mergeHook(parentVal, childVal) {
         return childVal
@@ -522,8 +506,8 @@
     function mergeOptions(options) {
         var destOptions = {};
         var list = Array.isArray(options.mixins)
-            ? [atomBuildInMixin ].concat( options.mixins, [options])
-            : [atomBuildInMixin, options];
+            ? [globalOptions ].concat( options.mixins, [options])
+            : [globalOptions, options];
 
         var methods = {};
 
@@ -654,23 +638,24 @@
                 var args = [], len = arguments.length;
                 while ( len-- ) args[ len ] = arguments[ len ];
 
-                var result = original.apply(this, args);
                 var ob = this.__ob__;
-                var inserted;
                 switch (method) {
                     case 'push':
                     case 'unshift':
-                        inserted = args;
+                        ob.context.data[method](ob.expr, args[0]);
+                        break;
+                    case 'pop':
+                    case 'shift':
+                        ob.context.data[method](ob.expr);
                         break;
                     case 'splice':
-                        inserted = args.slice(2);
+                        ob.context.data.splice(ob.expr, args);
                         break;
+                    default:
+                        ob.context.data.set(ob.expr, original.apply(this.slice(), args));
                 }
-                if (inserted) {
-                    ob.observeArray(inserted);
-                }
-                ob.context.data.set(ob.expr, this, {force: true});
-                observe(ob.context.data.get(ob.expr), ob.expr, ob.context);
+                var result = ob.context.data.get(ob.expr);
+                observe(result, ob.expr, ob.context);
                 return result;
             },
         });
@@ -777,10 +762,10 @@
         def(obj, key, newProperty);
     }
 
-    var defaultExpr = {
+    ({
         type: san.ExprType.ACCESSOR,
         paths: [],
-    };
+    });
 
     function observe(value, expr, context) {
         if (!isObject(value)) {
@@ -802,22 +787,35 @@
     function bindData (computed) {
         var this$1$1 = this;
 
-        var expr = extend({}, defaultExpr);
+        // const expr = extend({}, defaultExpr);
         var keys = ( this._dataKeys ).concat( this._propKeys);
         var keyLength = keys.length;
 
-        this._data = this.data.get();
-        observe(this._data, expr, this);
         var context = this;
+
+        var dep = new Dep();
 
         var loop = function ( i ) {
             var key = keys[i];
+            var keyExpr = {
+                type: san.ExprType.ACCESSOR,
+                paths: [{
+                    type: san.ExprType.STRING,
+                    value: key,
+                }],
+            };
             def(context, key, {
                 get: function get() {
-                    return context._data[key];
+                    dep.depend({
+                        context: context,
+                        expr: keyExpr,
+                    });
+                    var val = context.data.get(keyExpr);
+                    observe(val, keyExpr, context);
+                    return val;
                 },
                 set: function set(newVal) {
-                    context._data[key] = newVal;
+                    context.data.set(keyExpr, newVal);
                 },
             });
         };
@@ -1380,6 +1378,39 @@
         }
     }
 
+    function processAttr(str) {
+        return str.split(/(?=<)/g).map(function (subStr) {
+            if (/^<\//.test(subStr) || (subStr.indexOf('>') < 0)) {
+                return subStr;
+            }
+            var reg = /\s*(on[^\s"'<>\/=]+)\s*=/gi;
+            var gtIndex = subStr.indexOf('>');
+            var back = subStr.slice(gtIndex + 1);
+            var front = subStr.slice(0, gtIndex + 1).replace(reg, function (match, match1) {
+                return match.replace(match1, match1 + '-safe');
+            });
+            return front + back;
+        }).join('');
+    }
+
+    function toSafeString(html) {
+        if (html.indexOf('<') > -1) {
+            var reg = /((<script.*?<\/script>)|(<style.*?<\/style>))/ig;
+            var map = {
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;', // 与 PHP 转义保持一致
+            };
+            html = html.replace(reg, function (match) {
+                return match.replace(/([<>"])/g, function (char) {
+                    return map[char];
+                });
+            });
+            return processAttr(html);
+        }
+        return html;
+    }
+
     /**
      * @file component
      * @author cxtom(cxtom2008@gmail.com)
@@ -1398,13 +1429,15 @@
         _ocp: objectComputedProperties,
         _noop: noop,
         _t: Transition,
-        getComponentType: getComponentType,
+        _sf: toSafeString,
         $emit: san.Component.prototype.fire,
         $on: san.Component.prototype.on,
         $watch: san.Component.prototype.watch,
         $nextTick: san.nextTick,
     };
     /* eslint-enable fecs-camelcase */
+
+    var VusaComponent = san.defineComponent(defaultSanOptions);
 
     var memberMap = {
         $el: function $el() {
@@ -1447,10 +1480,32 @@
 
     var styleAccesser = createAccesser('$style');
 
+    function normalizeComponent(component) {
+        if (component instanceof san.Component || component instanceof VusaComponent) {
+            return component;
+        }
+        if (typeof component === 'function') {
+            return san.createComponentLoader(function () {
+                return new Promise(function (resolve) {
+                    component(function (cmpt) {
+                        resolve(define(cmpt));
+                    });
+                });
+            });
+        }
+        return component.template || component.aNode || component.aPack
+            ? san.defineComponent(component)
+            : define(component);
+    }
+
     function define(options) {
 
         if (options[innerKey]) {
             return options[innerKey];
+        }
+
+        if (typeof options === 'function') {
+            return normalizeComponent(options);
         }
 
         var prePareOptions = {};
@@ -1460,15 +1515,16 @@
                 .keys(options.components)
                 .reduce(function (prev, key) {
                     var component = options.components[key];
-                    prev[key] = prev[hyphenate(key)] = component instanceof san.Component
-                        ? component
-                        : (component.template || component.aNode ? san.defineComponent(component) : define(component));
+                    prev[key] = prev[hyphenate(key)] = normalizeComponent(component);
                     return prev;
-                }, {});
+                }, extend({}, globalOptions.components));
             prePareOptions._cmptReady = 1;
         }
 
-        if (options.template || options.aNode || options instanceof san.Component) {
+        if (
+            options.template || options.aNode || options.aPack
+            || options instanceof san.Component || options instanceof VusaComponent
+        ) {
             return san.defineComponent(extend({}, options, prePareOptions));
         }
 
@@ -1479,32 +1535,7 @@
             aNode: options.__sanaNode,
             aPack: options.__sanaPack,
             _isSan: true,
-        }, defaultSanOptions, mergeOptions(options));
-
-        var compiledHook = sanOptions.compiled;
-        sanOptions.compiled = function () {
-
-            this._calcComputed = noop;
-
-            compiledHook && compiledHook.call(this);
-
-            var properties = Object
-                .keys(memberMap)
-                .reduce(function (props, key) {
-                    props[key] = {
-                        get: function get() {
-                            return memberMap[key].call(this);
-                        },
-                    };
-                    return props;
-                }, {});
-
-            properties.$options = {
-                value: options,
-            };
-
-            Object.defineProperties(this, properties);
-        };
+        }, mergeOptions(options));
 
         var refs = options.__sanRefs;
         var initedHook = sanOptions.inited;
@@ -1549,11 +1580,6 @@
                 }
             }
 
-            // for (let i = 0; i < this._methodKeys.length; i++) {
-            //     const key = this._methodKeys[i];
-            //     this[key] = this[key].bind(this);
-            // }
-
             initedHook && initedHook.call(this);
 
             if (options.watch && !optimizeSSR) {
@@ -1576,7 +1602,30 @@
             }
         };
 
+        var compiledHook = sanOptions.compiled;
         sanOptions.initData = function () {
+
+            this._calcComputed = noop;
+
+            // san-ssr 下没有执行 compiled 生命周期
+            compiledHook && compiledHook.call(this);
+
+            var properties = Object
+                .keys(memberMap)
+                .reduce(function (props, key) {
+                    props[key] = {
+                        get: function get() {
+                            return memberMap[key].call(this);
+                        },
+                    };
+                    return props;
+                }, {});
+
+            properties.$options = {
+                value: options,
+            };
+
+            Object.defineProperties(this, properties);
 
             var me = this;
 
@@ -1629,12 +1678,23 @@
             return initialData;
         };
 
-        var cmpt = san.defineComponent(sanOptions);
+        var cmpt = san.defineComponent(sanOptions, VusaComponent);
 
         return options[innerKey] = cmpt;
     }
 
+    var mixin = function (options) {
+        mergeOptions(options);
+    };
+
+    var component = function (name, Component) {
+        globalOptions.components = globalOptions.components || {};
+        globalOptions.components[name] = define(Component);
+    };
+
+    exports.component = component;
     exports.defineComponent = define;
+    exports.mixin = mixin;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
