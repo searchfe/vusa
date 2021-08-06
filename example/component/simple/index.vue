@@ -32,7 +32,6 @@ import mixin1 from '../mixin1';
 import Bool from './bool';
 import Reactive from './reactive';
 import Slot from './slot';
-import Wrapper from './wrapper';
 import Transition from './transition';
 import TransitionGroup from './transition-group';
 
@@ -65,7 +64,6 @@ export default {
         Bool,
         Reactive,
         ssolt: Slot,
-        Wrapper,
         'e-trans': Transition,
         'e-trans-group': TransitionGroup,
     },

@@ -18,6 +18,7 @@ import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
 import toSafeString from './safe-html';
+import {globalOptions} from './merge-options';
 
 const noop = () => {};
 
@@ -39,6 +40,8 @@ const defaultSanOptions = {
     $nextTick: nextTick,
 };
 /* eslint-enable fecs-camelcase */
+
+export const VusaComponent = defineComponent(defaultSanOptions);
 
 const memberMap = {
     $el() {
@@ -94,15 +97,22 @@ export default function define(options) {
             .keys(options.components)
             .reduce((prev, key) => {
                 const component = options.components[key];
-                prev[key] = prev[hyphenate(key)] = component instanceof Component
+                prev[key] = prev[hyphenate(key)] = component instanceof Component || options instanceof VusaComponent
                     ? component
-                    : (component.template || component.aNode ? defineComponent(component) : define(component));
+                    : (
+                        component.template || component.aNode || component.aPack
+                            ? defineComponent(component)
+                            : define(component)
+                    );
                 return prev;
-            }, {});
+            }, extend({}, globalOptions.components));
         prePareOptions._cmptReady = 1;
     }
 
-    if (options.template || options.aNode || options instanceof Component) {
+    if (
+        options.template || options.aNode || options.aPack
+        || options instanceof Component || options instanceof VusaComponent
+    ) {
         return defineComponent(extend({}, options, prePareOptions));
     }
 
@@ -113,7 +123,7 @@ export default function define(options) {
         aNode: options.__sanaNode,
         aPack: options.__sanaPack,
         _isSan: true,
-    }, defaultSanOptions, mergeOptions(options));
+    }, mergeOptions(options));
 
     const refs = options.__sanRefs;
     const initedHook = sanOptions.inited;
@@ -252,7 +262,7 @@ export default function define(options) {
         return initialData;
     };
 
-    const cmpt = defineComponent(sanOptions);
+    const cmpt = defineComponent(sanOptions, VusaComponent);
 
     return options[innerKey] = cmpt;
 }

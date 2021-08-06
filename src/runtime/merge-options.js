@@ -11,6 +11,11 @@ const keys = [
     'filters',
 ];
 
+export const globalOptions = {
+    methods: atomBuildInMixin.methods,
+    filters: atomBuildInMixin.filters,
+};
+
 function mergeHook(parentVal, childVal) {
     return childVal
         ? parentVal
@@ -24,8 +29,8 @@ function mergeHook(parentVal, childVal) {
 export default function mergeOptions(options) {
     const destOptions = {};
     const list = Array.isArray(options.mixins)
-        ? [atomBuildInMixin, ...options.mixins, options]
-        : [atomBuildInMixin, options];
+        ? [globalOptions, ...options.mixins, options]
+        : [globalOptions, options];
 
     const methods = {};
 
