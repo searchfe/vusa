@@ -11,6 +11,8 @@ import atom from './modules/atom';
 import {isEmpty} from 'lodash';
 import {parseTemplate, pack} from 'san-anode-utils';
 
+const injectScriptRE = /^\[injectScript\]/;
+
 export function compile(source, options = {}) {
 
     const {
@@ -30,6 +32,7 @@ export function compile(source, options = {}) {
     }
 
     const errors = [];
+    const injectScript = [];
     const compilerOptions = {
         modules: [
             ...buildInModules,
@@ -39,14 +42,17 @@ export function compile(source, options = {}) {
         useDynamicComponent: false,
         refs: [],
         error(msg) {
-            // eslint-disable-next-line no-console
-            console.error(`[vusa error] ${msg}`);
-            errors.push(msg);
+            if (injectScriptRE.test(msg)) {
+                injectScript.push(...JSON.parse(msg.replace(injectScriptRE, '')));
+            }
+            else {
+                // eslint-disable-next-line no-console
+                console.error(`[vusa error] ${msg}`);
+                errors.push(msg);
+            }
         },
         strip,
     };
-
-    // console.log(source);
 
     const {ast} = vueCompile(source.trim(), compilerOptions);
 
@@ -62,5 +68,6 @@ export function compile(source, options = {}) {
         template,
         refs: compilerOptions.refs,
         errors,
+        injectScript,
     };
 }
