@@ -57,13 +57,33 @@ describe('compiler', function () {
         expect(result.template).toBe('<div><p s-if="a<0">1</p><p s-else-if="a>=0">1</p><p s-else>4</p></div>');
     });
 
-    it('v-on & @', async () => {
-        const source = `
-        <div @click="onClick" v-on:touchstart.native="onTouchStart">
-            <p @touchstop.stop.native="onTouchStop"></p>
-        </div>`;
-        const result = await compile(source);
-        expect(result.template).toBe('<div on-click="onClick" on-touchstart="native:onTouchStart"><p on-touchstop="stop:native:onTouchStop"></p></div>');
+    describe('v-on & @', () => {
+        it('empty value', async () => {
+            const source = '<div @click=""></div>';
+            const result = await compile(source);
+            expect(result.template).toBe('<div></div>');
+
+        });
+
+        it('event value is method', async () => {
+            const source = `
+            <div @click="onClick" v-on:touchstart.native="onTouchStart">
+                <p @touchstop.stop.native="onTouchStop"></p>
+            </div>`;
+            const result = await compile(source);
+            expect(result.template).toBe('<div on-click="onClick" on-touchstart="native:onTouchStart"><p on-touchstop="stop:native:onTouchStop"></p></div>');
+            expect(result.injectScript).toEqual({});
+        });
+
+        it('event value is inline statement', async () => {
+            const source = '<div @focus="focus = true" @blur.native="focus = false"></div>';
+            const result = await compile(source);
+            expect(result.template).toMatch(/<div on-focus="[A-Za-z_]{4}\(\$event\)" on-blur="native:[A-Za-z_]{4}\(\$event\)"><\/div>/);
+            expect(Object.keys(result.injectScript)).toEqual(['methods']);
+            expect(result.injectScript.methods.length).toBe(2);
+            expect(result.injectScript.methods[0]).toMatch(/[A-Za-z_]{4}\(\$event\) {with\(this\){focus = true}}/);
+            expect(result.injectScript.methods[1]).toMatch(/[A-Za-z_]{4}\(\$event\) {with\(this\){focus = false}}/);
+        });
     });
 
     it('v-html', async () => {
@@ -140,4 +160,3 @@ describe('compiler', function () {
     });
 
 });
-

@@ -11,6 +11,7 @@ var codeFrame = require('@babel/code-frame');
 var atomExpressionCompiler = require('atom-expression-compiler');
 var escapeQuotes = require('escape-quotes');
 var toSingleQuotes = require('to-single-quotes');
+var nanoid = require('nanoid');
 var lodash = require('lodash');
 var vueTemplateCompiler = require('vue-template-compiler');
 require('san');
@@ -536,15 +537,50 @@ var fr = {
  */
 
 const reEvent = /^(@|v-on:)/;
+const fnExpRE = /^\s*([\w$_]+|\([^)]*?\))\s*=>|^function\s*\(/;
+const simplePathRE = /^\s*[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['.*?']|\[".*?"]|\[\d+]|\[[A-Za-z_$][\w$]*])*\s*$/;
 
-function postTransformNode$6(node) {
+function getName() {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+    const nanoid$1 = nanoid.customAlphabet(alphabet, 4);
+    return nanoid$1();
+}
+
+function postTransformNode$6(node, options) {
+    const injectScript = [];
     const eventAttrs = node.attrsList.filter(n => reEvent.test(n.name));
     for (const attr of eventAttrs) {
         delete node.attrsMap[attr.name];
         const [name, ...modifiers] = attr.name.split('.');
-        const eventHandler = attr.value ? transform(attr.value).code : '_noop';
-        node.attrsMap[`on-${name.replace(reEvent, '')}`]
-            = `${modifiers.map(m => `${m}:`).join('')}${eventHandler}`;
+
+        const isMethodPath = simplePathRE.test(attr.value);
+        const isFunctionExpression = fnExpRE.test(attr.value);
+
+        if (isFunctionExpression) {
+            options.error('function expression in event value are not supported.');
+            return;
+        }
+
+        if (attr.value) {
+            let eventHandler;
+            if (isMethodPath) {
+                eventHandler = transform(attr.value).code;
+            }
+            else {
+                const fnName = getName();
+                eventHandler = `${fnName}($event)`;
+                const method = `${eventHandler} {with(this){${attr.value}}}`;
+
+                injectScript.push(method);
+            }
+
+            node.attrsMap[`on-${name.replace(reEvent, '')}`]
+                = `${modifiers.map(m => m + ':').join('')}${eventHandler}`;
+        }
+    }
+
+    if (injectScript.length) {
+        options.error(`[injectScript:methods]${JSON.stringify(injectScript)}`);
     }
 }
 
@@ -1116,6 +1152,8 @@ var atom = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+const injectScriptRE = /^\[injectScript:([A-Za-z_]+)\]/;
+
 function compile(source, options = {}) {
 
     const {
@@ -1135,6 +1173,7 @@ function compile(source, options = {}) {
     }
 
     const errors = [];
+    const injectScript = {};
     const compilerOptions = {
         modules: [
             ...buildInModules,
@@ -1144,14 +1183,22 @@ function compile(source, options = {}) {
         useDynamicComponent: false,
         refs: [],
         error(msg) {
-            // eslint-disable-next-line no-console
-            console.error(`[vusa error] ${msg}`);
-            errors.push(msg);
+            const matches = msg.match(injectScriptRE);
+            if (matches && matches.length === 2) {
+                const member = matches[1];
+                const value = JSON.parse(msg.replace(injectScriptRE, ''));
+                injectScript[member]
+                    ? injectScript[member].push(...value)
+                    : injectScript[member] = value;
+            }
+            else {
+                // eslint-disable-next-line no-console
+                console.error(`[vusa error] ${msg}`);
+                errors.push(msg);
+            }
         },
         strip,
     };
-
-    // console.log(source);
 
     const {ast} = vueTemplateCompiler.compile(source.trim(), compilerOptions);
 
@@ -1167,6 +1214,7 @@ function compile(source, options = {}) {
         template,
         refs: compilerOptions.refs,
         errors,
+        injectScript,
     };
 }
 
