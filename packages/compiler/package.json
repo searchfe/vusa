@@ -1,6 +1,6 @@
 {
   "name": "@vusa/compiler",
-  "version": "1.0.1-alpha.15",
+  "version": "1.0.1-alpha.16",
   "description": "vue template compiler to generate san template string",
   "main": "index.js",
   "scripts": {
@@ -17,12 +17,13 @@
     "atom-expression-compiler": "^2.2.3",
     "escape-quotes": "^1.0.2",
     "lodash": "^4.17.15",
+    "nanoid": "~3.1.25",
     "san": "^3.10.6",
     "san-anode-utils": "^3.10.0",
     "to-single-quotes": "^3.0.0",
     "vue-template-compiler": "2.5.22"
   },
   "publishConfig": {
-      "access": "public"
+    "access": "public"
   }
 }

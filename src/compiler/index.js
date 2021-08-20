@@ -11,7 +11,7 @@ import atom from './modules/atom';
 import {isEmpty} from 'lodash';
 import {parseTemplate, pack} from 'san-anode-utils';
 
-const injectScriptRE = /^\[injectScript\]/;
+const injectScriptRE = /^\[injectScript:([A-Za-z_]+)\]/;
 
 export function compile(source, options = {}) {
 
@@ -32,7 +32,7 @@ export function compile(source, options = {}) {
     }
 
     const errors = [];
-    const injectScript = [];
+    const injectScript = {};
     const compilerOptions = {
         modules: [
             ...buildInModules,
@@ -42,8 +42,13 @@ export function compile(source, options = {}) {
         useDynamicComponent: false,
         refs: [],
         error(msg) {
-            if (injectScriptRE.test(msg)) {
-                injectScript.push(...JSON.parse(msg.replace(injectScriptRE, '')));
+            const matches = msg.match(injectScriptRE);
+            if (matches && matches.length === 2) {
+                const member = matches[1];
+                const value = JSON.parse(msg.replace(injectScriptRE, ''));
+                injectScript[member]
+                    ? injectScript[member].push(...value)
+                    : injectScript[member] = value;
             }
             else {
                 // eslint-disable-next-line no-console

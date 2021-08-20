@@ -38,8 +38,8 @@ function postTransformNode(node, options) {
             }
             else {
                 const fnName = getName();
-                const method = `${fnName}($event) {${attr.value}}`;
                 eventHandler = `${fnName}($event)`;
+                const method = `${eventHandler} {with(this){${attr.value}}}`;
 
                 injectScript.push(method);
             }
@@ -50,7 +50,7 @@ function postTransformNode(node, options) {
     }
 
     if (injectScript.length) {
-        options.error(`[injectScript]${JSON.stringify(injectScript)}`);
+        options.error(`[injectScript:methods]${JSON.stringify(injectScript)}`);
     }
 }
 

@@ -72,16 +72,17 @@ describe('compiler', function () {
             </div>`;
             const result = await compile(source);
             expect(result.template).toBe('<div on-click="onClick" on-touchstart="native:onTouchStart"><p on-touchstop="stop:native:onTouchStop"></p></div>');
-            expect(result.injectScript.length).toBe(0);
+            expect(result.injectScript).toEqual({});
         });
 
         it('event value is inline statement', async () => {
             const source = '<div @focus="focus = true" @blur.native="focus = false"></div>';
             const result = await compile(source);
             expect(result.template).toMatch(/<div on-focus="[A-Za-z_]{4}\(\$event\)" on-blur="native:[A-Za-z_]{4}\(\$event\)"><\/div>/);
-            expect(result.injectScript.length).toBe(2);
-            expect(result.injectScript[0]).toMatch(/[A-Za-z_]{4}\(\$event\) {focus = true}/);
-            expect(result.injectScript[1]).toMatch(/[A-Za-z_]{4}\(\$event\) {focus = false}/);
+            expect(Object.keys(result.injectScript)).toEqual(['methods']);
+            expect(result.injectScript.methods.length).toBe(2);
+            expect(result.injectScript.methods[0]).toMatch(/[A-Za-z_]{4}\(\$event\) {with\(this\){focus = true}}/);
+            expect(result.injectScript.methods[1]).toMatch(/[A-Za-z_]{4}\(\$event\) {with\(this\){focus = false}}/);
         });
     });
 
