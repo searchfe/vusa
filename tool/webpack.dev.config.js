@@ -41,7 +41,7 @@ module.exports = {
         {
             test: /\.vue$/,
             use: [
-                require.resolve('./vesa-loader'),
+                require.resolve('./vusa-loader'),
                 {
                     loader: 'vue-loader',
                     options: {

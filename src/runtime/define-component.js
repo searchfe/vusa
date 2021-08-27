@@ -13,7 +13,7 @@ import loopExpression from './loop-expression';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
 import mergeOptions, {globalOptions} from './merge-options';
-import bindData from './bind-data-defineproperty';
+import bindData, {set} from './bind-data-defineproperty';
 import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
@@ -37,6 +37,7 @@ const defaultSanOptions = {
     $on: Component.prototype.on,
     $watch: Component.prototype.watch,
     $nextTick: nextTick,
+    $set: set,
 };
 /* eslint-enable fecs-camelcase */
 

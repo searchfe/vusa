@@ -31,12 +31,12 @@ module.exports = {
         // required features to drop conditional branches
         conditionals: true,
         dead_code: true,
-        evaluate: true
+        evaluate: true,
     },
     mangle: {
-        safari10: true
+        safari10: true,
     },
     output: {
         comments: false,
-    }
+    },
 };

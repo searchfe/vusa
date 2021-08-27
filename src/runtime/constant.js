@@ -14,6 +14,7 @@ export const lifeCycleMap = {
     beforeUpdate: 'beforeUpdate',
     activated: 'activated',
     deactivated: 'deactivated',
+    errorCaptured: 'error',
 };
 
 export const lifeCycleKeys = Object.keys(lifeCycleMap);

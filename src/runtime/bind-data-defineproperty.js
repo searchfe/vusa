@@ -3,8 +3,8 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {isObject, hasOwn, isPlainObject, extend, def, createAccesser} from '../shared/util';
-import {ExprType} from 'san';
+import {isObject, hasOwn, isPlainObject, extend, def, createAccesser, isPrimitive, isValidArrayIndex} from '../shared/util';
+import {ExprType, NodeType, parseExpr} from 'san';
 import {Dep} from './dep';
 import calcComputed from './calc-computed';
 
@@ -156,10 +156,10 @@ function defineReactive(obj, key, expr, context) {
     def(obj, key, newProperty);
 }
 
-const defaultExpr = {
-    type: ExprType.ACCESSOR,
-    paths: [],
-};
+// const defaultExpr = {
+//     type: ExprType.ACCESSOR,
+//     paths: [],
+// };
 
 function observe(value, expr, context) {
     if (!isObject(value)) {
@@ -176,6 +176,33 @@ function observe(value, expr, context) {
         ob = new Observer(value, expr, context);
     }
     return ob;
+}
+
+export function set(target, propertyNameOrIndex, value) {
+    if (target == null || isPrimitive(target)) {
+        return;
+    }
+    const expr = parseExpr(propertyNameOrIndex);
+    if (target.nodeType === NodeType.CMPT) {
+        target.data.set(expr, value, {
+            force: true,
+        });
+        return value;
+    }
+    const ob = target.__ob__;
+    if (ob && Array.isArray(target) && isValidArrayIndex(propertyNameOrIndex)) {
+        target.length = Math.max(target.length, propertyNameOrIndex);
+        ob.context.data.splice(ob.expr, expr, 1, value);
+    }
+    else if (ob) {
+        const finalExpr = {
+            type: ExprType.ACCESSOR,
+            paths: [...ob.expr.paths, ...expr.paths],
+        };
+        ob.context.set(finalExpr, value, {
+            force: true,
+        });
+    }
 }
 
 export default function (computed) {
