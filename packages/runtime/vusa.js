@@ -1702,7 +1702,13 @@
             }
 
             var data = typeof options.data === 'function'
-                ? options.data.call(extend({}, defaultProps, this._srcSbindData))
+                ? options.data.call(
+                    extend(
+                        {},
+                        defaultProps,
+                        optimizeSSR ? this.data.data : this._srcSbindData
+                    )
+                )
                 : (options.data || {});
 
             if (!optimizeSSR) {
