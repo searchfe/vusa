@@ -202,6 +202,20 @@
         };
     }
 
+    function isPrimitive(value) {
+        return (
+            typeof value === 'string'
+            || typeof value === 'number'
+            || typeof value === 'symbol'
+            || typeof value === 'boolean'
+        );
+    }
+
+    function isValidArrayIndex(val) {
+        var n = parseFloat(String(val));
+        return n >= 0 && Math.floor(n) === n && isFinite(val);
+    }
+
     /**
      * @file merge class
      * @author cxtom(cxtom2008@gmail.com)
@@ -424,6 +438,7 @@
         beforeUpdate: 'beforeUpdate',
         activated: 'activated',
         deactivated: 'deactivated',
+        errorCaptured: 'error',
     };
 
     var lifeCycleKeys = Object.keys(lifeCycleMap);
@@ -762,10 +777,10 @@
         def(obj, key, newProperty);
     }
 
-    ({
-        type: san.ExprType.ACCESSOR,
-        paths: [],
-    });
+    // const defaultExpr = {
+    //     type: ExprType.ACCESSOR,
+    //     paths: [],
+    // };
 
     function observe(value, expr, context) {
         if (!isObject(value)) {
@@ -782,6 +797,33 @@
             ob = new Observer(value, expr, context);
         }
         return ob;
+    }
+
+    function set(target, propertyNameOrIndex, value) {
+        if (target == null || isPrimitive(target)) {
+            return;
+        }
+        var expr = san.parseExpr(propertyNameOrIndex);
+        if (target.nodeType === san.NodeType.CMPT) {
+            target.data.set(expr, value, {
+                force: true,
+            });
+            return value;
+        }
+        var ob = target.__ob__;
+        if (ob && Array.isArray(target) && isValidArrayIndex(propertyNameOrIndex)) {
+            target.length = Math.max(target.length, propertyNameOrIndex);
+            ob.context.data.splice(ob.expr, expr, 1, value);
+        }
+        else if (ob) {
+            var finalExpr = {
+                type: san.ExprType.ACCESSOR,
+                paths: ( ob.expr.paths ).concat( expr.paths),
+            };
+            ob.context.set(finalExpr, value, {
+                force: true,
+            });
+        }
     }
 
     function bindData (computed) {
@@ -1434,6 +1476,7 @@
         $on: san.Component.prototype.on,
         $watch: san.Component.prototype.watch,
         $nextTick: san.nextTick,
+        $set: set,
     };
     /* eslint-enable fecs-camelcase */
 
