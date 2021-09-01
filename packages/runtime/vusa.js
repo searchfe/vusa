@@ -857,6 +857,14 @@
                     return val;
                 },
                 set: function set(newVal) {
+                    if (hasOwn(newVal, '__ob__')) {
+                        if (Array.isArray(newVal)) {
+                            newVal = newVal.slice();
+                        }
+                        else {
+                            newVal = Object.assign({}, newVal);
+                        }
+                    }
                     context.data.set(keyExpr, newVal);
                 },
             });
