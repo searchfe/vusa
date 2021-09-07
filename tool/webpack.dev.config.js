@@ -19,7 +19,7 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             title: 'Vusa',
-            template: path.resolve(__dirname, '../example/index.html')
+            template: path.resolve(__dirname, '../example/index.html'),
         }),
         new VueLoaderPlugin(),
     ],
@@ -32,7 +32,18 @@ module.exports = {
     module: {
         rules: [{
             test: /\.js$/,
-            use: 'babel-loader',
+            use: [
+                {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: [
+                            ['@babel/env', {
+                                modules: false,
+                            }],
+                        ],
+                    },
+                },
+            ],
         },
         {
             test: /\.ts$/,

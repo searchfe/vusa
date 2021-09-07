@@ -18,7 +18,7 @@ export default function (cssModules) {
     }
 
     return {
-        preTransformNode
+        preTransformNode,
     };
 }
 

@@ -57,6 +57,27 @@ describe('compiler', function () {
         expect(result.template).toBe('<div><p s-if="a<0">1</p><p s-else-if="a>=0">1</p><p s-else>4</p></div>');
     });
 
+    it('v-for', async () => {
+        const source = `
+        <div>
+            <p v-for="(item, index) in list" :key="index">1</p>
+        </div>`;
+        const result = await compile(source);
+        expect(result.template).toBe('<div><p s-for="item,index in _l(list) trackBy index">1</p></div>');
+    });
+
+    it('css modules', async () => {
+        const source = '<div class="cls"></div>';
+        const result = await compile(source, {
+            cssModules: {
+                $style: {
+                    cls: 'cls_xxx',
+                },
+            },
+        });
+        expect(result.template).toBe('<div class="cls_xxx"></div>');
+    });
+
     describe('v-on & @', () => {
         it('empty value', async () => {
             const source = '<div @click=""></div>';
@@ -84,46 +105,59 @@ describe('compiler', function () {
             expect(result.injectScript.methods[0]).toMatch(/[A-Za-z_]{4}\(\$event\) {with\(this\){focus = true}}/);
             expect(result.injectScript.methods[1]).toMatch(/[A-Za-z_]{4}\(\$event\) {with\(this\){focus = false}}/);
         });
+
+        it('event value is inline statement, strip with', async () => {
+            const source = '<div @focus="focus = true" @blur.native="focus = false"></div>';
+            const result = await compile(source, {
+                stripWith: true,
+            });
+            expect(result.template).toMatch(/<div on-focus="[A-Za-z_]{4}\(\$event\)" on-blur="native:[A-Za-z_]{4}\(\$event\)"><\/div>/);
+            expect(Object.keys(result.injectScript)).toEqual(['methods']);
+            expect(result.injectScript.methods.length).toBe(2);
+            expect(result.injectScript.methods[0]).toContain('_me.focus = true;');
+            expect(result.injectScript.methods[1]).toContain('_me.focus = false;');
+            expect(result.injectScript.methods[1]).not.toContain('with');
+        });
     });
 
     it('v-html', async () => {
-        const source = `<div v-html="html"></div>`;
+        const source = '<div v-html="html"></div>';
         const result = await compile(source);
         expect(result.template).toBe('<div s-html="{{ html }}"></div>');
     });
 
     it('v-safe-html', async () => {
-        const source = `<div v-safe-html="html"></div>`;
+        const source = '<div v-safe-html="html"></div>';
         const result = await compile(source);
         expect(result.template).toBe('<div s-html="{{ _sf(html) }}"></div>');
     });
 
     it('v-dangerous-html', async () => {
-        const source = `<div v-dangerous-html="html"></div>`;
+        const source = '<div v-dangerous-html="html"></div>';
         const result = await compile(source);
         expect(result.template).toBe('<div s-html="{{ html }}"></div>');
     });
 
     it('v-text', async () => {
-        const source = `<div v-text="text"></div>`;
+        const source = '<div v-text="text"></div>';
         const result = await compile(source);
         expect(result.template).toBe('<div>{{ text }}</div>');
     });
 
     it('atom', async () => {
-        const source = `<div a-html="html"></div>`;
+        const source = '<div a-html="html"></div>';
         const result = await compile(source, {atom: true});
         expect(result.template).toBe('<div s-html="{{ html }}"></div>');
     });
 
     it('ref', async () => {
-        const source = `<div ref="root"></div>`;
+        const source = '<div ref="root"></div>';
         const result = await compile(source);
         expect(result.template).toBe('<div s-ref="root"></div>');
     });
 
     it(':ref', async () => {
-        const source = `<div :ref="'root' + i"></div>`;
+        const source = '<div :ref="\'root\' + i"></div>';
         const result = await compile(source);
         expect(result.template).toBe('<div s-ref="{{ \'root\' + i }}"></div>');
     });
@@ -136,25 +170,25 @@ describe('compiler', function () {
     });
 
     it('dynamic component', async () => {
-        const source = `<component :is="url ? 'a' : 'div'" :href="url"></component>`;
+        const source = '<component :is="url ? \'a\' : \'div\'" :href="url"></component>';
         const result = await compile(source);
         expect(result.template).toBe('<component href=\"{{ url }}\" s-is=\"url?\'a\':\'div\'\"></component>');
     });
 
     it('template', async () => {
-        const source = `<template><div></div></template>`;
+        const source = '<template><div></div></template>';
         const result = await compile(source);
         expect(result.template).toBe('<fragment><div></div></fragment>');
     });
 
     it('transition', async () => {
-        const source = `<transition name="fade"><div v-if="ok"></div></transition>`;
+        const source = '<transition name="fade"><div v-if="ok"></div></transition>';
         const result = await compile(source);
         expect(result.template).toBe('<fragment><div s-if="ok" s-transition=\"_t({name:\'fade\'})\"></div></fragment>');
     });
 
     it('combine text', async () => {
-        const source = `<div>{{ a }}xx{{ b + 'a' }}<span></span>112'323{{ c }}</div>`;
+        const source = '<div>{{ a }}xx{{ b + \'a\' }}<span></span>112\'323{{ c }}</div>';
         const result = await compile(source);
         expect(result.template).toBe('<div>{{ a | _cat(\'xx\') | _cat(b + \'a\') }}<span></span>{{ \'112\\\'323\' | _cat(c) }}</div>');
     });

@@ -25,7 +25,7 @@ export const singleTag = {
     param: true,
     source: true,
     track: true,
-    wbr: true
+    wbr: true,
 };
 
 export const booleanAttr = {
@@ -75,7 +75,7 @@ export const booleanAttr = {
 
 
 export const noValueAttr = {
-    's-else': true
+    's-else': true,
 };
 
 
@@ -191,5 +191,5 @@ export const htmlTag = {
     content: true,
     element: true,
     shadow: true,
-    template: true
+    template: true,
 };

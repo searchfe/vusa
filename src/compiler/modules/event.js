@@ -5,6 +5,7 @@
 
 import transform from '../expression-transformer';
 import {customAlphabet} from 'nanoid';
+import stripWith from '../strip-with';
 
 const reEvent = /^(@|v-on:)/;
 const fnExpRE = /^\s*([\w$_]+|\([^)]*?\))\s*=>|^function\s*\(/;
@@ -17,7 +18,6 @@ function getName() {
 }
 
 function postTransformNode(node, options) {
-    const injectScript = [];
     const eventAttrs = node.attrsList.filter(n => reEvent.test(n.name));
     for (const attr of eventAttrs) {
         delete node.attrsMap[attr.name];
@@ -37,20 +37,19 @@ function postTransformNode(node, options) {
                 eventHandler = transform(attr.value).code;
             }
             else {
+                options.injectScript.methods = options.injectScript.methods || [];
                 const fnName = getName();
                 eventHandler = `${fnName}($event)`;
-                const method = `${eventHandler} {with(this){${attr.value}}}`;
-
-                injectScript.push(method);
+                let method = `${eventHandler} {with(this){${attr.value}}}`;
+                if (options.stripWith) {
+                    method = stripWith(`function ${method}`).replace(/^function /, '');
+                }
+                options.injectScript.methods.push(method);
             }
 
             node.attrsMap[`on-${name.replace(reEvent, '')}`]
                 = `${modifiers.map(m => m + ':').join('')}${eventHandler}`;
         }
-    }
-
-    if (injectScript.length) {
-        options.error(`[injectScript:methods]${JSON.stringify(injectScript)}`);
     }
 }
 
