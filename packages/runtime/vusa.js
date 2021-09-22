@@ -4,10 +4,10 @@
  */
 /* eslint-disable */
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('san')) :
-    typeof define === 'function' && define.amd ? define(['exports', 'san'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Vusa = {}, global.san));
-}(this, (function (exports, san) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('san'), require('san-ssr/dist/helpers/markExternalComponent')) :
+    typeof define === 'function' && define.amd ? define(['exports', 'san', 'san-ssr/dist/helpers/markExternalComponent'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Vusa = {}, global.san, global.markExternalComponent));
+}(this, (function (exports, san, markExternalComponent) { 'use strict';
 
     function _interopNamespace(e) {
         if (e && e.__esModule) return e;
@@ -857,6 +857,7 @@
                     return val;
                 },
                 set: function set(newVal) {
+                    console.log(newVal, key);
                     if (hasOwn(newVal, '__ob__')) {
                         if (Array.isArray(newVal)) {
                             newVal = newVal.slice();
@@ -1532,6 +1533,10 @@
     var styleAccesser = createAccesser('$style');
 
     function normalizeComponent(component) {
+        // 兼容 san-ssr 外部组件，直接返回
+        if (component && component[markExternalComponent.COMPONENT_REFERENCE]) {
+            return component;
+        }
         if (component instanceof san.Component || component instanceof VusaComponent) {
             return component;
         }
