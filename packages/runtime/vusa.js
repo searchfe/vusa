@@ -4,10 +4,10 @@
  */
 /* eslint-disable */
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('san'), require('san-ssr/dist/helpers/markExternalComponent')) :
-    typeof define === 'function' && define.amd ? define(['exports', 'san', 'san-ssr/dist/helpers/markExternalComponent'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Vusa = {}, global.san, global.markExternalComponent));
-}(this, (function (exports, san, markExternalComponent) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('san')) :
+    typeof define === 'function' && define.amd ? define(['exports', 'san'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Vusa = {}, global.san));
+}(this, (function (exports, san) { 'use strict';
 
     function _interopNamespace(e) {
         if (e && e.__esModule) return e;
@@ -1467,6 +1467,8 @@
      * @author cxtom(cxtom2008@gmail.com)
      */
 
+    var COMPONENT_REFERENCE = '__COMPONENT_REFERENCE__';
+
     var noop = function () {};
 
     /* eslint-disable fecs-camelcase */
@@ -1534,7 +1536,7 @@
 
     function normalizeComponent(component) {
         // 兼容 san-ssr 外部组件，直接返回
-        if (component && component[markExternalComponent.COMPONENT_REFERENCE]) {
+        if (component && component[COMPONENT_REFERENCE]) {
             return component;
         }
         if (component instanceof san.Component || component instanceof VusaComponent) {

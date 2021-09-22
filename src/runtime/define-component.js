@@ -18,7 +18,8 @@ import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
 import toSafeString from './safe-html';
-import {COMPONENT_REFERENCE} from 'san-ssr/dist/helpers/markExternalComponent';
+
+const COMPONENT_REFERENCE = '__COMPONENT_REFERENCE__';
 
 const noop = () => {};
 
