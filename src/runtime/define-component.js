@@ -18,6 +18,7 @@ import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
 import toSafeString from './safe-html';
+import {COMPONENT_REFERENCE} from 'san-ssr/dist/helpers/markExternalComponent';
 
 const noop = () => {};
 
@@ -85,6 +86,10 @@ const innerKey = '_SanCtor';
 const styleAccesser = createAccesser('$style');
 
 function normalizeComponent(component) {
+    // 兼容 san-ssr 外部组件，直接返回
+    if (component && component[COMPONENT_REFERENCE]) {
+        return component;
+    }
     if (component instanceof Component || component instanceof VusaComponent) {
         return component;
     }
@@ -288,4 +293,3 @@ export default function define(options) {
 
     return options[innerKey] = cmpt;
 }
-
