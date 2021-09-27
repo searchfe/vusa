@@ -1540,6 +1540,12 @@
             return component;
         }
         if (component instanceof san.Component || component instanceof VusaComponent) {
+            var proto = component.prototype;
+            if (!proto.hasOwnProperty('_cmptReady')) {
+                var components = component.components || proto.components || {};
+                proto.components = normalizeComponents(components);
+                proto._cmptReady = 1;
+            }
             return component;
         }
         if (typeof component === 'function') {
@@ -1551,14 +1557,29 @@
                 });
             });
         }
-        return component.template || component.aNode || component.aPack
-            ? san.defineComponent(component)
-            : define(component);
+        if (component.template || component.aNode || component.aPack) {
+            if (component.components) {
+                component.components = normalizeComponents(component.components);
+                component._cmptReady = 1;
+            }
+            return san.defineComponent(component);
+        }
+        return define(component);
+    }
+
+    function normalizeComponents(components) {
+        return components = Object
+            .keys(components)
+            .reduce(function (prev, key) {
+                var component = components[key];
+                prev[key] = prev[hyphenate(key)] = normalizeComponent(component);
+                return prev;
+            }, extend({}, globalOptions.components));
     }
 
     function define(options) {
 
-        if (options[innerKey]) {
+        if (options.hasOwnProperty(innerKey)) {
             return options[innerKey];
         }
 
@@ -1569,13 +1590,7 @@
         var prePareOptions = {};
 
         if (options.components) {
-            prePareOptions.components = Object
-                .keys(options.components)
-                .reduce(function (prev, key) {
-                    var component = options.components[key];
-                    prev[key] = prev[hyphenate(key)] = normalizeComponent(component);
-                    return prev;
-                }, extend({}, globalOptions.components));
+            prePareOptions.components = normalizeComponents(options.components);
             prePareOptions._cmptReady = 1;
         }
 
@@ -1668,12 +1683,14 @@
             // san-ssr 下没有执行 compiled 生命周期
             compiledHook && compiledHook.call(this);
 
+            var me = this;
+
             var properties = Object
                 .keys(memberMap)
                 .reduce(function (props, key) {
                     props[key] = {
                         get: function get() {
-                            return memberMap[key].call(this);
+                            return memberMap[key].call(me);
                         },
                     };
                     return props;
@@ -1684,8 +1701,6 @@
             };
 
             Object.defineProperties(this, properties);
-
-            var me = this;
 
             var defaultProps = {};
             if (options.props) {
@@ -1738,6 +1753,8 @@
             else if (!optimizeSSR) {
                 me._computedKeys = [];
             }
+
+            Object.defineProperties(this.data.data, properties);
 
             return initialData;
         };
