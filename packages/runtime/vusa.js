@@ -1754,7 +1754,9 @@
                 me._computedKeys = [];
             }
 
-            Object.defineProperties(this.data.data, properties);
+            if (optimizeSSR) {
+                Object.defineProperties(this.data.data, properties);
+            }
 
             return initialData;
         };
