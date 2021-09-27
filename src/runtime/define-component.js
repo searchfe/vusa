@@ -231,12 +231,14 @@ export default function define(options) {
         // san-ssr 下没有执行 compiled 生命周期
         compiledHook && compiledHook.call(this);
 
+        const me = this;
+
         const properties = Object
             .keys(memberMap)
             .reduce((props, key) => {
                 props[key] = {
                     get() {
-                        return memberMap[key].call(this);
+                        return memberMap[key].call(me);
                     },
                 };
                 return props;
@@ -247,8 +249,6 @@ export default function define(options) {
         };
 
         Object.defineProperties(this, properties);
-
-        const me = this;
 
         const defaultProps = {};
         if (options.props) {
@@ -300,6 +300,10 @@ export default function define(options) {
         }
         else if (!optimizeSSR) {
             me._computedKeys = [];
+        }
+
+        if (optimizeSSR) {
+            Object.defineProperties(this.data.data, properties);
         }
 
         return initialData;
