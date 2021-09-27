@@ -92,6 +92,12 @@ function normalizeComponent(component) {
         return component;
     }
     if (component instanceof Component || component instanceof VusaComponent) {
+        const proto = component.prototype;
+        if (!proto.hasOwnProperty('_cmptReady')) {
+            const components = component.components || proto.components || {};
+            proto.components = normalizeComponents(components);
+            proto._cmptReady = 1;
+        }
         return component;
     }
     if (typeof component === 'function') {
@@ -103,14 +109,29 @@ function normalizeComponent(component) {
             });
         });
     }
-    return component.template || component.aNode || component.aPack
-        ? defineComponent(component)
-        : define(component);
+    if (component.template || component.aNode || component.aPack) {
+        if (component.components) {
+            component.components = normalizeComponents(component.components);
+            component._cmptReady = 1;
+        }
+        return defineComponent(component);
+    }
+    return define(component);
+}
+
+function normalizeComponents(components) {
+    return components = Object
+        .keys(components)
+        .reduce((prev, key) => {
+            const component = components[key];
+            prev[key] = prev[hyphenate(key)] = normalizeComponent(component);
+            return prev;
+        }, extend({}, globalOptions.components));
 }
 
 export default function define(options) {
 
-    if (options[innerKey]) {
+    if (options.hasOwnProperty(innerKey)) {
         return options[innerKey];
     }
 
@@ -121,13 +142,7 @@ export default function define(options) {
     const prePareOptions = {};
 
     if (options.components) {
-        prePareOptions.components = Object
-            .keys(options.components)
-            .reduce((prev, key) => {
-                const component = options.components[key];
-                prev[key] = prev[hyphenate(key)] = normalizeComponent(component);
-                return prev;
-            }, extend({}, globalOptions.components));
+        prePareOptions.components = normalizeComponents(options.components);
         prePareOptions._cmptReady = 1;
     }
 
