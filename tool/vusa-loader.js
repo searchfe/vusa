@@ -26,12 +26,13 @@ module.exports = function (content) {
         strip: true,
         atom: false,
         scopeId: m && m[1] ? m[1] : '',
+        stripWith: true,
     });
     // console.log(vesaResult.template);
-    // if (vesaResult.injectScript && vesaResult.injectScript.methods) {
-    //     content += '\ncomponent.options.methods = component.options.methods || {};';
-    //     content += `\nObject.assign(component.options.methods, {${vesaResult.injectScript.methods.join(',')}});`;
-    // }
+    if (vesaResult.injectScript && vesaResult.injectScript.methods) {
+        content += '\ncomponent.options.methods = component.options.methods || {};';
+        content += `\nObject.assign(component.options.methods, {${vesaResult.injectScript.methods.join(',')}});`;
+    }
     const aPack = vesaResult.aPack;
     content += `\ncomponent.options.__sanaPack = ${aPack};`;
     // content += `\ncomponent.options.__santemplate = ${JSON.stringify(template)}`;

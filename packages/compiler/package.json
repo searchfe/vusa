@@ -14,6 +14,10 @@
   "license": "MIT",
   "dependencies": {
     "@babel/code-frame": "^7.8.3",
+    "@babel/parser": "^7.14.0",
+    "@babel/traverse": "^7.14.0",
+    "@babel/types": "^7.14.0",
+    "@babel/generator": "^7.14.0",
     "atom-expression-compiler": "^2.2.3",
     "escape-quotes": "^1.0.2",
     "lodash": "^4.17.15",

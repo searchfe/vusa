@@ -12,6 +12,10 @@ var atomExpressionCompiler = require('atom-expression-compiler');
 var escapeQuotes = require('escape-quotes');
 var toSingleQuotes = require('to-single-quotes');
 var nanoid = require('nanoid');
+var parser = require('@babel/parser');
+var traverse = require('@babel/traverse');
+var t = require('@babel/types');
+var babelGenerate = require('@babel/generator');
 var lodash = require('lodash');
 var vueTemplateCompiler = require('vue-template-compiler');
 require('san');
@@ -19,8 +23,31 @@ var sanAnodeUtils = require('san-anode-utils');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
+function _interopNamespace(e) {
+    if (e && e.__esModule) return e;
+    var n = Object.create(null);
+    if (e) {
+        Object.keys(e).forEach(function (k) {
+            if (k !== 'default') {
+                var d = Object.getOwnPropertyDescriptor(e, k);
+                Object.defineProperty(n, k, d.get ? d : {
+                    enumerable: true,
+                    get: function () {
+                        return e[k];
+                    }
+                });
+            }
+        });
+    }
+    n['default'] = e;
+    return Object.freeze(n);
+}
+
 var escapeQuotes__default = /*#__PURE__*/_interopDefaultLegacy(escapeQuotes);
 var toSingleQuotes__default = /*#__PURE__*/_interopDefaultLegacy(toSingleQuotes);
+var traverse__default = /*#__PURE__*/_interopDefaultLegacy(traverse);
+var t__namespace = /*#__PURE__*/_interopNamespace(t);
+var babelGenerate__default = /*#__PURE__*/_interopDefaultLegacy(babelGenerate);
 
 /**
  * @file vue 的 expression 转 san，主要是处理 es6 语法
@@ -531,6 +558,36 @@ var fr = {
     postTransformNode: postTransformNode$7,
 };
 
+function stripWith(code) {
+    const ast = parser.parse(code);
+    traverse__default['default'](ast, {
+        WithStatement(p) {
+            const fn = p.findParent(pa => pa.isFunctionDeclaration());
+            const id = fn.scope.generateUidIdentifier('_me');
+            fn.scope.push({id, init: p.get('object').node});
+            p.traverse({
+                Identifier(p) {
+                    const parent = p.parentPath;
+                    if (
+                        !fn.scope.hasBinding(p.node.name)
+                        && !(parent.isDeclaration() && parent.get('id') === p)
+                        && !(parent.isObjectProperty() && parent.get('key') === p)
+                        && !(parent.isMemberExpression() && parent.get('property') === p)
+                    ) {
+                        // console.log(parent);
+                        p.replaceWith(t__namespace.memberExpression(id, p.node));
+                    }
+                    p.skip();
+                },
+            });
+            p.replaceWith(p.get('body').get('body')[0]);
+            p.skip();
+        },
+    });
+    const res = babelGenerate__default['default'](ast);
+    return res.code;
+}
+
 /**
  * @file event
  * @author cxtom(cxtom2008@gmail.com)
@@ -547,7 +604,6 @@ function getName() {
 }
 
 function postTransformNode$6(node, options) {
-    const injectScript = [];
     const eventAttrs = node.attrsList.filter(n => reEvent.test(n.name));
     for (const attr of eventAttrs) {
         delete node.attrsMap[attr.name];
@@ -567,20 +623,19 @@ function postTransformNode$6(node, options) {
                 eventHandler = transform(attr.value).code;
             }
             else {
+                options.injectScript.methods = options.injectScript.methods || [];
                 const fnName = getName();
                 eventHandler = `${fnName}($event)`;
-                const method = `${eventHandler} {with(this){${attr.value}}}`;
-
-                injectScript.push(method);
+                let method = `${eventHandler} {with(this){${attr.value}}}`;
+                if (options.stripWith) {
+                    method = stripWith(`function ${method}`).replace(/^function /, '');
+                }
+                options.injectScript.methods.push(method);
             }
 
             node.attrsMap[`on-${name.replace(reEvent, '')}`]
                 = `${modifiers.map(m => m + ':').join('')}${eventHandler}`;
         }
-    }
-
-    if (injectScript.length) {
-        options.error(`[injectScript:methods]${JSON.stringify(injectScript)}`);
     }
 }
 
@@ -717,7 +772,7 @@ const singleTag = {
     param: true,
     source: true,
     track: true,
-    wbr: true
+    wbr: true,
 };
 
 const booleanAttr = {
@@ -767,7 +822,7 @@ const booleanAttr = {
 
 
 const noValueAttr = {
-    's-else': true
+    's-else': true,
 };
 
 
@@ -883,7 +938,7 @@ const htmlTag = {
     content: true,
     element: true,
     shadow: true,
-    template: true
+    template: true,
 };
 
 /**
@@ -1122,7 +1177,7 @@ function getCssModules (cssModules) {
     }
 
     return {
-        preTransformNode
+        preTransformNode,
     };
 }
 
@@ -1152,8 +1207,6 @@ var atom = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-const injectScriptRE = /^\[injectScript:([A-Za-z_]+)\]/;
-
 function compile(source, options = {}) {
 
     const {
@@ -1162,6 +1215,7 @@ function compile(source, options = {}) {
         scopeId = '',
         strip = true,
         atom: isAtom = false,
+        stripWith = false,
     } = options;
 
     if (!lodash.isEmpty(cssModules)) {
@@ -1182,22 +1236,14 @@ function compile(source, options = {}) {
         preserveWhitespace: false,
         useDynamicComponent: false,
         refs: [],
+        injectScript,
         error(msg) {
-            const matches = msg.match(injectScriptRE);
-            if (matches && matches.length === 2) {
-                const member = matches[1];
-                const value = JSON.parse(msg.replace(injectScriptRE, ''));
-                injectScript[member]
-                    ? injectScript[member].push(...value)
-                    : injectScript[member] = value;
-            }
-            else {
-                // eslint-disable-next-line no-console
-                console.error(`[vusa error] ${msg}`);
-                errors.push(msg);
-            }
+            // eslint-disable-next-line no-console
+            console.error(`[vusa error] ${msg}`);
+            errors.push(msg);
         },
         strip,
+        stripWith,
     };
 
     const {ast} = vueTemplateCompiler.compile(source.trim(), compilerOptions);
