@@ -242,7 +242,6 @@ export default function (computed) {
                         newVal = {...newVal};
                     }
                 }
-                console.log(newVal);
                 context.data.set(keyExpr, newVal);
             },
         });
