@@ -857,8 +857,7 @@
                     return val;
                 },
                 set: function set(newVal) {
-                    console.log(newVal, key);
-                    if (hasOwn(newVal, '__ob__')) {
+                    if (isObject(newVal) && hasOwn(newVal, '__ob__')) {
                         if (Array.isArray(newVal)) {
                             newVal = newVal.slice();
                         }
