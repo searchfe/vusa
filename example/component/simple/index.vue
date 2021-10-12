@@ -3,7 +3,8 @@
     Hello, {{ name }}! {{ message }}
     <span v-for="(item, index) in loop" :key="index">{{ item }}</span>
     <span v-for="n in 5">{{ n }}</span>
-    <div style="color:red" :style="[{'font-size': '16px'}]" v-show="false"></div>
+    <div style="color:red" :style="[{'font-size': '16px'}]" v-show="false">11</div>
+    <div style="color:green" :style="[{'font-size': '16px'}]" v-show="true">11</div>
     <component :is="name ? 'button' : 'a'" @click="onClick">aaa</component>
     <div v-if="!name">no name</div>
     <div @click="onClickMixin">

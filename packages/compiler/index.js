@@ -391,14 +391,14 @@ function transform (code) {
 
     if (!code) {
         return {
-            code: ''
+            code: '',
         };
     }
 
     let node;
     try {
         node = atomExpressionCompiler.parse(code, {
-            startRule: 'VueExpression'
+            startRule: 'VueExpression',
         });
     }
     catch (e) {
@@ -406,12 +406,12 @@ function transform (code) {
     }
 
     let codegen = new CodeGen({
-        code
+        code,
     });
 
     return {
         ast: node.expression,
-        ...codegen.traverse(node, node)
+        ...codegen.traverse(node, node),
     };
 }
 
@@ -425,14 +425,14 @@ const bindKeys$1 = [':class', 'v-bind:class'];
 function postTransformNode$b(node) {
     if (node.type === 1 && node.classBinding) {
         const staticClass = node.attrsMap.class || '';
-        const classBinding = transform(node.classBinding).code;
-        node.attrsMap.class = `{{ _mc('${staticClass}', ${classBinding}) }}`;
+        const classBinding = transform(node.attrsMap[bindKeys$1[0]] || node.attrsMap[bindKeys$1[1]]).code;
+        node.attrsMap.class = `{{ ${classBinding} | _mc('${staticClass}') }}`;
         bindKeys$1.forEach(key => delete node.attrsMap[key]);
     }
 }
 
 var clazz = {
-    postTransformNode: postTransformNode$b
+    postTransformNode: postTransformNode$b,
 };
 
 /**
@@ -446,15 +446,17 @@ function postTransformNode$a(node) {
     const vShow = node.attrsMap['v-show'];
     if (node.type === 1 && (node.styleBinding || vShow)) {
         const staticStyle = node.staticStyle || '\'\'';
-        const styleBinding = node.styleBinding ? transform(node.styleBinding).code : '{}';
+        const styleBinding = node.styleBinding
+            ? transform(node.attrsMap[bindKeys[0]] || node.attrsMap[bindKeys[1]]).code
+            : '{}';
         // eslint-disable-next-line max-len
-        node.attrsMap.style = `{{ _ms(${toSingleQuotes__default['default'](staticStyle)}, ${styleBinding}${vShow ? `, ${transform(vShow).code}` : ''}) }}`;
+        node.attrsMap.style = `{{ ${styleBinding.trim()} | _ms(${toSingleQuotes__default['default'](staticStyle)}${vShow ? `, ${transform(vShow).code}` : ''}) }}`;
         bindKeys.forEach(key => delete node.attrsMap[key]);
     }
 }
 
 var style = {
-    postTransformNode: postTransformNode$a
+    postTransformNode: postTransformNode$a,
 };
 
 /**
@@ -485,7 +487,7 @@ function postTransformNode$9(node) {
 }
 
 var bind = {
-    postTransformNode: postTransformNode$9
+    postTransformNode: postTransformNode$9,
 };
 
 /**
@@ -1052,7 +1054,9 @@ function postTransformNode(el, state) {
                 }
                 if (typeof token === 'string') {
                     let str = escapeQuotes__default['default'](token.replace(/\s+/, ' '));
-                    str = index === 0 ? lodash.trimStart(str, ' ') : (index === child.tokens.length - 1 ? lodash.trimEnd(str, ' ') : str);
+                    str = index === 0
+                        ? lodash.trimStart(str, ' ')
+                        : (index === child.tokens.length - 1 ? lodash.trimEnd(str, ' ') : str);
                     text = `'${str}'`;
                 }
                 return text;
@@ -1067,7 +1071,7 @@ function postTransformNode(el, state) {
 }
 
 var textCombine = {
-    postTransformNode
+    postTransformNode,
 };
 
 /**
@@ -1099,6 +1103,7 @@ var buildInModules = [
  * @file get html from ast
  * @author cxtom(cxtom2008@gmail.com)
  */
+// import transform from './expression-transformer';
 
 function stringifyAttr(key, value, tag) {
     if (noValueAttr[key] || (!value && htmlTag[tag] && booleanAttr[key])) {
@@ -1193,13 +1198,13 @@ function preTransformNode(el) {
         el.attrsMap[name] = value;
         return {
             value,
-            name
+            name,
         };
     });
 }
 
 var atom = {
-    preTransformNode
+    preTransformNode,
 };
 
 /**

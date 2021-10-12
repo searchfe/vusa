@@ -5,7 +5,7 @@
 
 import {trim} from 'lodash';
 import {noValueAttr, singleTag, booleanAttr, htmlTag} from './constant';
-import transform from './expression-transformer';
+// import transform from './expression-transformer';
 
 function stringifyAttr(key, value, tag) {
     if (noValueAttr[key] || (!value && htmlTag[tag] && booleanAttr[key])) {

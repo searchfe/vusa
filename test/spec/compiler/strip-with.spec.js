@@ -1,4 +1,4 @@
-import {default as compile} from '../../src/compiler/strip-with';
+import {default as compile} from '../../../src/compiler/strip-with';
 
 describe('strip with', function () {
     it('simple', function () {

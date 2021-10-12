@@ -344,14 +344,14 @@ export default function (code) {
 
     if (!code) {
         return {
-            code: ''
+            code: '',
         };
     }
 
     let node;
     try {
         node = parse(code, {
-            startRule: 'VueExpression'
+            startRule: 'VueExpression',
         });
     }
     catch (e) {
@@ -359,11 +359,11 @@ export default function (code) {
     }
 
     let codegen = new CodeGen({
-        code
+        code,
     });
 
     return {
         ast: node.expression,
-        ...codegen.traverse(node, node)
+        ...codegen.traverse(node, node),
     };
 }

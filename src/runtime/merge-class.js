@@ -53,6 +53,6 @@ function array(cls = []) {
     return clazz;
 }
 
-export default function (staticClass = '', cls = {}) {
+export default function (cls = {}, staticClass = '') {
     return Object.keys(array([staticClass, cls])).join(' ');
 }

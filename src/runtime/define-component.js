@@ -7,8 +7,6 @@ import './override-data-get';
 
 import {defineComponent, Component, nextTick, createComponentLoader} from 'san';
 import {extend, hyphenate, def, freeze, createAccesser} from '../shared/util';
-import mergeClass from './merge-class';
-import mergeStyle from './merge-style';
 import loopExpression from './loop-expression';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
@@ -23,18 +21,21 @@ const COMPONENT_REFERENCE = '__COMPONENT_REFERENCE__';
 
 const noop = () => {};
 
+const callFilter = function (name) {
+    return this.filters[name];
+};
+
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = {
     $activate: callActivited,
     $deactivate: callDeActivited,
-    _mc: mergeClass,
-    _ms: mergeStyle,
     _l: loopExpression,
     _ex: extend,
     _ocp: objectComputedProperties,
     _noop: noop,
     _t: Transition,
     _sf: toSafeString,
+    _f: callFilter,
     $emit: Component.prototype.fire,
     $on: Component.prototype.on,
     $watch: Component.prototype.watch,

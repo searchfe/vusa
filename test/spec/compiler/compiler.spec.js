@@ -5,7 +5,7 @@
 
 /* eslint-disable max-len */
 
-import {compile} from '../../src/compiler/index';
+import {compile} from '../../../src/compiler/index';
 
 describe('compiler', function () {
 
@@ -19,21 +19,21 @@ describe('compiler', function () {
     it('merge class', async () => {
         const source = `
         <div class="wrapper" v-bind:class="['other']">
-            <p :class="dataA"></p>
+            <p :class="dataA | aa"></p>
             <p class="static"></p>
         </div>`;
         const result = await compile(source);
-        expect(result.template).toBe('<div class="{{ _mc(\'wrapper\', [\'other\']) }}"><p class="{{ _mc(\'\', dataA) }}"></p><p class="static"></p></div>');
+        expect(result.template).toBe('<div class="{{ [\'other\'] | _mc(\'wrapper\') }}"><p class="{{ dataA | aa | _mc(\'\') }}"></p><p class="static"></p></div>');
     });
 
     it('merge style', async () => {
         const source = `
         <div style="color:red" v-bind:style="{'font-size': '12px'}">
-            <p :style="dataA"></p>
+            <p :style="dataA | aa"></p>
             <p style="color:blue"></p>
         </div>`;
         const result = await compile(source);
-        expect(result.template).toBe('<div style="{{ _ms({\'color\':\'red\'}, {\'font-size\':\'12px\'} ) }}"><p style="{{ _ms(\'\', dataA) }}"></p><p style="color:blue"></p></div>');
+        expect(result.template).toBe('<div style="{{ {\'font-size\':\'12px\'} | _ms({\'color\':\'red\'}) }}"><p style="{{ dataA | aa | _ms(\'\') }}"></p><p style="color:blue"></p></div>');
     });
 
     it('merge bind', async () => {

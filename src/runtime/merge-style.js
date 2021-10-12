@@ -40,7 +40,7 @@ function normalizeStyleBinding(bindingStyle) {
 }
 
 
-export default function (staticStyle, style, vShow = true) {
+export default function (style, staticStyle, vShow = true) {
     style = normalizeStyleBinding(style);
     if (!vShow) {
         style.display = 'none';

@@ -19,7 +19,9 @@ function postTransformNode(el, state) {
                 }
                 if (typeof token === 'string') {
                     let str = escapeQuotes(token.replace(/\s+/, ' '));
-                    str = index === 0 ? trimStart(str, ' ') : (index === child.tokens.length - 1 ? trimEnd(str, ' ') : str);
+                    str = index === 0
+                        ? trimStart(str, ' ')
+                        : (index === child.tokens.length - 1 ? trimEnd(str, ' ') : str);
                     text = `'${str}'`;
                 }
                 return text;
@@ -34,5 +36,5 @@ function postTransformNode(el, state) {
 }
 
 export default {
-    postTransformNode
+    postTransformNode,
 };

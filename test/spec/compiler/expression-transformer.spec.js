@@ -5,8 +5,7 @@
 
 /* eslint-disable max-len */
 
-import transform from '../../src/compiler/expression-transformer';
-import {parseExpr} from 'san';
+import transform from '../../../src/compiler/expression-transformer';
 
 describe('compiler', function () {
 

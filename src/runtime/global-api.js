@@ -3,6 +3,9 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+import mergeClass from './merge-class';
+import mergeStyle from './merge-style';
+
 const MATH_METHOD = [
     'floor', 'ceil', 'round',
     'abs', 'max', 'min', 'pow',
@@ -46,4 +49,6 @@ export const filters = {
     _cat(a, b) {
         return (a || '').toString() + (b || '');
     },
+    _mc: mergeClass,
+    _ms: mergeStyle,
 };

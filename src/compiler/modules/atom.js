@@ -10,11 +10,11 @@ function preTransformNode(el) {
         el.attrsMap[name] = value;
         return {
             value,
-            name
+            name,
         };
     });
 }
 
 export default {
-    preTransformNode
+    preTransformNode,
 };
