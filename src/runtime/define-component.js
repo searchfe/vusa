@@ -17,7 +17,6 @@ import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
 import toSafeString from './safe-html';
 import toHtml from './html';
-// import changeBind from './change-bind';
 
 
 const COMPONENT_REFERENCE = '__COMPONENT_REFERENCE__';
@@ -39,7 +38,6 @@ const defaultSanOptions = {
     _t: Transition,
     _sf: toSafeString,
     _f: callFilter,
-    // _b: changeBind,
     _h: toHtml,
     $emit: Component.prototype.fire,
     $on: Component.prototype.on,
