@@ -27,5 +27,5 @@ function postTransformNode(node) {
 }
 
 export default {
-    postTransformNode
+    postTransformNode,
 };

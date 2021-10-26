@@ -51,11 +51,19 @@ export function compile(source, options = {}) {
     };
 
     const {ast} = vueCompile(source.trim(), compilerOptions);
-
     const template = stringify(ast, {scopeId, strip, atom: isAtom});
+
+
     const aNode = parseTemplate(template, {
         trimWhitespace: 'blank',
     }).children[0];
+
+    // if (ast.tag === 'div1') {
+    //     console.log('---------------------------------');
+    //     console.log('ast', ast.children[0]);
+    //     console.log('aNode', aNode.children[0]);
+    //     console.log('template', template);
+    // }
 
     return {
         ast,

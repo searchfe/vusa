@@ -18,11 +18,16 @@ function postTransformNode(node) {
         dir.value = node.attrsMap['v-html'] = `_sf(${node.attrsMap['v-safe-html']})`;
         delete node.attrsMap['v-safe-html'];
     }
+    else if (node.attrsMap && node.attrsMap['v-html']) {
+        const dir = node.directives.find(d => d.name === 'html');
+        dir.value = node.attrsMap['v-html'] = `_h(${node.attrsMap['v-html']})`;
+    }
 
     if (node.type === 1 && node.attrsMap['v-html']) {
         const value = node.directives.find(d => d.name === 'html').value;
         delete node.attrsMap['v-html'];
         node.attrsMap['s-html'] = `{{ ${value} }}`;
+        // node.attrsMap['s-html'] = `{{ _h(${value}) }}`;
         node.children = [];
     }
 

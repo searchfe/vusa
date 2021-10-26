@@ -14,6 +14,7 @@ function postTransformNode(node) {
         node.attrsMap.class = `{{ ${classBinding} | _mc('${staticClass}') }}`;
         bindKeys.forEach(key => delete node.attrsMap[key]);
     }
+    // console.log('node.attrsMap', node.attrsMap);
 }
 
 export default {

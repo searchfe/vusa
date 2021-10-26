@@ -123,7 +123,7 @@ describe('compiler', function () {
     it('v-html', async () => {
         const source = '<div v-html="html"></div>';
         const result = await compile(source);
-        expect(result.template).toBe('<div s-html="{{ html }}"></div>');
+        expect(result.template).toBe('<div s-html="{{ _h(html) }}"></div>');
     });
 
     it('v-safe-html', async () => {
@@ -135,7 +135,7 @@ describe('compiler', function () {
     it('v-dangerous-html', async () => {
         const source = '<div v-dangerous-html="html"></div>';
         const result = await compile(source);
-        expect(result.template).toBe('<div s-html="{{ html }}"></div>');
+        expect(result.template).toBe('<div s-html="{{ _h(html) }}"></div>');
     });
 
     it('v-text', async () => {
@@ -147,7 +147,7 @@ describe('compiler', function () {
     it('atom', async () => {
         const source = '<div a-html="html"></div>';
         const result = await compile(source, {atom: true});
-        expect(result.template).toBe('<div s-html="{{ html }}"></div>');
+        expect(result.template).toBe('<div s-html="{{ _h(html) }}"></div>');
     });
 
     it('ref', async () => {

@@ -16,6 +16,9 @@ import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
 import toSafeString from './safe-html';
+import toHtml from './html';
+// import changeBind from './change-bind';
+
 
 const COMPONENT_REFERENCE = '__COMPONENT_REFERENCE__';
 
@@ -36,6 +39,8 @@ const defaultSanOptions = {
     _t: Transition,
     _sf: toSafeString,
     _f: callFilter,
+    // _b: changeBind,
+    _h: toHtml,
     $emit: Component.prototype.fire,
     $on: Component.prototype.on,
     $watch: Component.prototype.watch,
@@ -57,7 +62,12 @@ const memberMap = {
         return this.parentComponent;
     },
     $children() {
-        return this.children.filter(child => child.nodeType === 5);
+        if (this.tagName !== this._rootNode.tagName) {
+            this.children.unshift(this._rootNode);
+        }
+        return this.children.filter(child => {
+            return child.nodeType === 5;
+        });
     },
     $root() {
         let root = this;
@@ -88,12 +98,14 @@ const innerKey = '_SanCtor';
 const styleAccesser = createAccesser('$style');
 
 function normalizeComponent(component) {
+
     // 兼容 san-ssr 外部组件，直接返回
     if (component && component[COMPONENT_REFERENCE]) {
         return component;
     }
     if (component instanceof Component || component instanceof VusaComponent) {
         const proto = component.prototype;
+
         if (!proto.hasOwnProperty('_cmptReady')) {
             const components = component.components || proto.components || {};
             proto.components = normalizeComponents(components);
@@ -311,6 +323,5 @@ export default function define(options) {
     };
 
     const cmpt = defineComponent(sanOptions, VusaComponent);
-
     return options[innerKey] = cmpt;
 }

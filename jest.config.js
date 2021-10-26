@@ -10,6 +10,9 @@ module.exports = {
         {
             testEnvironment: 'jsdom',
             testMatch: ['<rootDir>/test/spec/runtime/**/*.spec.js'],
+            setupFilesAfterEnv: [
+                '<rootDir>/test/helpers/wait-for-update.js'
+            ]
         },
-    ],
+    ]
 };

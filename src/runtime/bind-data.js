@@ -21,6 +21,7 @@ export default function () {
                 return context.data.get(createAccesser(key));
             },
             set(newVal) {
+                console.log('~~~~~~~~~~~~set', newVal);
                 context.data.set(createAccesser(key), newVal);
             },
         });

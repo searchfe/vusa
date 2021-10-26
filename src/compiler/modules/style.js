@@ -11,12 +11,15 @@ const bindKeys = [':style', 'v-bind:style', 'v-show'];
 function postTransformNode(node) {
     const vShow = node.attrsMap['v-show'];
     if (node.type === 1 && (node.styleBinding || vShow)) {
+        // console.log('~~~~~~~~~~~~~~~~~~~~~~~');
+        // console.log('node', node);
         const staticStyle = node.staticStyle || '\'\'';
         const styleBinding = node.styleBinding
             ? transform(node.attrsMap[bindKeys[0]] || node.attrsMap[bindKeys[1]]).code
             : '{}';
         // eslint-disable-next-line max-len
         node.attrsMap.style = `{{ ${styleBinding.trim()} | _ms(${toSingleQuotes(staticStyle)}${vShow ? `, ${transform(vShow).code}` : ''}) }}`;
+        console.log('node.attrsMap', node.attrsMap);
         bindKeys.forEach(key => delete node.attrsMap[key]);
     }
 }

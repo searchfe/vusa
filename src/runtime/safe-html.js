@@ -14,6 +14,7 @@ function processAttr(str) {
 }
 
 export default function toSafeString(html) {
+    console.log('safe-html~~~~~~~~~~~~~~~~~~', html);
     if (html.indexOf('<') > -1) {
         const reg = /((<script.*?<\/script>)|(<style.*?<\/style>))/ig;
         const map = {
