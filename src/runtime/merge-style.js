@@ -41,7 +41,7 @@ function normalizeStyleBinding(bindingStyle) {
 
 
 export default function (style, staticStyle, vShow) {
-    console.log('arguments.length', arguments.length);
+
     style = normalizeStyleBinding(style);
 
     if (!vShow) {

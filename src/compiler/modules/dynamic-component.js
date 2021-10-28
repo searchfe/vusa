@@ -6,6 +6,7 @@
 import transform from '../expression-transformer';
 
 function postTransformNode(node, options) {
+
     if (!(node.type === 1 && node.tag === 'component')) {
         return;
     }

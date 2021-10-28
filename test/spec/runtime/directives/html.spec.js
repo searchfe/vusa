@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import Vue from '../../../helpers/vue';
 
 describe('Directive a-html', () => {
@@ -24,7 +25,7 @@ describe('Directive a-html', () => {
 
     it('should work inline', () => {
         const vm = new Vue({
-            template: `<div a-html="'<span>&lt;</span>'"></div>`
+            template: `<div a-html="'<span>&lt;</span>'"></div>`,
         }).$mount();
         expect(vm.$el.innerHTML).toBe('<span>&lt;</span>');
     });

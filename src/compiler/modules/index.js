@@ -16,12 +16,14 @@ import bool from './boolean';
 import template from './template';
 import transition from './transition';
 import textCombine from './text-combine';
+import forIf from './for-if';
 
 export default [
     template,
     bool,
     yf,
     fr,
+    forIf,
     event,
     html,
     ref,

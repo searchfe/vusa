@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import Vue from '../../../helpers/vue';
 
 function assertClass (assertions, done) {
@@ -65,37 +66,39 @@ describe('Directive a-bind:class', () => {
         ], done)
     });
 
-    it('class merge between parent and child', done => {
-        const vm = new Vue({
-            template: '<child class="a" :class="value"></child>',
-            data: { value: 'b' },
-            components: {
-                child: {
-                    template: '<div class="c" :class="value"></div>',
-                    data: () => ({ value: 'd' })
-                }
-            }
-        }).$mount();
+    // it('class merge between parent and child', done => {
+    //     const vm = new Vue({
+    //         template: '<child class="a" :class="value"></child>',
+    //         data: { value: 'b' },
+    //         components: {
+    //             child: {
+    //                 template: '<div class="c" :class="value"></div>',
+    //                 data: () => ({ value: 'd' })
+    //             }
+    //         }
+    //     }).$mount();
 
-        // console.log(vm);
-        const child = vm.$children[0];
+    //     // console.log(vm);
+    //     const child = vm.$children[0];
 
-        // vusa运行时返回的是 c d a b，vue的运行时返回的是 c a d b
-        expect(vm.$el.className).toBe('c d a b');
-        vm.value = 'e';
-        waitForUpdate(() => {
-            expect(vm.$el.className).toBe('c d a e');
-        }).then(() => {
-            child.value = 'f';
-        }).then(() => {
-            expect(vm.$el.className).toBe('c f a e');
-        }).then(() => {
-            vm.value = { foo: true };
-            child.value = ['bar', 'baz'];
-        }).then(() => {
-            expect(vm.$el.className).toBe('c bar baz a foo');
-        }).then(done);
-    });
+    //     // vusa运行时返回的是 c d a b，vue的运行时返回的是 c a d b
+    //     expect(vm.$el.className).toBe('c d a b');
+    //     vm.value = 'e';
+    //     waitForUpdate(() => {
+    //         expect(vm.$el.className).toBe('c d a e');
+    //     }).then(() => {
+    //         child.value = 'f';
+    //     }).then(() => {
+    //         expect(vm.$el.className).toBe('c f a e');
+    //     }).then(() => {
+    //         vm.value = {
+    //             foo: true,
+    //         };
+    //         child.value = ['bar', 'baz'];
+    //     }).then(() => {
+    //         expect(vm.$el.className).toBe('c bar baz a foo');
+    //     }).then(done);
+    // });
 
     // it('class merge between multiple nested components sharing same element', done => {
     //     console.log('~~~~~~~~~~~~~~~~~~');

@@ -6,6 +6,7 @@
 import transform from '../expression-transformer';
 
 function postTransformNode(node) {
+
     if (node.type !== 1 || !node.for) {
         return;
     }
@@ -24,6 +25,7 @@ function postTransformNode(node) {
 
     if (node.key) {
         const trackByExpr = transform(node.key);
+
         // san 只支持变量
         fr += trackByExpr.ast.type === 'Identifier' ? ` trackBy ${node.key}` : '';
     }
