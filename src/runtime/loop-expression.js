@@ -14,9 +14,15 @@ const toArray = cached(function (n) {
 });
 
 export default function (value) {
+
     if (!isNaN(value)) {
         const n = +value;
         value = toArray(n);
+    }
+
+    // 将字符串转为数组
+    if (typeof value === 'string') {
+        return value.split('');
     }
     return value;
 }

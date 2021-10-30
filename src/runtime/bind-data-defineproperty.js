@@ -141,6 +141,7 @@ function defineReactive(obj, key, expr, context) {
             else {
                 val = newVal;
             }
+
             observe(newVal, keyExpr, context);
             context.data.set(keyExpr, newVal, {force: true});
         },
