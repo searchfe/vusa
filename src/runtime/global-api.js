@@ -5,6 +5,7 @@
 
 import mergeClass from './merge-class';
 import mergeStyle from './merge-style';
+import {toString} from '../shared/util';
 
 const MATH_METHOD = [
     'floor', 'ceil', 'round',
@@ -45,6 +46,9 @@ export const filters = {
     },
     upper(str) {
         return str.toUpperCase();
+    },
+    _s(str) {
+        return toString(str);
     },
     _cat(a, b) {
         return (a || '').toString() + (b || '');

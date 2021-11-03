@@ -9,7 +9,12 @@ import toSingleQuotes from 'to-single-quotes';
 const bindKeys = [':style', 'v-bind:style', 'v-show'];
 
 function postTransformNode(node) {
-    const vShow = node.attrsMap['v-show'];
+    let vShow = node.attrsMap['v-show'];
+
+    // 默认v-show="true"
+    if (vShow === undefined) {
+        vShow = 'true';
+    }
     if (node.type === 1 && (node.styleBinding || vShow)) {
 
         const staticStyle = node.staticStyle || '\'\'';
