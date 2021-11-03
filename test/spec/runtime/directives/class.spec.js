@@ -1,17 +1,20 @@
 /* eslint-disable no-undef */
 import Vue from '../../../helpers/vue';
 
-function assertClass (assertions, done) {
+function assertClass(assertions, done) {
     const vm = new Vue({
         template: '<div class="foo" :class="value"></div>',
-        data: { value: '' }
+        data: {
+            value: '',
+        },
     }).$mount();
-    var chain = waitForUpdate();
+    let chain = waitForUpdate();
     assertions.forEach(([value, expected], i) => {
         chain.then(() => {
             if (typeof value === 'function') {
                 value(vm.value);
-            } else {
+            }
+            else {
                 vm.value = value;
             }
         }).then(() => {
@@ -30,17 +33,27 @@ describe('Directive a-bind:class', () => {
             ['bar', 'foo bar'],
             ['baz qux', 'foo baz qux'],
             ['qux', 'foo qux'],
-            [undefined, 'foo']
+            [undefined, 'foo'],
         ], done);
     });
 
     it('object value', done => {
         assertClass([
-            [{ bar: true, baz: false }, 'foo bar'],
-            [{ baz: true }, 'foo baz'],
+            [{
+                bar: true,
+                baz: false,
+            }, 'foo bar'],
+            [{
+                baz: true,
+            }, 'foo baz'],
             [null, 'foo'],
-            [{ 'bar baz': true, qux: false }, 'foo bar baz'],
-            [{ qux: true }, 'foo qux']
+            [{
+                'bar baz': true,
+                qux: false,
+            }, 'foo bar baz'],
+            [{
+                qux: true,
+            }, 'foo qux'],
         ], done);
     });
 
@@ -57,13 +70,21 @@ describe('Directive a-bind:class', () => {
 
     it('array of mixed values', done => {
         assertClass([
-            [['x', { y: true, z: true }], 'foo x y z'],
-            [['x', { y: true, z: false }], 'foo x y'],
-            [['f', { z: true }], 'foo f z'],
-            [['l', 'f', { n: true, z: true }], 'foo l f n z'],
+            [['x', {
+                y: true, z: true,
+            }], 'foo x y z'],
+            [['x', {
+                y: true, z: false,
+            }], 'foo x y'],
+            [['f', {
+                z: true,
+            }], 'foo f z'],
+            [['l', 'f', {
+                n: true, z: true,
+            }], 'foo l f n z'],
             [['x', {}], 'foo x'],
-            [undefined, 'foo']
-        ], done)
+            [undefined, 'foo'],
+        ], done);
     });
 
     // it('class merge between parent and child', done => {
@@ -156,8 +177,10 @@ describe('Directive a-bind:class', () => {
         const vm = new Vue({
             template: '<div :class="test"></div>',
             data: {
-                test: { a: true, b: false }
-            }
+                test: {
+                    a: true, b: false,
+                },
+            },
         }).$mount();
         expect(vm.$el.className).toBe('a');
         vm.test.b = true;
@@ -177,8 +200,8 @@ describe('Directive a-bind:class', () => {
                 </div>
             `,
             data: {
-                ok: true
-            }
+                ok: true,
+            },
         }).$mount();
         expect(vm.$el.children[0].className).toBe('a');
         vm.ok = false;

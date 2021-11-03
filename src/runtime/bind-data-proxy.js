@@ -50,6 +50,7 @@ function proxy(obj, expr, context) {
             return true;
         },
         get(target, prop) {
+
             if (prop === proxyKey) {
                 return true;
             }

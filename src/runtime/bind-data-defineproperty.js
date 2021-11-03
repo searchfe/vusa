@@ -123,11 +123,13 @@ function defineReactive(obj, key, expr, context) {
     const dep = new Dep();
 
     let val = obj[key];
+
     observe(val, keyExpr, context);
     const newProperty = {
         enumerable: true,
         configurable: true,
         set(newVal) {
+
             const value = getter ? getter.call(obj) : val;
             if (newVal === value) {
                 return;
