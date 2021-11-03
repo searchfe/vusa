@@ -10,9 +10,10 @@ const bindKeys = [':style', 'v-bind:style', 'v-show'];
 
 function postTransformNode(node) {
     let vShow = node.attrsMap['v-show'];
+    let userSetVShow = node.attrsList.some(item => item.name === 'v-show');
 
-    // 默认v-show="true"
-    if (vShow === undefined) {
+    // 用户没有设置v-show的时候默认v-show="true"
+    if (!userSetVShow && vShow === undefined) {
         vShow = 'true';
     }
     if (node.type === 1 && (node.styleBinding || vShow)) {
