@@ -65,6 +65,17 @@ export function isPlainObject(obj) {
     return _toString.call(obj) === '[object Object]';
 }
 
+/**
+ * Convert a value to a string that is actually rendered.
+ */
+export function toString(val) {
+    return val == null
+        ? ''
+        : Array.isArray(val) || (isPlainObject(val) && val.toString === _toString)
+            ? JSON.stringify(val, null, 2)
+            : String(val);
+}
+
 export function def(obj, key, property) {
     Object.defineProperty(obj, key, extend({
         enumerable: false,

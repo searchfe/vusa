@@ -47,7 +47,12 @@ export default function (style, staticStyle, vShow) {
     if (!vShow) {
         style.display = 'none';
     }
-
+    Object.keys(style).forEach(key => {
+        const val = style[key];
+        if (Array.isArray(val)) {
+            style[key] = val[val.length - 1];
+        }
+    });
     return staticStyle
         ? extend(staticStyle, style)
         : style;
