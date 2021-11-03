@@ -123,11 +123,13 @@ function defineReactive(obj, key, expr, context) {
     const dep = new Dep();
 
     let val = obj[key];
+
     observe(val, keyExpr, context);
     const newProperty = {
         enumerable: true,
         configurable: true,
         set(newVal) {
+
             const value = getter ? getter.call(obj) : val;
             if (newVal === value) {
                 return;
@@ -141,6 +143,7 @@ function defineReactive(obj, key, expr, context) {
             else {
                 val = newVal;
             }
+
             observe(newVal, keyExpr, context);
             context.data.set(keyExpr, newVal, {force: true});
         },

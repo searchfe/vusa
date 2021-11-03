@@ -51,7 +51,15 @@ export const filters = {
         return toString(str);
     },
     _cat(a, b) {
-        return (a || '').toString() + (b || '');
+
+        if (!a && a !== 0) {
+            a = '';
+        }
+        if (!b && b !== 0) {
+            b = '';
+        }
+
+        return a.toString() + b.toString();
     },
     _mc: mergeClass,
     _ms: mergeStyle,

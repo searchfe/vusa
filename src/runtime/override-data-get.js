@@ -8,6 +8,7 @@ import {Data, parseExpr, ExprType, evalExpr} from 'san';
 const original = Data.prototype.get;
 
 Data.prototype.get = function (expr, callee) {
+
     if (!expr) {
         return this.raw;
     }
@@ -18,13 +19,13 @@ Data.prototype.get = function (expr, callee) {
     else {
         key = expr.paths.map(a => a.value).join('.');
     }
-
     this._dep && this._dep.depend({
         key,
         expr,
     });
 
     let value = original.call(this, expr, callee);
+
     if (!expr || value !== undefined || !this.owner || expr.type !== ExprType.ACCESSOR) {
         return value;
     }
@@ -39,7 +40,9 @@ Data.prototype.get = function (expr, callee) {
     ) {
         return value;
     }
-    value = this.owner[first];
+
+    // TODO 先删除了，不然会导致dom上多一个id属性
+    // value = this.owner[first];
     for (let i = 1, l = paths.length; value != null && i < l; i++) {
         value = value[paths[i].value || evalExpr(paths[i], callee)];
     }
