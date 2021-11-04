@@ -12,7 +12,6 @@ import {isEmpty} from 'lodash';
 import {parseTemplate, pack} from 'san-anode-utils';
 
 export function compile(source, options = {}) {
-
     const {
         modules = [],
         cssModules = null,
@@ -50,7 +49,7 @@ export function compile(source, options = {}) {
         stripWith,
     };
 
-    const {ast} = vueCompile(source.trim(), compilerOptions);
+    const {ast} = vueCompile(source , compilerOptions);
     const template = stringify(ast, {scopeId, strip, atom: isAtom});
 
 

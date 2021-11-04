@@ -149,3 +149,16 @@ export function isValidArrayIndex(val) {
     const n = parseFloat(String(val));
     return n >= 0 && Math.floor(n) === n && isFinite(val);
 }
+
+export const parseStyleText = cached(function (cssText) {
+    const res = {};
+    const listDelimiter = /;(?![^(]*\))/g;
+    const propertyDelimiter = /:(.+)/;
+    cssText.split(listDelimiter).forEach(function (item) {
+        if (item) {
+            let tmp = item.split(propertyDelimiter);
+            tmp.length > 1 && (res[tmp[0].trim()] = tmp[1].trim());
+        }
+    });
+    return res;
+});
