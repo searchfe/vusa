@@ -1,8 +1,7 @@
 # This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Vusa simple-ci
-
+name: MASTER CI
 on:
   push:
     branches: [ master ]
@@ -27,3 +26,32 @@ jobs:
 
         - name: Test
           run: npm test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Clone registry from github.
+          uses: actions/checkout@v2
+
+        - name: Use node version
+          uses: actions/setup-node@v2
+          with:
+              node-version: "12.x"
+              cache: 'npm'
+
+        - name: Install dependencies with package-lock.json
+          run: npm ci
+
+        - name: Build
+          run: npm run build
+
+        - name: Package
+          uses: EndBug/add-and-commit@v6.2.0
+          with:
+              author_name: Github Action as PerfumerCI
+              author_email: 1061393710@qq.com
+              message: "CI: merge packages/* -> master branch."
+              branch: master
+              token: ${{ secrets.TOKEN }}
+
+        
