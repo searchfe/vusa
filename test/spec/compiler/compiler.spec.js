@@ -33,7 +33,7 @@ describe('compiler', function () {
             <p style="color:blue"></p>
         </div>`;
         const result = await compile(source);
-        expect(result.template).toBe('<div style="{{ {\'font-size\':\'12px\'} | _ms({\'color\':\'red\'}) }}"><p style="{{ dataA | aa | _ms(\'\') }}"></p><p style="color:blue"></p></div>');
+        expect(result.template).toBe('<div style="{{ {\'font-size\':\'12px\'} | _ms({\'color\':\'red\'}, true) }}"><p style="{{ dataA | aa | _ms(\'\', true) }}"></p><p style="color:blue"></p></div>');
     });
 
     it('merge bind', async () => {
@@ -141,7 +141,7 @@ describe('compiler', function () {
     it('v-text', async () => {
         const source = '<div v-text="text"></div>';
         const result = await compile(source);
-        expect(result.template).toBe('<div>{{ text }}</div>');
+        expect(result.template).toBe('<div>{{ text | _s }}</div>');
     });
 
     it('atom', async () => {
