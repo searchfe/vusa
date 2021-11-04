@@ -49,7 +49,7 @@ export function compile(source, options = {}) {
         stripWith,
     };
 
-    const {ast} = vueCompile(source , compilerOptions);
+    const {ast} = vueCompile(source.trim(), compilerOptions);
     const template = stringify(ast, {scopeId, strip, atom: isAtom});
 
 
