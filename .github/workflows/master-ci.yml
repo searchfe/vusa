@@ -27,17 +27,33 @@ jobs:
         - name: Test
           run: npm test
 
-        - name: Build
-          run: npm run build
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone registry from github.
+        uses: actions/checkout@v2
 
-        - name: Package
-          uses: EndBug/add-and-commit@v6.2.0
-          with:
-              author_name: Github Action as PerfumerCI
-              author_email: 1061393710@qq.com
-              message: "CI: merge packages/* -> master branch."
-              branch: master
-              token: ${{ secrets.TOKEN }}
+      - name: Use node version
+        uses: actions/setup-node@v2
+        with:
+            node-version: "12.x"
+            cache: 'npm'
+
+      - name: Install dependencies with package-lock.json
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+# 需要Owner权限的Token, 自动部署编译产物
+#     - name: Package
+#       uses: EndBug/add-and-commit@v6.2.0
+#       with:
+#           author_name: Github Action as PerfumerCI
+#           author_email: 1061393710@qq.com
+#           message: "CI: merge packages/* -> master branch."
+#           branch: master
+#           token: ${{ secrets.TOKEN }}
 
         
 
