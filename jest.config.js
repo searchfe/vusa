@@ -12,6 +12,7 @@ module.exports = {
             testMatch: ['<rootDir>/test/spec/runtime/**/*.spec.js'],
             setupFilesAfterEnv: [
                 '<rootDir>/test/helpers/wait-for-update.js',
+                '<rootDir>/test/helpers/trigger-event.js',
             ],
         },
     ],
