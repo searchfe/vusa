@@ -3,6 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+import { noop } from '../shared/util';
 import {resetTarget, cleanTarget, Dep} from './dep';
 
 export default function calcComputed(computedExpr, computed) {
@@ -17,7 +18,12 @@ export default function calcComputed(computedExpr, computed) {
     }
 
     resetTarget();
-    const value = computed[computedExpr].call(this);
+    let userDef = computed[computedExpr];
+    if (typeof userDef === 'object') {
+        userDef = userDef.get || noop;
+    }
+
+    const value = userDef.call(this);
     const deps = Dep.target;
     cleanTarget();
 
