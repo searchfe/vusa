@@ -422,17 +422,18 @@ function transform (code) {
 
 const bindKeys$1 = [':class', 'v-bind:class'];
 
-function postTransformNode$b(node) {
+function postTransformNode$c(node) {
     if (node.type === 1 && node.classBinding) {
         const staticClass = node.attrsMap.class || '';
         const classBinding = transform(node.attrsMap[bindKeys$1[0]] || node.attrsMap[bindKeys$1[1]]).code;
         node.attrsMap.class = `{{ ${classBinding} | _mc('${staticClass}') }}`;
         bindKeys$1.forEach(key => delete node.attrsMap[key]);
     }
+    // console.log('node.attrsMap', node.attrsMap);
 }
 
 var clazz = {
-    postTransformNode: postTransformNode$b,
+    postTransformNode: postTransformNode$c,
 };
 
 /**
@@ -442,13 +443,21 @@ var clazz = {
 
 const bindKeys = [':style', 'v-bind:style', 'v-show'];
 
-function postTransformNode$a(node) {
-    const vShow = node.attrsMap['v-show'];
+function postTransformNode$b(node) {
+    let vShow = node.attrsMap['v-show'];
+    let userSetVShow = node.attrsList.some(item => item.name === 'v-show');
+
+    // 用户没有设置v-show的时候默认v-show="true"
+    if (!userSetVShow && vShow === undefined) {
+        vShow = 'true';
+    }
     if (node.type === 1 && (node.styleBinding || vShow)) {
+
         const staticStyle = node.staticStyle || '\'\'';
         const styleBinding = node.styleBinding
             ? transform(node.attrsMap[bindKeys[0]] || node.attrsMap[bindKeys[1]]).code
             : '{}';
+
         // eslint-disable-next-line max-len
         node.attrsMap.style = `{{ ${styleBinding.trim()} | _ms(${toSingleQuotes__default['default'](staticStyle)}${vShow ? `, ${transform(vShow).code}` : ''}) }}`;
         bindKeys.forEach(key => delete node.attrsMap[key]);
@@ -456,7 +465,7 @@ function postTransformNode$a(node) {
 }
 
 var style = {
-    postTransformNode: postTransformNode$a,
+    postTransformNode: postTransformNode$b,
 };
 
 /**
@@ -466,17 +475,21 @@ var style = {
 
 const reBind = /^(v-bind)?\:/;
 
-function postTransformNode$9(node) {
+function postTransformNode$a(node) {
+    // console.log('bind~~~~~~~~~~~~~~~~~');
+
     if (node.type !== 1) {
         return;
     }
     const keys = Object.keys(node.attrsMap).filter(n => reBind.test(n));
+
     for (const key of keys) {
         const value = node.attrsMap[key];
         delete node.attrsMap[key];
         const ret = transform(value);
         const code = ret.code;
         node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
+        // node.attrsMap[key.replace(reBind, '')] = `{{ _b(${code})}}`;
     }
 
     if (node.attrsMap['v-bind']) {
@@ -484,10 +497,24 @@ function postTransformNode$9(node) {
         node.attrsMap['s-bind'] = `{{ ${transform(vBind).code} }}`;
         delete node.attrsMap['v-bind'];
     }
+
+    const camelKeys = Object.keys(node.attrsMap).filter(item => item.endsWith('.camel'));
+    for (const key of camelKeys) {
+        let tempKey = key.replace('.camel', '');
+        const tempKeys = tempKey.split('-');
+        if (tempKeys.length >= 2) {
+            for (let i = 1; i < tempKeys.length; i++) {
+                tempKeys[i] = tempKeys[i].charAt(0).toUpperCase() + tempKeys[i].substring(1);
+            }
+        }
+        tempKey = tempKeys.join('');
+        node.attrsMap[tempKey] = node.attrsMap[key];
+        delete node.attrsMap[key];
+    }
 }
 
 var bind = {
-    postTransformNode: postTransformNode$9,
+    postTransformNode: postTransformNode$a,
 };
 
 /**
@@ -495,7 +522,7 @@ var bind = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$8(node) {
+function postTransformNode$9(node) {
     if (node.type !== 1) {
         return;
     }
@@ -517,7 +544,7 @@ function postTransformNode$8(node) {
 }
 
 var yf = {
-    postTransformNode: postTransformNode$8
+    postTransformNode: postTransformNode$9,
 };
 
 /**
@@ -525,7 +552,8 @@ var yf = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$7(node) {
+function postTransformNode$8(node) {
+
     if (node.type !== 1 || !node.for) {
         return;
     }
@@ -544,6 +572,7 @@ function postTransformNode$7(node) {
 
     if (node.key) {
         const trackByExpr = transform(node.key);
+
         // san 只支持变量
         fr += trackByExpr.ast.type === 'Identifier' ? ` trackBy ${node.key}` : '';
     }
@@ -557,7 +586,7 @@ function postTransformNode$7(node) {
 }
 
 var fr = {
-    postTransformNode: postTransformNode$7,
+    postTransformNode: postTransformNode$8,
 };
 
 function stripWith(code) {
@@ -605,7 +634,7 @@ function getName() {
     return nanoid$1();
 }
 
-function postTransformNode$6(node, options) {
+function postTransformNode$7(node, options) {
     const eventAttrs = node.attrsList.filter(n => reEvent.test(n.name));
     for (const attr of eventAttrs) {
         delete node.attrsMap[attr.name];
@@ -642,7 +671,7 @@ function postTransformNode$6(node, options) {
 }
 
 var event = {
-    postTransformNode: postTransformNode$6,
+    postTransformNode: postTransformNode$7,
 };
 
 /**
@@ -650,7 +679,7 @@ var event = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$5(node) {
+function postTransformNode$6(node) {
 
     if (node.attrsMap && node.attrsMap['v-dangerous-html']) {
         const dir = node.directives.find(d => d.name === 'dangerous-html');
@@ -665,11 +694,16 @@ function postTransformNode$5(node) {
         dir.value = node.attrsMap['v-html'] = `_sf(${node.attrsMap['v-safe-html']})`;
         delete node.attrsMap['v-safe-html'];
     }
+    else if (node.attrsMap && node.attrsMap['v-html']) {
+        const dir = node.directives.find(d => d.name === 'html');
+        dir.value = node.attrsMap['v-html'] = `_h(${node.attrsMap['v-html']})`;
+    }
 
     if (node.type === 1 && node.attrsMap['v-html']) {
         const value = node.directives.find(d => d.name === 'html').value;
         delete node.attrsMap['v-html'];
         node.attrsMap['s-html'] = `{{ ${value} }}`;
+        // node.attrsMap['s-html'] = `{{ _h(${value}) }}`;
         node.children = [];
     }
 
@@ -678,13 +712,13 @@ function postTransformNode$5(node) {
         delete node.attrsMap['v-text'];
         node.children = [{
             type: 2,
-            text: `{{ ${value} }}`,
+            text: `{{ ${value} | _s }}`,
         }];
     }
 }
 
 var html = {
-    postTransformNode: postTransformNode$5,
+    postTransformNode: postTransformNode$6,
 };
 
 /**
@@ -692,7 +726,7 @@ var html = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$4(node, options) {
+function postTransformNode$5(node, options) {
     if (node.type !== 1 || !node.attrsMap.ref && !node.attrsMap[':ref']) {
         return;
     }
@@ -718,7 +752,7 @@ function postTransformNode$4(node, options) {
 }
 
 var ref = {
-    postTransformNode: postTransformNode$4
+    postTransformNode: postTransformNode$5
 };
 
 /**
@@ -726,7 +760,8 @@ var ref = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$3(node, options) {
+function postTransformNode$4(node, options) {
+
     if (!(node.type === 1 && node.tag === 'component')) {
         return;
     }
@@ -744,7 +779,7 @@ function postTransformNode$3(node, options) {
 }
 
 var dynamicComponent = {
-    postTransformNode: postTransformNode$3,
+    postTransformNode: postTransformNode$4,
 };
 
 /**
@@ -948,7 +983,7 @@ const htmlTag = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$2(node) {
+function postTransformNode$3(node) {
     if (!node.type === 1 || !node.attrsMap) {
         return;
     }
@@ -963,7 +998,7 @@ function postTransformNode$2(node) {
 }
 
 var bool = {
-    postTransformNode: postTransformNode$2
+    postTransformNode: postTransformNode$3
 };
 
 /**
@@ -995,7 +1030,7 @@ function getAttrs(attrsMap) {
     });
 }
 
-function postTransformNode$1(el) {
+function postTransformNode$2(el) {
     if (el.tag === 'transition') {
         el.tag = 'fragment';
 
@@ -1033,7 +1068,7 @@ function postTransformNode$1(el) {
 }
 
 var transition = {
-    postTransformNode: postTransformNode$1,
+    postTransformNode: postTransformNode$2,
 };
 
 /**
@@ -1041,7 +1076,7 @@ var transition = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode(el, state) {
+function postTransformNode$1(el, state) {
     if (el.children && el.children.length > 0) {
         for (const child of el.children) {
             if (child.type !== 2 || !child.tokens || child.tokens.length <= 1) {
@@ -1071,6 +1106,64 @@ function postTransformNode(el, state) {
 }
 
 var textCombine = {
+    postTransformNode: postTransformNode$1,
+};
+
+/**
+ * @file 处理同时有 if 和 for 的情况
+ * @author donghualei
+ */
+
+
+function postTransformNode(node) {
+
+    if (node.type !== 1) {
+        return;
+    }
+
+    // 查找字子节点是否有带 s-for 和 s-if 同时存在的场景
+    let children = node.children;
+
+    for (let i = 0; i < children.length; i++) {
+
+        // 同时具有 if 和 for
+        if (children[i].if && children[i].for) {
+
+            let ifForNode = children[i];
+
+            let newFragmentNode = {
+                type: 1,
+                tag: 'fragment',
+                attrsMap: {
+                    's-for': ifForNode.attrsMap['s-for'],
+                },
+
+                // 父节点是当前节点
+                parent: node,
+
+                for: ifForNode.for,
+                alias: ifForNode.alias,
+                iterator1: ifForNode.iterator1,
+                plain: ifForNode.plain,
+            };
+
+            // fragment 替换本身 s-for 和 s-if 所在的节点
+            children.splice(i, 1, newFragmentNode);
+
+            // 修改 ifForNode 的父节点为 fragment
+            ifForNode.parent = newFragmentNode;
+
+            newFragmentNode.children = [ifForNode];
+
+            delete ifForNode.attrsMap['s-for'];
+            delete ifForNode.attrsMap.for;
+            delete ifForNode.alias;
+            delete ifForNode.iterator1;
+        }
+    }
+}
+
+var forIf = {
     postTransformNode,
 };
 
@@ -1084,6 +1177,7 @@ var buildInModules = [
     bool,
     yf,
     fr,
+    forIf,
     event,
     html,
     ref,
@@ -1213,7 +1307,6 @@ var atom = {
  */
 
 function compile(source, options = {}) {
-
     const {
         modules = [],
         cssModules = null,
@@ -1252,11 +1345,19 @@ function compile(source, options = {}) {
     };
 
     const {ast} = vueTemplateCompiler.compile(source.trim(), compilerOptions);
-
     const template = stringify(ast, {scopeId, strip, atom: isAtom});
+
+
     const aNode = sanAnodeUtils.parseTemplate(template, {
         trimWhitespace: 'blank',
     }).children[0];
+
+    if (ast.tag === 'div1') {
+        console.log('---------------------------------');
+        console.log('ast', ast.children[0]);
+        console.log('aNode', aNode.children[0]);
+        console.log('template', template);
+    }
 
     return {
         ast,
