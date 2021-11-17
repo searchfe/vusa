@@ -58,11 +58,11 @@ export function compile(source, options = {}) {
     }).children[0];
 
     // if (ast.tag === 'child') {
-        // console.log('---------------------------------');
-        // console.log('ast', ast.children[0]);
-        // console.log('aNode', aNode.children[0]);
-        // console.log('template', template);
-        // console.log('---------------------------------');
+    //     console.log('---------------------------------');
+    //     console.log('ast', ast.children[0]);
+    //     console.log('aNode', aNode.children[0]);
+    //     console.log('template', template);
+    //     console.log('---------------------------------');
     // }
 
     return {
