@@ -28,64 +28,64 @@ function assertClass(assertions, done) {
 }
 
 describe('Directive a-bind:class', () => {
-    // it('plain string', done => {
-    //     assertClass([
-    //         ['bar', 'foo bar'],
-    //         ['baz qux', 'foo baz qux'],
-    //         ['qux', 'foo qux'],
-    //         [undefined, 'foo'],
-    //     ], done);
-    // });
+    it('plain string', done => {
+        assertClass([
+            ['bar', 'foo bar'],
+            ['baz qux', 'foo baz qux'],
+            ['qux', 'foo qux'],
+            [undefined, 'foo'],
+        ], done);
+    });
 
-    // it('object value', done => {
-    //     assertClass([
-    //         [{
-    //             bar: true,
-    //             baz: false,
-    //         }, 'foo bar'],
-    //         [{
-    //             baz: true,
-    //         }, 'foo baz'],
-    //         [null, 'foo'],
-    //         [{
-    //             'bar baz': true,
-    //             qux: false,
-    //         }, 'foo bar baz'],
-    //         [{
-    //             qux: true,
-    //         }, 'foo qux'],
-    //     ], done);
-    // });
+    it('object value', done => {
+        assertClass([
+            [{
+                bar: true,
+                baz: false,
+            }, 'foo bar'],
+            [{
+                baz: true,
+            }, 'foo baz'],
+            [null, 'foo'],
+            [{
+                'bar baz': true,
+                qux: false,
+            }, 'foo bar baz'],
+            [{
+                qux: true,
+            }, 'foo qux'],
+        ], done);
+    });
 
-    // it('array value', done => {
-    //     assertClass([
-    //         [['bar', 'baz'], 'foo bar baz'],
-    //         [['qux', 'baz'], 'foo qux baz'],
-    //         [['w', 'x y z'], 'foo w x y z'],
-    //         [undefined, 'foo'],
-    //         [['bar'], 'foo bar'],
-    //         [val => val.push('baz'), 'foo bar baz']
-    //     ], done);
-    // });
+    it('array value', done => {
+        assertClass([
+            [['bar', 'baz'], 'foo bar baz'],
+            [['qux', 'baz'], 'foo qux baz'],
+            [['w', 'x y z'], 'foo w x y z'],
+            [undefined, 'foo'],
+            [['bar'], 'foo bar'],
+            [val => val.push('baz'), 'foo bar baz'],
+        ], done);
+    });
 
-    // it('array of mixed values', done => {
-    //     assertClass([
-    //         [['x', {
-    //             y: true, z: true,
-    //         }], 'foo x y z'],
-    //         [['x', {
-    //             y: true, z: false,
-    //         }], 'foo x y'],
-    //         [['f', {
-    //             z: true,
-    //         }], 'foo f z'],
-    //         [['l', 'f', {
-    //             n: true, z: true,
-    //         }], 'foo l f n z'],
-    //         [['x', {}], 'foo x'],
-    //         [undefined, 'foo'],
-    //     ], done);
-    // });
+    it('array of mixed values', done => {
+        assertClass([
+            [['x', {
+                y: true, z: true,
+            }], 'foo x y z'],
+            [['x', {
+                y: true, z: false,
+            }], 'foo x y'],
+            [['f', {
+                z: true,
+            }], 'foo f z'],
+            [['l', 'f', {
+                n: true, z: true,
+            }], 'foo l f n z'],
+            [['x', {}], 'foo x'],
+            [undefined, 'foo'],
+        ], done);
+    });
 
     it('class merge between parent and child', done => {
         const vm = new Vue({
@@ -196,51 +196,19 @@ describe('Directive a-bind:class', () => {
     it('properly remove staticClass for toggling un-keyed children', done => {
         const vm = new Vue({
             template: `
-                <component1 :class="componentClass1">
-                    <component2 :class="componentClass2">
-                        <component3 :class="componentClass3">
-                            some text
-                        </component3>
-                    </component2>
-                </component1>
+                <div>
+                    <div a-if="ok" class="a"></div>
+                    <div a-if="!ok"></div>
+                </div>
             `,
             data: {
-                componentClass1: 'componentClass1',
-                componentClass2: 'componentClass2',
-                componentClass3: 'componentClass3'
+                ok: true,
             },
-            components: {
-                component1: {
-                    template: `
-                        <template>
-                            <slot />
-                        </template>
-                    `
-                },
-                component2: {
-                    template: `
-                        <template>
-                            <slot />
-                        </template>
-                    `
-                },
-                component3: {
-                    template: '<div class="staticClass"><slot></slot></div>'
-                }
-            }
         }).$mount();
-        console.log('vm', vm.$el.innerHTML);
-        console.log('~~~~~~~~~~~~~~~~~~');
-        expect(vm.$el.className).toBe('staticClass componentClass3 componentClass2 componentClass1');
-        vm.componentClass1 = 'c1';
+        expect(vm.$el.children[0].className).toBe('a');
+        vm.ok = false;
         waitForUpdate(() => {
-            expect(vm.$el.className).toBe('staticClass componentClass3 componentClass2 c1');
-            vm.componentClass2 = 'c2';
-        }).then(() => {
-            expect(vm.$el.className).toBe('staticClass componentClass3 c2 c1');
-            vm.componentClass3 = 'c3';
-        }).then(() => {
-            expect(vm.$el.className).toBe('staticClass c3 c2 c1');
+            expect(vm.$el.children[0].className).toBe('');
         }).then(done);
     });
 });
