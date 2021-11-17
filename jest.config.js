@@ -2,6 +2,7 @@ module.exports = {
     verbose: true,
     collectCoverage: true,
     collectCoverageFrom: ['<rootDir>/src/**'],
+    testTimeout: 30000,
     projects: [
         {
             testEnvironment: 'node',
