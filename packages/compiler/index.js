@@ -457,7 +457,6 @@ function postTransformNode$b(node) {
         const styleBinding = node.styleBinding
             ? transform(node.attrsMap[bindKeys[0]] || node.attrsMap[bindKeys[1]]).code
             : '{}';
-
         // eslint-disable-next-line max-len
         node.attrsMap.style = `{{ ${styleBinding.trim()} | _ms(${toSingleQuotes__default['default'](staticStyle)}${vShow ? `, ${transform(vShow).code}` : ''}) }}`;
         bindKeys.forEach(key => delete node.attrsMap[key]);
@@ -1352,12 +1351,12 @@ function compile(source, options = {}) {
         trimWhitespace: 'blank',
     }).children[0];
 
-    if (ast.tag === 'div1') {
-        console.log('---------------------------------');
-        console.log('ast', ast.children[0]);
-        console.log('aNode', aNode.children[0]);
-        console.log('template', template);
-    }
+    // if (ast.tag === 'div1') {
+    //     console.log('---------------------------------');
+    //     console.log('ast', ast.children[0]);
+    //     console.log('aNode', aNode.children[0]);
+    //     console.log('template', template);
+    // }
 
     return {
         ast,
