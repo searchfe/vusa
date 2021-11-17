@@ -28,189 +28,187 @@ function assertClass(assertions, done) {
 }
 
 describe('Directive a-bind:class', () => {
-    // it('plain string', done => {
-    //     assertClass([
-    //         ['bar', 'foo bar'],
-    //         ['baz qux', 'foo baz qux'],
-    //         ['qux', 'foo qux'],
-    //         [undefined, 'foo'],
-    //     ], done);
-    // });
+    it('plain string', done => {
+        assertClass([
+            ['bar', 'foo bar'],
+            ['baz qux', 'foo baz qux'],
+            ['qux', 'foo qux'],
+            [undefined, 'foo'],
+        ], done);
+    });
 
-    // it('object value', done => {
-    //     assertClass([
-    //         [{
-    //             bar: true,
-    //             baz: false,
-    //         }, 'foo bar'],
-    //         [{
-    //             baz: true,
-    //         }, 'foo baz'],
-    //         [null, 'foo'],
-    //         [{
-    //             'bar baz': true,
-    //             qux: false,
-    //         }, 'foo bar baz'],
-    //         [{
-    //             qux: true,
-    //         }, 'foo qux'],
-    //     ], done);
-    // });
+    it('object value', done => {
+        assertClass([
+            [{
+                bar: true,
+                baz: false,
+            }, 'foo bar'],
+            [{
+                baz: true,
+            }, 'foo baz'],
+            [null, 'foo'],
+            [{
+                'bar baz': true,
+                qux: false,
+            }, 'foo bar baz'],
+            [{
+                qux: true,
+            }, 'foo qux'],
+        ], done);
+    });
 
-    // it('array value', done => {
-    //     assertClass([
-    //         [['bar', 'baz'], 'foo bar baz'],
-    //         [['qux', 'baz'], 'foo qux baz'],
-    //         [['w', 'x y z'], 'foo w x y z'],
-    //         [undefined, 'foo'],
-    //         [['bar'], 'foo bar'],
-    //         [val => val.push('baz'), 'foo bar baz']
-    //     ], done);
-    // });
+    it('array value', done => {
+        assertClass([
+            [['bar', 'baz'], 'foo bar baz'],
+            [['qux', 'baz'], 'foo qux baz'],
+            [['w', 'x y z'], 'foo w x y z'],
+            [undefined, 'foo'],
+            [['bar'], 'foo bar'],
+            [val => val.push('baz'), 'foo bar baz']
+        ], done);
+    });
 
-    // it('array of mixed values', done => {
-    //     assertClass([
-    //         [['x', {
-    //             y: true, z: true,
-    //         }], 'foo x y z'],
-    //         [['x', {
-    //             y: true, z: false,
-    //         }], 'foo x y'],
-    //         [['f', {
-    //             z: true,
-    //         }], 'foo f z'],
-    //         [['l', 'f', {
-    //             n: true, z: true,
-    //         }], 'foo l f n z'],
-    //         [['x', {}], 'foo x'],
-    //         [undefined, 'foo'],
-    //     ], done);
-    // });
+    it('array of mixed values', done => {
+        assertClass([
+            [['x', {
+                y: true, z: true,
+            }], 'foo x y z'],
+            [['x', {
+                y: true, z: false,
+            }], 'foo x y'],
+            [['f', {
+                z: true,
+            }], 'foo f z'],
+            [['l', 'f', {
+                n: true, z: true,
+            }], 'foo l f n z'],
+            [['x', {}], 'foo x'],
+            [undefined, 'foo'],
+        ], done);
+    });
 
-    // it('class merge between parent and child', done => {
-    //     const vm = new Vue({
-    //         template: '<child class="a" :class="value"></child>',
-    //         data: {
-    //             value: 'b',
-    //         },
-    //         components: {
-    //             child: {
-    //                 template: '<div class="c" :class="value"></div>',
-    //                 data: () => ({
-    //                     value: 'd',
-    //                 }),
-    //             },
-    //         },
-    //     }).$mount();
-
-    //     const child = vm.$children[0];
-
-    //     // vusa运行时返回的是 c d a b，vue的运行时返回的是 c a d b
-    //     expect(vm.$el.className).toBe('c d a b');
-    //     vm.value = 'e';
-    //     waitForUpdate(() => {
-    //         expect(vm.$el.className).toBe('c d a e');
-    //     }).then(() => {
-    //         child.value = 'f';
-    //     }).then(() => {
-    //         expect(vm.$el.className).toBe('c f a e');
-    //     }).then(() => {
-    //         vm.value = {
-    //             foo: true,
-    //         };
-    //         child.value = ['bar', 'baz'];
-    //     }).then(() => {
-    //         expect(vm.$el.className).toBe('c bar baz a foo');
-    //     }).then(done);
-    // });
-
-    // TODO 未通过
-    it('class merge between multiple nested components sharing same element', done => {
-        console.log('~~~~~~~~~~~~~~~~~~');
+    it('class merge between parent and child', done => {
         const vm = new Vue({
-            template: `
-                <component1 :class="componentClass1">
-                    <component2 :class="componentClass2">
-                        <component3 :class="componentClass3">
-                            some text
-                        </component3>
-                    </component2>
-                </component1>
-            `,
+            template: '<child class="a" :class="value"></child>',
             data: {
-                componentClass1: 'componentClass1',
-                componentClass2: 'componentClass2',
-                componentClass3: 'componentClass3'
+                value: 'b',
             },
             components: {
-                component1: {
-                    template: `
-                        <template>
-                            <slot />
-                        </template>
-                    `
+                child: {
+                    template: '<div class="c" :class="value"></div>',
+                    data: () => ({
+                        value: 'd',
+                    }),
                 },
-                component2: {
-                    template: `
-                        <template>
-                            <slot />
-                        </template>
-                    `
-                },
-                component3: {
-                    template: '<div class="staticClass"><slot></slot></div>'
-                }
-            }
+            },
         }).$mount();
-        console.log('vm', vm.$el.innerHTML);
-        console.log('~~~~~~~~~~~~~~~~~~');
-        expect(vm.$el.className).toBe('staticClass componentClass3 componentClass2 componentClass1');
-        vm.componentClass1 = 'c1';
+
+        const child = vm.$children[0];
+
+        // vusa运行时返回的是 c d a b，vue的运行时返回的是 c a d b
+        expect(vm.$el.className).toBe('c d a b');
+        vm.value = 'e';
         waitForUpdate(() => {
-            expect(vm.$el.className).toBe('staticClass componentClass3 componentClass2 c1');
-            vm.componentClass2 = 'c2';
+            expect(vm.$el.className).toBe('c d a e');
         }).then(() => {
-            expect(vm.$el.className).toBe('staticClass componentClass3 c2 c1');
-            vm.componentClass3 = 'c3';
+            child.value = 'f';
         }).then(() => {
-            expect(vm.$el.className).toBe('staticClass c3 c2 c1');
+            expect(vm.$el.className).toBe('c f a e');
+        }).then(() => {
+            vm.value = {
+                foo: true,
+            };
+            child.value = ['bar', 'baz'];
+        }).then(() => {
+            expect(vm.$el.className).toBe('c bar baz a foo');
         }).then(done);
     });
 
-    // it('deep update', done => {
+    // TODO 未通过，不支持组件嵌套，且根节点是一个template里面只有一个slot的场景
+    // it('class merge between multiple nested components sharing same element', done => {
     //     const vm = new Vue({
-    //         template: '<div :class="test"></div>',
+    //         template: `
+    //             <component1 :class="componentClass1">
+    //                 <component2 :class="componentClass2">
+    //                     <component3 :class="componentClass3">
+    //                         some text
+    //                     </component3>
+    //                 </component2>
+    //             </component1>
+    //         `,
     //         data: {
-    //             test: {
-    //                 a: true, b: false,
-    //             },
+    //             componentClass1: 'componentClass1',
+    //             componentClass2: 'componentClass2',
+    //             componentClass3: 'componentClass3'
     //         },
+    //         components: {
+    //             component1: {
+    //                 template: `
+    //                     <template>
+    //                         <slot />
+    //                     </template>
+    //                 `
+    //             },
+    //             component2: {
+    //                 template: `
+    //                     <template>
+    //                         <slot />
+    //                     </template>
+    //                 `
+    //             },
+    //             component3: {
+    //                 template: '<div class="staticClass"><slot></slot></div>'
+    //             }
+    //         }
     //     }).$mount();
-    //     expect(vm.$el.className).toBe('a');
-    //     vm.test.b = true;
+
+    //     expect(vm.$el.className).toBe('staticClass componentClass3 componentClass2 componentClass1');
+    //     vm.componentClass1 = 'c1';
     //     waitForUpdate(() => {
-    //         expect(vm.$el.className).toBe('a b');
+    //         expect(vm.$el.className).toBe('staticClass componentClass3 componentClass2 c1');
+    //         vm.componentClass2 = 'c2';
+    //     }).then(() => {
+    //         expect(vm.$el.className).toBe('staticClass componentClass3 c2 c1');
+    //         vm.componentClass3 = 'c3';
+    //     }).then(() => {
+    //         expect(vm.$el.className).toBe('staticClass c3 c2 c1');
     //     }).then(done);
     // });
 
-    // // a vdom patch edge case where the user has several un-keyed elements of the
-    // // same tag next to each other, and toggling them.
-    // it('properly remove staticClass for toggling un-keyed children', done => {
-    //     const vm = new Vue({
-    //         template: `
-    //             <div>
-    //                 <div a-if="ok" class="a">1</div>
-    //                 <div a-if="!ok">2</div>
-    //             </div>
-    //         `,
-    //         data: {
-    //             ok: true,
-    //         },
-    //     }).$mount();
-    //     expect(vm.$el.children[0].className).toBe('a');
-    //     vm.ok = false;
-    //     waitForUpdate(() => {
-    //         expect(vm.$el.children[0].className).toBe('');
-    //     }).then(done);
-    // });
-});
+    it('deep update', done => {
+        const vm = new Vue({
+            template: '<div :class="test"></div>',
+            data: {
+                test: {
+                    a: true, b: false,
+                },
+            },
+        }).$mount();
+        expect(vm.$el.className).toBe('a');
+        vm.test.b = true;
+        waitForUpdate(() => {
+            expect(vm.$el.className).toBe('a b');
+        }).then(done);
+    });
+
+    // a vdom patch edge case where the user has several un-keyed elements of the
+    // same tag next to each other, and toggling them.
+    it('properly remove staticClass for toggling un-keyed children', done => {
+        const vm = new Vue({
+            template: `
+                <div>
+                    <div a-if="ok" class="a">1</div>
+                    <div a-if="!ok">2</div>
+                </div>
+            `,
+            data: {
+                ok: true,
+            },
+        }).$mount();
+        expect(vm.$el.children[0].className).toBe('a');
+        vm.ok = false;
+        waitForUpdate(() => {
+            expect(vm.$el.children[0].className).toBe('');
+        }).then(done);
+    });
+})

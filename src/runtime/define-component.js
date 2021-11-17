@@ -60,7 +60,7 @@ const memberMap = {
         return this.parentComponent;
     },
     $children() {
-        if (this.tagName !== this._rootNode.tagName) {
+        if (this._rootNode && this.tagName !== this._rootNode.tagName) {
             this.children.unshift(this._rootNode);
         }
         return this.children.filter(child => {
