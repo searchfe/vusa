@@ -54,6 +54,9 @@ const memberMap = {
     $el() {
         return this.el;
     },
+    $data() {
+        return this.data && this.data.raw;
+    },
     $context() {
         return this.owner;
     },

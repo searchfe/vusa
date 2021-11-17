@@ -1524,10 +1524,24 @@
     }
 
     /**
+     * @file 修改 draggable 属性
+     * @author donghualei
+     */
+
+    function changeDisabled(disabled) {
+        if (disabled === true) {
+            return 'disabled';
+        }
+        if (disabled && typeof disabled === 'string') {
+            return 'disabled';
+        }
+        return disabled;
+    }
+
+    /**
      * @file component
      * @author cxtom(cxtom2008@gmail.com)
      */
-
 
     var COMPONENT_REFERENCE = '__COMPONENT_REFERENCE__';
 
@@ -1554,6 +1568,7 @@
         $watch: san.Component.prototype.watch,
         $nextTick: san.nextTick,
         $set: set,
+        _da: changeDisabled,
     };
     /* eslint-enable fecs-camelcase */
 
@@ -1563,6 +1578,9 @@
         $el: function $el() {
             return this.el;
         },
+        $data: function $data() {
+            return this.data && this.data.raw;
+        },
         $context: function $context() {
             return this.owner;
         },
@@ -1570,9 +1588,9 @@
             return this.parentComponent;
         },
         $children: function $children() {
-            // if (this.tagName !== this._rootNode.tagName) {
-            //     this.children.unshift(this._rootNode);
-            // }
+            if (this._rootNode && this.tagName !== this._rootNode.tagName) {
+                this.children.unshift(this._rootNode);
+            }
             return this.children.filter(function (child) {
                 return child.nodeType === 5;
             });
