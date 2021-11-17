@@ -211,4 +211,4 @@ describe('Directive a-bind:class', () => {
             expect(vm.$el.children[0].className).toBe('');
         }).then(done);
     });
-});
+})
