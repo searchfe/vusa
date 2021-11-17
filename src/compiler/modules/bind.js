@@ -8,7 +8,6 @@ import transform from '../expression-transformer';
 const reBind = /^(v-bind)?\:/;
 
 function postTransformNode(node) {
-    // console.log('bind~~~~~~~~~~~~~~~~~');
 
     if (node.type !== 1) {
         return;
@@ -20,7 +19,14 @@ function postTransformNode(node) {
         delete node.attrsMap[key];
         const ret = transform(value);
         const code = ret.code;
-        node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
+        const attr = key.replace(reBind, '');
+        let attrValue = `{{ ${code} }}`;
+
+        if (attr === 'disabled') {
+            attrValue = `{{ _da(${code})}}`;
+        }
+        node.attrsMap[attr] = attrValue;
+        // node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
         // node.attrsMap[key.replace(reBind, '')] = `{{ _b(${code})}}`;
     }
 

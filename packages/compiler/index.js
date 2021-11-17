@@ -445,19 +445,18 @@ const bindKeys = [':style', 'v-bind:style', 'v-show'];
 
 function postTransformNode$b(node) {
     let vShow = node.attrsMap['v-show'];
-    let userSetVShow = node.attrsList.some(item => item.name === 'v-show');
 
-    // 用户没有设置v-show的时候默认v-show="true"
-    if (!userSetVShow && vShow === undefined) {
-        vShow = 'true';
-    }
     if (node.type === 1 && (node.styleBinding || vShow)) {
 
         const staticStyle = node.staticStyle || '\'\'';
         const styleBinding = node.styleBinding
             ? transform(node.attrsMap[bindKeys[0]] || node.attrsMap[bindKeys[1]]).code
             : '{}';
-
+        // 用户没有设置v-show的时候默认v-show="true"
+        let userSetVShow = node.attrsList.some(item => item.name === 'v-show');
+        if (!userSetVShow && vShow === undefined) {
+            vShow = 'true';
+        }
         // eslint-disable-next-line max-len
         node.attrsMap.style = `{{ ${styleBinding.trim()} | _ms(${toSingleQuotes__default['default'](staticStyle)}${vShow ? `, ${transform(vShow).code}` : ''}) }}`;
         bindKeys.forEach(key => delete node.attrsMap[key]);
@@ -476,7 +475,6 @@ var style = {
 const reBind = /^(v-bind)?\:/;
 
 function postTransformNode$a(node) {
-    // console.log('bind~~~~~~~~~~~~~~~~~');
 
     if (node.type !== 1) {
         return;
@@ -488,7 +486,14 @@ function postTransformNode$a(node) {
         delete node.attrsMap[key];
         const ret = transform(value);
         const code = ret.code;
-        node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
+        const attr = key.replace(reBind, '');
+        let attrValue = `{{ ${code} }}`;
+
+        if (attr === 'disabled') {
+            attrValue = `{{ _da(${code})}}`;
+        }
+        node.attrsMap[attr] = attrValue;
+        // node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
         // node.attrsMap[key.replace(reBind, '')] = `{{ _b(${code})}}`;
     }
 
@@ -1352,12 +1357,13 @@ function compile(source, options = {}) {
         trimWhitespace: 'blank',
     }).children[0];
 
-    if (ast.tag === 'div1') {
-        console.log('---------------------------------');
-        console.log('ast', ast.children[0]);
-        console.log('aNode', aNode.children[0]);
-        console.log('template', template);
-    }
+    // if (ast.tag === 'child') {
+    //     console.log('---------------------------------');
+    //     console.log('ast', ast.children[0]);
+    //     console.log('aNode', aNode.children[0]);
+    //     console.log('template', template);
+    //     console.log('---------------------------------');
+    // }
 
     return {
         ast,

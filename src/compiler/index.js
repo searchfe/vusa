@@ -57,11 +57,12 @@ export function compile(source, options = {}) {
         trimWhitespace: 'blank',
     }).children[0];
 
-    // if (ast.tag === 'div1') {
+    // if (ast.tag === 'child') {
     //     console.log('---------------------------------');
     //     console.log('ast', ast.children[0]);
     //     console.log('aNode', aNode.children[0]);
     //     console.log('template', template);
+    //     console.log('---------------------------------');
     // }
 
     return {
