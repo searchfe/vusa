@@ -28,10 +28,6 @@ function postTransformNode(node) {
 
         newNode.parent = node;
     }
-<<<<<<< HEAD
-=======
-    console.log('~~~~~~~~~~~~~node after', node);
->>>>>>> 606fa1d (增加单元测试)
 }
 
 export default {
