@@ -17,7 +17,6 @@ import template from './template';
 import transition from './transition';
 import textCombine from './text-combine';
 import forIf from './for-if';
-import root from './root';
 
 export default [
     template,
@@ -38,5 +37,4 @@ export default [
     transition,
 
     dynamicComponent,
-    // root,
 ];

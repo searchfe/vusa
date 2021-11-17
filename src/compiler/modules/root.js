@@ -6,13 +6,9 @@
 
 function postTransformNode(node) {
 
-    // console.log('node.type~~~~~~~~~~~~', node.type);
-    // console.log('node', node);
     if (node.type !== 1) {
         return;
     }
-
-    console.log('~~~~~~~~~~~~~node before', node);
 
     // 如果没有父节点，则是卡片的
     if (!node.parent) {
@@ -32,7 +28,6 @@ function postTransformNode(node) {
 
         newNode.parent = node;
     }
-    console.log('~~~~~~~~~~~~~node after', node);
 }
 
 export default {
