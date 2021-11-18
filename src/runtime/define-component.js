@@ -17,7 +17,7 @@ import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
 import toSafeString from './safe-html';
 import toHtml from './html';
-
+import changeDisabled from './disabled';
 
 const COMPONENT_REFERENCE = '__COMPONENT_REFERENCE__';
 
@@ -44,6 +44,7 @@ const defaultSanOptions = {
     $watch: Component.prototype.watch,
     $nextTick: nextTick,
     $set: set,
+    _da: changeDisabled,
 };
 /* eslint-enable fecs-camelcase */
 
@@ -53,6 +54,9 @@ const memberMap = {
     $el() {
         return this.el;
     },
+    $data() {
+        return this.data && this.data.raw;
+    },
     $context() {
         return this.owner;
     },
@@ -60,9 +64,9 @@ const memberMap = {
         return this.parentComponent;
     },
     $children() {
-        // if (this.tagName !== this._rootNode.tagName) {
-        //     this.children.unshift(this._rootNode);
-        // }
+        if (this._rootNode && this.tagName !== this._rootNode.tagName) {
+            this.children.unshift(this._rootNode);
+        }
         return this.children.filter(child => {
             return child.nodeType === 5;
         });

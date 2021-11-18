@@ -39,6 +39,7 @@
     var original = san.Data.prototype.get;
 
     san.Data.prototype.get = function (expr, callee) {
+
         if (!expr) {
             return this.raw;
         }
@@ -49,13 +50,13 @@
         else {
             key = expr.paths.map(function (a) { return a.value; }).join('.');
         }
-
         this._dep && this._dep.depend({
             key: key,
             expr: expr,
         });
 
         var value = original.call(this, expr, callee);
+
         if (!expr || value !== undefined || !this.owner || expr.type !== san.ExprType.ACCESSOR) {
             return value;
         }
@@ -67,7 +68,9 @@
         ) {
             return value;
         }
-        value = this.owner[first];
+
+        // TODO 先删除了，不然会导致dom上多一个id属性
+        // value = this.owner[first];
         for (var i = 1, l = paths.length; value != null && i < l; i++) {
             value = value[paths[i].value || san.evalExpr(paths[i], callee)];
         }
@@ -135,8 +138,19 @@
      * Strict object type check. Only returns true
      * for plain JavaScript objects.
      */
-    function isPlainObject(obj) {
+    function isPlainObject$1(obj) {
         return _toString.call(obj) === '[object Object]';
+    }
+
+    /**
+     * Convert a value to a string that is actually rendered.
+     */
+    function toString(val) {
+        return val == null
+            ? ''
+            : Array.isArray(val) || (isPlainObject$1(val) && val.toString === _toString)
+                ? JSON.stringify(val, null, 2)
+                : String(val);
     }
 
     function def(obj, key, property) {
@@ -216,75 +230,6 @@
         return n >= 0 && Math.floor(n) === n && isFinite(val);
     }
 
-    /**
-     * @file merge class
-     * @author cxtom(cxtom2008@gmail.com)
-     */
-
-    function string(cls) {
-        if ( cls === void 0 ) cls = '';
-
-        if (!cls) {
-            return '';
-        }
-        return cls
-            .split(' ')
-            .reduce(function (prev, name) {
-                var obj;
-
-                if (!name) {
-                    return prev;
-                }
-                return Object.assign({}, prev,
-                    ( obj = {}, obj[name] = 1, obj ));
-            }, {});
-    }
-
-    function object(cls) {
-        if ( cls === void 0 ) cls = {};
-
-        return Object
-            .keys(cls)
-            .reduce(function (prev, key) {
-                if (!cls[key]) {
-                    return prev;
-                }
-                return Object.assign({}, prev,
-                    string(key));
-            }, {});
-    }
-
-    function array(cls) {
-        if ( cls === void 0 ) cls = [];
-
-        var clazz = {};
-        for (var i = 0, len = cls.length; i < len; i++) {
-            var element = cls[i];
-            if (!element) {
-                continue;
-            }
-            clazz = Object.assign({}, clazz,
-                (
-                    typeof element === 'string'
-                        ? string(element)
-                        : (Array.isArray(element) ? array(element) : object(element))
-                ));
-        }
-        return clazz;
-    }
-
-    function mergeClass (staticClass, cls) {
-        if ( staticClass === void 0 ) staticClass = '';
-        if ( cls === void 0 ) cls = {};
-
-        return Object.keys(array([staticClass, cls])).join(' ');
-    }
-
-    /**
-     * @file merge style
-     * @author cxtom(cxtom2008@gmail.com)
-     */
-
     var parseStyleText = cached(function (cssText) {
         var res = {};
         var listDelimiter = /;(?![^(]*\))/g;
@@ -297,40 +242,6 @@
         });
         return res;
     });
-
-    function hyphenateKey(object) {
-        var ret = {};
-        for (var key in object) {
-            if (Object.hasOwnProperty.call(object, key)) {
-                ret[hyphenate(key)] = object[key];
-            }
-        }
-        return ret;
-    }
-
-    // normalize possible array / string values into Object
-    function normalizeStyleBinding(bindingStyle) {
-        if (Array.isArray(bindingStyle)) {
-            return hyphenateKey(toObject(bindingStyle));
-        }
-        if (typeof bindingStyle === 'string') {
-            return parseStyleText(bindingStyle);
-        }
-        return hyphenateKey(bindingStyle);
-    }
-
-
-    function mergeStyle (staticStyle, style, vShow) {
-        if ( vShow === void 0 ) vShow = true;
-
-        style = normalizeStyleBinding(style);
-        if (!vShow) {
-            style.display = 'none';
-        }
-        return staticStyle
-            ? extend(staticStyle, style)
-            : style;
-    }
 
     /**
      * @file loop expression
@@ -346,9 +257,15 @@
     });
 
     function loopExpression (value) {
+
         if (!isNaN(value)) {
             var n = +value;
             value = toArray(n);
+        }
+
+        // 将字符串转为数组
+        if (typeof value === 'string') {
+            return value.split('');
         }
         return value;
     }
@@ -444,6 +361,116 @@
     var lifeCycleKeys = Object.keys(lifeCycleMap);
 
     /**
+     * @file merge class
+     * @author cxtom(cxtom2008@gmail.com)
+     */
+
+    function string(cls) {
+        if ( cls === void 0 ) cls = '';
+
+        if (!cls) {
+            return '';
+        }
+        return cls
+            .split(' ')
+            .reduce(function (prev, name) {
+                var obj;
+
+                if (!name) {
+                    return prev;
+                }
+                return Object.assign({}, prev,
+                    ( obj = {}, obj[name] = 1, obj ));
+            }, {});
+    }
+
+    function object(cls) {
+        if ( cls === void 0 ) cls = {};
+
+        return Object
+            .keys(cls)
+            .reduce(function (prev, key) {
+                if (!cls[key]) {
+                    return prev;
+                }
+                return Object.assign({}, prev,
+                    string(key));
+            }, {});
+    }
+
+    function array(cls) {
+        if ( cls === void 0 ) cls = [];
+
+        var clazz = {};
+        for (var i = 0, len = cls.length; i < len; i++) {
+            var element = cls[i];
+            if (!element) {
+                continue;
+            }
+            clazz = Object.assign({}, clazz,
+                (
+                    typeof element === 'string'
+                        ? string(element)
+                        : (Array.isArray(element) ? array(element) : object(element))
+                ));
+        }
+        return clazz;
+    }
+
+    function mergeClass (cls, staticClass) {
+        if ( cls === void 0 ) cls = {};
+        if ( staticClass === void 0 ) staticClass = '';
+
+        return Object.keys(array([staticClass, cls])).join(' ');
+    }
+
+    /**
+     * @file merge style
+     * @author cxtom(cxtom2008@gmail.com)
+     */
+
+
+    function hyphenateKey(object) {
+        var ret = {};
+        for (var key in object) {
+            if (Object.hasOwnProperty.call(object, key)) {
+                ret[hyphenate(key)] = object[key];
+            }
+        }
+        return ret;
+    }
+
+    // normalize possible array / string values into Object
+    function normalizeStyleBinding(bindingStyle) {
+        if (Array.isArray(bindingStyle)) {
+            return hyphenateKey(toObject(bindingStyle));
+        }
+        if (typeof bindingStyle === 'string') {
+            return parseStyleText(bindingStyle);
+        }
+        return hyphenateKey(bindingStyle);
+    }
+
+
+    function mergeStyle (style, staticStyle, vShow) {
+
+        style = normalizeStyleBinding(style);
+
+        if (!vShow) {
+            style.display = 'none';
+        }
+        Object.keys(style).forEach(function (key) {
+            var val = style[key];
+            if (Array.isArray(val)) {
+                style[key] = val[val.length - 1];
+            }
+        });
+        return staticStyle
+            ? extend(staticStyle, style)
+            : style;
+    }
+
+    /**
      * @file 全局生效的函数
      * @author cxtom(cxtom2008@gmail.com)
      */
@@ -490,9 +517,22 @@
         upper: function upper(str) {
             return str.toUpperCase();
         },
-        _cat: function _cat(a, b) {
-            return (a || '').toString() + (b || '');
+        _s: function _s(str) {
+            return toString(str);
         },
+        _cat: function _cat(a, b) {
+
+            if (!a && a !== 0) {
+                a = '';
+            }
+            if (!b && b !== 0) {
+                b = '';
+            }
+
+            return a.toString() + b.toString();
+        },
+        _mc: mergeClass,
+        _ms: mergeStyle,
     };
 
     /**
@@ -744,11 +784,13 @@
         var dep = new Dep();
 
         var val = obj[key];
+
         observe(val, keyExpr, context);
         var newProperty = {
             enumerable: true,
             configurable: true,
             set: function set(newVal) {
+
                 var value = getter ? getter.call(obj) : val;
                 if (newVal === value) {
                     return;
@@ -762,6 +804,7 @@
                 else {
                     val = newVal;
                 }
+
                 observe(newVal, keyExpr, context);
                 context.data.set(keyExpr, newVal, {force: true});
             },
@@ -791,7 +834,7 @@
             ob = value.__ob__;
         }
         else if (
-            (Array.isArray(value) || isPlainObject(value))
+            (Array.isArray(value) || isPlainObject$1(value))
             && Object.isExtensible(value)
         ) {
             ob = new Observer(value, expr, context);
@@ -1444,6 +1487,7 @@
     }
 
     function toSafeString(html) {
+
         if (html.indexOf('<') > -1) {
             var reg = /((<script.*?<\/script>)|(<style.*?<\/style>))/ig;
             var map = {
@@ -1462,6 +1506,39 @@
     }
 
     /**
+     * @file 转换html
+     * @author donghualei
+     */
+
+
+    function isPlainObject(obj) {
+        return Object.prototype.toString.call(obj) === '[object Object]';
+    }
+
+    function toHtml(html) {
+        return html == null
+            ? ''
+            : Array.isArray(html) || (isPlainObject(html) && html.toString ===  Object.prototype.toString)
+                ? JSON.stringify(html, null, 2)
+                : String(html);
+    }
+
+    /**
+     * @file 修改 draggable 属性
+     * @author donghualei
+     */
+
+    function changeDisabled(disabled) {
+        if (disabled === true) {
+            return 'disabled';
+        }
+        if (disabled && typeof disabled === 'string') {
+            return 'disabled';
+        }
+        return disabled;
+    }
+
+    /**
      * @file component
      * @author cxtom(cxtom2008@gmail.com)
      */
@@ -1470,23 +1547,28 @@
 
     var noop = function () {};
 
+    var callFilter = function (name) {
+        return this.filters[name];
+    };
+
     /* eslint-disable fecs-camelcase */
     var defaultSanOptions = {
         $activate: callActivited,
         $deactivate: callDeActivited,
-        _mc: mergeClass,
-        _ms: mergeStyle,
         _l: loopExpression,
         _ex: extend,
         _ocp: objectComputedProperties,
         _noop: noop,
         _t: Transition,
         _sf: toSafeString,
+        _f: callFilter,
+        _h: toHtml,
         $emit: san.Component.prototype.fire,
         $on: san.Component.prototype.on,
         $watch: san.Component.prototype.watch,
         $nextTick: san.nextTick,
         $set: set,
+        _da: changeDisabled,
     };
     /* eslint-enable fecs-camelcase */
 
@@ -1496,6 +1578,9 @@
         $el: function $el() {
             return this.el;
         },
+        $data: function $data() {
+            return this.data && this.data.raw;
+        },
         $context: function $context() {
             return this.owner;
         },
@@ -1503,7 +1588,12 @@
             return this.parentComponent;
         },
         $children: function $children() {
-            return this.children.filter(function (child) { return child.nodeType === 5; });
+            if (this._rootNode && this.tagName !== this._rootNode.tagName) {
+                this.children.unshift(this._rootNode);
+            }
+            return this.children.filter(function (child) {
+                return child.nodeType === 5;
+            });
         },
         $root: function $root() {
             var root = this;
@@ -1534,12 +1624,14 @@
     var styleAccesser = createAccesser('$style');
 
     function normalizeComponent(component) {
+
         // 兼容 san-ssr 外部组件，直接返回
         if (component && component[COMPONENT_REFERENCE]) {
             return component;
         }
         if (component instanceof san.Component || component instanceof VusaComponent) {
             var proto = component.prototype;
+
             if (!proto.hasOwnProperty('_cmptReady')) {
                 var components = component.components || proto.components || {};
                 proto.components = normalizeComponents(components);
@@ -1761,7 +1853,6 @@
         };
 
         var cmpt = san.defineComponent(sanOptions, VusaComponent);
-
         return options[innerKey] = cmpt;
     }
 
