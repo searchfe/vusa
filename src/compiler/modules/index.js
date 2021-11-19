@@ -17,6 +17,7 @@ import template from './template';
 import transition from './transition';
 import textCombine from './text-combine';
 import forIf from './for-if';
+import model from './model';
 
 export default [
     template,
@@ -31,6 +32,7 @@ export default [
 
     clazz,
     style,
+    model,
 
     // bind 放在所有处理完之后
     bind,
