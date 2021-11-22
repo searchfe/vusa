@@ -33,16 +33,16 @@ describe('Options template', () => {
 //     expect(vm.$el.textContent).toBe(vm.message)
 //   })
 
-  it('DOM element', () => {
-    const elm = document.createElement('p')
-    elm.innerHTML = '<p>{{message}}</p>'
-    const vm = new Vue({
-      template: elm,
-      data: { message: 'hello world' }
-    }).$mount()
-    expect(vm.$el.tagName).toBe('P')
-    expect(vm.$el.innerHTML).toBe(vm.message)
-  })
+  // it('DOM element', () => {
+  //   const elm = document.createElement('p')
+  //   elm.innerHTML = '<p>{{message}}</p>'
+  //   const vm = new Vue({
+  //     template: elm,
+  //     data: { message: 'hello world' }
+  //   }).$mount()
+  //   expect(vm.$el.tagName).toBe('P')
+  //   expect(vm.$el.innerHTML).toBe(vm.message)
+  // })
 
 // 不支持toHaveBeenWarned 警告处理
 //   it('invalid template', () => {
