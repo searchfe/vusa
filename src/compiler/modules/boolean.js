@@ -20,6 +20,7 @@ function postTransformNode(node) {
         if (node.tag === 'input' && (key === 'value' || key === ':value')) {
             continue;
         }
+        node.attrsMap[key] = `{{ true }}`;
     }
 }
 
