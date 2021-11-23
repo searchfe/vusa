@@ -6,7 +6,10 @@ module.exports = {
     projects: [
         {
             testEnvironment: 'node',
-            testMatch: ['<rootDir>/test/spec/compiler/*.spec.js'],
+            testMatch: [
+                '<rootDir>/test/spec/compiler/*.spec.js',
+                '<rootDir>/test/ssr/*.spec.js',
+            ],
         },
         {
             testEnvironment: 'jsdom',
