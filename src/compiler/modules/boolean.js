@@ -15,6 +15,11 @@ function postTransformNode(node) {
         if ((htmlTag[node.tag] && booleanAttr[key]) || noValueAttr[key]) {
             continue;
         }
+
+        // input 标签 的 value 不做处理
+        if (node.tag === 'input' && (key === 'value' || key === ':value')) {
+            continue;
+        }
         node.attrsMap[key] = `{{ true }}`;
     }
 }

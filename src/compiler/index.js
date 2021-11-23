@@ -52,7 +52,6 @@ export function compile(source, options = {}) {
     const {ast} = vueCompile(source.trim(), compilerOptions);
     const template = stringify(ast, {scopeId, strip, atom: isAtom});
 
-
     const aNode = parseTemplate(template, {
         trimWhitespace: 'blank',
     }).children[0];
