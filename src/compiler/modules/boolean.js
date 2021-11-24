@@ -20,7 +20,10 @@ function postTransformNode(node) {
         if (node.tag === 'input' && (key === 'value' || key === ':value')) {
             continue;
         }
+<<<<<<< HEAD
         node.attrsMap[key] = `{{ true }}`;
+=======
+>>>>>>> 33335df (支持model-text和model-checbox)
     }
 }
 

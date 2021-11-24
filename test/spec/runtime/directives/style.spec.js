@@ -235,68 +235,68 @@ describe('Directive a-bind:style', () => {
     //     }).then(done);
     // });
 
-    // it('should not pass to child root element', () => {
-    //     const vm = new Vue({
-    //         template: '<child :style="test"></child>',
-    //         data: {
-    //             test: {color: 'red', fontSize: '12px'}
-    //         },
-    //         components: {
-    //             child: {
-    //                 template: '<div><nested ref="nested" style="color: blue;text-align:left"></nested></div>',
-    //                 components: {
-    //                     nested: {
-    //                         template: '<div></div>'
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }).$mount();
-    //     const style = vm.$el.style;
-    //     expect(style.color).toBe('red');
-    //     expect(style.textAlign).toBe('');
-    //     expect(style.fontSize).toBe('12px');
-    //     expect(vm.$children[0].$refs.nested.$el.style.color).toBe('blue');
-    // });
+    it('should not pass to child root element', () => {
+        const vm = new Vue({
+            template: '<child :style="test"></child>',
+            data: {
+                test: {color: 'red', fontSize: '12px'}
+            },
+            components: {
+                child: {
+                    template: '<div><nested ref="nested" style="color: blue;text-align:left"></nested></div>',
+                    components: {
+                        nested: {
+                            template: '<div></div>'
+                        }
+                    }
+                }
+            }
+        }).$mount();
+        const style = vm.$el.style;
+        expect(style.color).toBe('red');
+        expect(style.textAlign).toBe('');
+        expect(style.fontSize).toBe('12px');
+        expect(vm.$children[0].$refs.nested.$el.style.color).toBe('blue');
+    });
 
-    // it('should merge between nested components', done => {
-    //     const vm = new Vue({
-    //         template: '<child :style="test"></child>',
-    //         data: {
-    //             test: {color: 'red', fontSize: '12px'}
-    //         },
-    //         components: {
-    //             child: {
-    //                 template: '<nested style="color: blue;text-align:left"></nested>',
-    //                 components: {
-    //                     nested: {
-    //                         template: '<div style="margin-left: 12px;" :style="nestedStyle"></div>',
-    //                         data: () => ({ nestedStyle: { marginLeft: '30px' } })
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }).$mount();
-    //     const style = vm.$el.style;
-    //     const child = vm.$children[0].$children[0];
-    //     expect(style.color).toBe('red');
-    //     expect(style.marginLeft).toBe('30px');
-    //     expect(style.textAlign).toBe('left');
-    //     expect(style.fontSize).toBe('12px');
-    //     vm.test.color = 'yellow';
-    //     waitForUpdate(() => {
-    //         child.nestedStyle.marginLeft = '60px';
-    //     }).then(() => {
-    //         expect(style.marginLeft).toBe('60px');
-    //         child.nestedStyle = {
-    //             fontSize: '14px',
-    //             marginLeft: '40px'
-    //         };
-    //     }).then(() => {
-    //         expect(style.fontSize).toBe('12px');
-    //         expect(style.marginLeft).toBe('40px');
-    //     }).then(done);
-    // });
+    it('should merge between nested components', done => {
+        const vm = new Vue({
+            template: '<child :style="test"></child>',
+            data: {
+                test: {color: 'red', fontSize: '12px'}
+            },
+            components: {
+                child: {
+                    template: '<nested style="color: blue;text-align:left"></nested>',
+                    components: {
+                        nested: {
+                            template: '<div style="margin-left: 12px;" :style="nestedStyle"></div>',
+                            data: () => ({ nestedStyle: { marginLeft: '30px' } })
+                        }
+                    }
+                }
+            }
+        }).$mount();
+        const style = vm.$el.style;
+        const child = vm.$children[0].$children[0];
+        expect(style.color).toBe('red');
+        expect(style.marginLeft).toBe('30px');
+        expect(style.textAlign).toBe('left');
+        expect(style.fontSize).toBe('12px');
+        vm.test.color = 'yellow';
+        waitForUpdate(() => {
+            child.nestedStyle.marginLeft = '60px';
+        }).then(() => {
+            expect(style.marginLeft).toBe('60px');
+            child.nestedStyle = {
+                fontSize: '14px',
+                marginLeft: '40px'
+            };
+        }).then(() => {
+            expect(style.fontSize).toBe('12px');
+            expect(style.marginLeft).toBe('40px');
+        }).then(done);
+    });
 
     it('should not merge for different adjacent elements', done => {
         const vm = new Vue({
