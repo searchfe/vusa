@@ -2,26 +2,27 @@
 import Vue from '../../../helpers/vue';
 
 describe('Directive a-model checkbox', () => {
-    it('should work', done => {
-        const vm = new Vue({
-            data: {
-                test: true,
-            },
-            template: '<input type="checkbox" a-model="test">',
-        }).$mount();
-        document.body.appendChild(vm.$el);
-        expect(vm.$el.checked).toBe(true);
-        vm.test = false;
-        waitForUpdate(function () {
-            expect(vm.$el.checked).toBe(false);
-            expect(vm.test).toBe(false);
-            vm.$el.click();
-            expect(vm.$el.checked).toBe(true);
-            expect(vm.test).toBe(true);
-        }).then(() => {
-            document.body.removeChild(vm.$el);
-        }).then(done);
-    });
+    // it('should work', done => {
+    //     const vm = new Vue({
+    //         data: {
+    //             test: true,
+    //         },
+    //         template: '<input type="checkbox" a-model="test">',
+    //     }).$mount();
+    //     document.body.appendChild(vm.$el);
+    //     expect(vm.$el.checked).toBe(true);
+    //     vm.test = false;
+
+    //     waitForUpdate(function () {
+    //         expect(vm.$el.checked).toBe(false);
+    //         expect(vm.test).toBe(false);
+    //         vm.$el.click();
+    //         expect(vm.$el.checked).toBe(true);
+    //         expect(vm.test).toBe(true);
+    //     }).then(() => {
+    //         document.body.removeChild(vm.$el);
+    //     }).then(done);
+    // });
 
     // TODO 暂时不支持true-value和false-value的场景
     // it('should respect value bindings', done => {
