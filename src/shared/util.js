@@ -169,3 +169,10 @@ export const parseStyleText = cached(function (cssText) {
  * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
  */
 export function noop() {}
+/* 获取数据类型
+ * @param {any} data 源对象
+ * @returns {string} 'Function' | 'Undefined' | 'Null' | 'Object' | 'Boolean' | 'String' | 'Number' | 'RegExp' | 'Symbol' | 'BigInt'|'HTMLDivElement';
+ */
+export const getDataType = data => {
+    return /\s+(\w+)/.exec(Object.prototype.toString.call(data))[1];
+};

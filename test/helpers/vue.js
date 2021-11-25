@@ -2,10 +2,11 @@ import {defineComponent} from '../../src/runtime/index';
 import {compile} from '../../src/compiler';
 import {omit} from 'lodash';
 
+
 function getTpl(options) {
     return compile(options.template, {
         strip: options.strip == null ? true : options.strip,
-        atom: true
+        atom: true,
     });
 }
 
@@ -29,7 +30,7 @@ function getComponentOptions(options) {
         __santemplate: tpl.template,
         __sanRefs: tpl.refs,
         components: dealComponents,
-        _cmptReady: 1
+        _cmptReady: 1,
     };
 }
 
