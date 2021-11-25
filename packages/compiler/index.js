@@ -1,4 +1,4 @@
-/*!
+/* !
  * vusa v1.0.0
  * (c) 2019-2021 * Released under the MIT License.
  */
@@ -475,6 +475,7 @@ var style = {
 const reBind = /^(v-bind)?\:/;
 
 function postTransformNode$a(node) {
+    // console.log('bind~~~~~~~~~~~~~~~~~');
 
     if (node.type !== 1) {
         return;
@@ -494,6 +495,7 @@ function postTransformNode$a(node) {
         }
         node.attrsMap[attr] = attrValue;
         // node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
+        node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
         // node.attrsMap[key.replace(reBind, '')] = `{{ _b(${code})}}`;
     }
 
@@ -1227,7 +1229,6 @@ function stringify(ast, {scopeId, strip, atom}) {
     }
 
     let html = '';
-
     for (const node of ast) {
         if (node.type === 3 || node.type === 2) {
             const text = node.text;
@@ -1262,6 +1263,15 @@ function stringify(ast, {scopeId, strip, atom}) {
  */
 
 const camelize = str => str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ''));
+
+/**
+ * 获取数据类型
+ * @param {any} data 源对象
+ * @returns {string} 'Function' | 'Undefined' | 'Null' | 'Object' | 'Boolean' | 'String' | 'Number' | 'RegExp' | 'Symbol' | 'BigInt'|'HTMLDivElement';
+ */
+const getDataType = data => {
+    return /\s+(\w+)/.exec(Object.prototype.toString.call(data))[1];
+};
 
 /**
  * @file css modules module
@@ -1348,8 +1358,13 @@ function compile(source, options = {}) {
         strip,
         stripWith,
     };
+    const _source =  source ? source.trim() : source;
+    const {ast} = vueTemplateCompiler.compile(_source, compilerOptions);
 
-    const {ast} = vueTemplateCompiler.compile(source.trim(), compilerOptions);
+    // 传入的模板不正确，无法生成ast
+    if (getDataType(ast) !== 'Object') {
+        throw new Error(source);
+    }
     const template = stringify(ast, {scopeId, strip, atom: isAtom});
 
 
@@ -1358,6 +1373,7 @@ function compile(source, options = {}) {
     }).children[0];
 
     // if (ast.tag === 'child') {
+    // if (ast.tag === 'div1') {
     //     console.log('---------------------------------');
     //     console.log('ast', ast.children[0]);
     //     console.log('aNode', aNode.children[0]);

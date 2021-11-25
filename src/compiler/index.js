@@ -10,6 +10,7 @@ import getCssModules from './modules/cssmodules';
 import atom from './modules/atom';
 import {isEmpty} from 'lodash';
 import {parseTemplate, pack} from 'san-anode-utils';
+import {getDataType} from '../shared/util';
 
 export function compile(source, options = {}) {
     const {
@@ -48,8 +49,13 @@ export function compile(source, options = {}) {
         strip,
         stripWith,
     };
+    const _source =  source ? source.trim() : source;
+    const {ast} = vueCompile(_source, compilerOptions);
 
-    const {ast} = vueCompile(source.trim(), compilerOptions);
+    // 传入的模板不正确，无法生成ast
+    if (getDataType(ast) !== 'Object') {
+        throw new Error(source);
+    }
     const template = stringify(ast, {scopeId, strip, atom: isAtom});
 
     const aNode = parseTemplate(template, {
