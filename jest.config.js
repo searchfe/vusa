@@ -17,6 +17,7 @@ module.exports = {
             setupFilesAfterEnv: [
                 '<rootDir>/test/helpers/wait-for-update.js',
                 '<rootDir>/test/helpers/trigger-event.js',
+                '<rootDir>/test/helpers/to-have-been-warned.js',
             ],
         },
     ],
