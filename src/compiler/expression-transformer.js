@@ -194,6 +194,8 @@ const CodeGeneragor = {
 
     ObjectExpression(node, results) {
 
+                    console.log('node hasComputed~~~~', node);
+
         if (node.hasComputed) {
             let code = '_ex(';
             let current;
@@ -220,6 +222,10 @@ const CodeGeneragor = {
                 code += results[0][i].code;
             }
             code += current ? ']))' : '})';
+            if (code.indexOf('ocp') !== -1) {
+                console.log('node', node);
+                console.log('~~~~~~~current prev', this.ret(code));
+            }
             return this.ret(code);
         }
 

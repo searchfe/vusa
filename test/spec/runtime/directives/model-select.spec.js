@@ -59,62 +59,62 @@ function getValue(option) {
 }
 
 describe('Directive a-model select', () => {
-    // it('should work', done => {
-    //     const vm = new Vue({
-    //         data: {
-    //             test: 'b',
-    //         },
-    //         template:
-    //             '<select a-model="test">'
-    //             + '<option>a</option>'
-    //             + '<option>b</option>'
-    //             + '<option>c</option>'
-    //             + '</select>',
-    //     }).$mount();
-    //     document.body.appendChild(vm.$el);
-    //     expect(vm.test).toBe('b');
-    //     expect(vm.$el.value).toBe('b');
-    //     expect(vm.$el.childNodes[1].selected).toBe(true);
-    //     vm.test = 'c';
-    //     waitForUpdate(function () {
-    //         expect(vm.$el.value).toBe('c');
-    //         expect(vm.$el.childNodes[2].selected).toBe(true);
-    //         updateSelect(vm.$el, 'a');
-    //         triggerEvent(vm.$el, 'change');
-    //         expect(vm.test).toBe('a');
-    //     }).then(done);
-    // });
+    it('should work', done => {
+        const vm = new Vue({
+            data: {
+                test: 'b',
+            },
+            template:
+                '<select a-model="test">'
+                + '<option>a</option>'
+                + '<option>b</option>'
+                + '<option>c</option>'
+                + '</select>',
+        }).$mount();
+        document.body.appendChild(vm.$el);
+        expect(vm.test).toBe('b');
+        expect(vm.$el.value).toBe('b');
+        expect(vm.$el.childNodes[1].selected).toBe(true);
+        vm.test = 'c';
+        waitForUpdate(function () {
+            expect(vm.$el.value).toBe('c');
+            expect(vm.$el.childNodes[2].selected).toBe(true);
+            updateSelect(vm.$el, 'a');
+            triggerEvent(vm.$el, 'change');
+            expect(vm.test).toBe('a');
+        }).then(done);
+    });
 
-    // // ATTENTION 对于数字和字符串的场景，san目前不支持，因此先解决暂时注释掉了下面的一个断言
-    // it('should work with value bindings', done => {
-    //     const vm = new Vue({
-    //         data: {
-    //             test: 2,
-    //         },
-    //         template:
-    //             '<select a-model="test">'
-    //             + '<option value="1">a</option>'
-    //             + '<option :value="2">b</option>'
-    //             + '<option :value="3">c</option>'
-    //             + '</select>',
-    //     }).$mount();
-    //     document.body.appendChild(vm.$el);
-    //     expect(vm.$el.value).toBe('2');
-    //     expect(vm.$el.childNodes[1].selected).toBe(true);
-    //     vm.test = 3;
-    //     waitForUpdate(function () {
-    //         expect(vm.$el.value).toBe('3');
-    //         expect(vm.$el.childNodes[2].selected).toBe(true);
+    // ATTENTION 对于数字和字符串的场景，san目前不支持，因此先解决暂时注释掉了下面的一个断言
+    it('should work with value bindings', done => {
+        const vm = new Vue({
+            data: {
+                test: 2,
+            },
+            template:
+                '<select a-model="test">'
+                + '<option value="1">a</option>'
+                + '<option :value="2">b</option>'
+                + '<option :value="3">c</option>'
+                + '</select>',
+        }).$mount();
+        document.body.appendChild(vm.$el);
+        expect(vm.$el.value).toBe('2');
+        expect(vm.$el.childNodes[1].selected).toBe(true);
+        vm.test = 3;
+        waitForUpdate(function () {
+            expect(vm.$el.value).toBe('3');
+            expect(vm.$el.childNodes[2].selected).toBe(true);
 
-    //         updateSelect(vm.$el, '1');
-    //         triggerEvent(vm.$el, 'change');
-    //         expect(vm.test).toBe('1');
+            updateSelect(vm.$el, '1');
+            triggerEvent(vm.$el, 'change');
+            expect(vm.test).toBe('1');
 
-    //         updateSelect(vm.$el, '2');
-    //         triggerEvent(vm.$el, 'change');
-    //         // expect(vm.test).toBe(2);
-    //     }).then(done);
-    // });
+            updateSelect(vm.$el, '2');
+            triggerEvent(vm.$el, 'change');
+            // expect(vm.test).toBe(2);
+        }).then(done);
+    });
 
     // TODO select 不支持对象
     // it('should work with value bindings (object loose equal)', done => {
@@ -153,95 +153,95 @@ describe('Directive a-model select', () => {
     //     }).then(done);
     // });
 
-    // it('should work with a-for', done => {
-    //     const vm = new Vue({
-    //         data: {
-    //             test: 'b',
-    //             opts: ['a', 'b', 'c'],
-    //         },
-    //         template:
-    //             '<select a-model="test">'
-    //             + '<option a-for="o in opts">{{ o }}</option>'
-    //             + '</select>',
-    //     }).$mount();
-    //     document.body.appendChild(vm.$el);
-    //     expect(vm.test).toBe('b');
-    //     expect(vm.$el.value).toBe('b');
-    //     expect(vm.$el.childNodes[1].selected).toBe(true);
-    //     vm.test = 'c';
-    //     waitForUpdate(function () {
-    //         expect(vm.$el.value).toBe('c');
-    //         expect(vm.$el.childNodes[2].selected).toBe(true);
-    //         updateSelect(vm.$el, 'a');
-    //         triggerEvent(vm.$el, 'change');
-    //         expect(vm.test).toBe('a');
-    //         // update a-for opts
-    //         vm.opts = ['d', 'a'];
-    //     }).then(() => {
-    //         expect(vm.$el.childNodes[0].selected).toBe(false);
-    //         expect(vm.$el.childNodes[1].selected).toBe(true);
-    //     }).then(done);
-    // });
+    it('should work with a-for', done => {
+        const vm = new Vue({
+            data: {
+                test: 'b',
+                opts: ['a', 'b', 'c'],
+            },
+            template:
+                '<select a-model="test">'
+                + '<option a-for="o in opts">{{ o }}</option>'
+                + '</select>',
+        }).$mount();
+        document.body.appendChild(vm.$el);
+        expect(vm.test).toBe('b');
+        expect(vm.$el.value).toBe('b');
+        expect(vm.$el.childNodes[1].selected).toBe(true);
+        vm.test = 'c';
+        waitForUpdate(function () {
+            expect(vm.$el.value).toBe('c');
+            expect(vm.$el.childNodes[2].selected).toBe(true);
+            updateSelect(vm.$el, 'a');
+            triggerEvent(vm.$el, 'change');
+            expect(vm.test).toBe('a');
+            // update a-for opts
+            vm.opts = ['d', 'a'];
+        }).then(() => {
+            expect(vm.$el.childNodes[0].selected).toBe(false);
+            expect(vm.$el.childNodes[1].selected).toBe(true);
+        }).then(done);
+    });
 
-    // // ATTENTION 对于数字和字符串的场景，san目前不支持，因此先解决暂时注释掉了下面的一个断言
-    // it('should work with a-for & value bindings', done => {
-    //     const vm = new Vue({
-    //         data: {
-    //             test: 2,
-    //             opts: [1, 2, 3],
-    //         },
-    //         template:
-    //             '<select a-model="test">'
-    //             + '<option a-for="o in opts" :value="o">option {{ o }}</option>'
-    //             + '</select>',
-    //     }).$mount();
-    //     document.body.appendChild(vm.$el);
-    //     expect(vm.$el.value).toBe('2');
-    //     expect(vm.$el.childNodes[1].selected).toBe(true);
-    //     vm.test = 3;
-    //     waitForUpdate(function () {
-    //         expect(vm.$el.value).toBe('3');
-    //         expect(vm.$el.childNodes[2].selected).toBe(true);
-    //         updateSelect(vm.$el, 1);
-    //         triggerEvent(vm.$el, 'change');
-    //         // expect(vm.test).toBe(1);
-    //         // // update a-for opts
-    //         // vm.opts = [0, 1];
+    // ATTENTION 对于数字和字符串的场景，san目前不支持，因此先解决暂时注释掉了下面的一个断言
+    it('should work with a-for & value bindings', done => {
+        const vm = new Vue({
+            data: {
+                test: 2,
+                opts: [1, 2, 3],
+            },
+            template:
+                '<select a-model="test">'
+                + '<option a-for="o in opts" :value="o">option {{ o }}</option>'
+                + '</select>',
+        }).$mount();
+        document.body.appendChild(vm.$el);
+        expect(vm.$el.value).toBe('2');
+        expect(vm.$el.childNodes[1].selected).toBe(true);
+        vm.test = 3;
+        waitForUpdate(function () {
+            expect(vm.$el.value).toBe('3');
+            expect(vm.$el.childNodes[2].selected).toBe(true);
+            updateSelect(vm.$el, 1);
+            triggerEvent(vm.$el, 'change');
+            // expect(vm.test).toBe(1);
+            // // update a-for opts
+            // vm.opts = [0, 1];
 
-    //         expect(vm.test).toBe('1');
-    //         // update a-for opts
-    //         vm.opts = [0, '1'];
-    //     }).then(() => {
-    //         expect(vm.$el.childNodes[0].selected).toBe(false);
-    //         expect(vm.$el.childNodes[1].selected).toBe(true);
-    //     }).then(done);
-    // });
+            expect(vm.test).toBe('1');
+            // update a-for opts
+            vm.opts = [0, '1'];
+        }).then(() => {
+            expect(vm.$el.childNodes[0].selected).toBe(false);
+            expect(vm.$el.childNodes[1].selected).toBe(true);
+        }).then(done);
+    });
 
-    // it('should work with select which has no default selected options', done => {
-    //     const spy = jasmine.createSpy();
-    //     const vm = new Vue({
-    //         data: {
-    //             id: 4,
-    //             list: [1, 2, 3],
-    //             testChange: 5,
-    //         },
-    //         template:
-    //             '<div>'
-    //             + '<select @change="test" a-model="id">'
-    //             +    '<option a-for="item in list" :value="item">{{item}}</option>'
-    //             + '</select>'
-    //             + '{{testChange}}'
-    //             + '</div>',
-    //         methods: {
-    //             test: spy,
-    //         },
-    //     }).$mount();
-    //     document.body.appendChild(vm.$el);
-    //     vm.testChange = 10;
-    //     waitForUpdate(() => {
-    //         expect(spy.calls.count()).toBe(0);
-    //     }).then(done);
-    // });
+    it('should work with select which has no default selected options', done => {
+        const spy = jasmine.createSpy();
+        const vm = new Vue({
+            data: {
+                id: 4,
+                list: [1, 2, 3],
+                testChange: 5,
+            },
+            template:
+                '<div>'
+                + '<select @change="test" a-model="id">'
+                +    '<option a-for="item in list" :value="item">{{item}}</option>'
+                + '</select>'
+                + '{{testChange}}'
+                + '</div>',
+            methods: {
+                test: spy,
+            },
+        }).$mount();
+        document.body.appendChild(vm.$el);
+        vm.testChange = 10;
+        waitForUpdate(() => {
+            expect(spy.calls.count()).toBe(0);
+        }).then(done);
+    });
 
     if (!hasMultiSelectBug()) {
 
@@ -334,6 +334,7 @@ describe('Directive a-model select', () => {
     //     }).then(done);
     // });
 
+    // san 不支持多选场景
     // it('should not have multiple attr with falsy values except \'\'', () => {
     //     const vm = new Vue({
     //         template:
@@ -350,6 +351,7 @@ describe('Directive a-model select', () => {
     //     expect(vm.$el.querySelector('#string').multiple).toEqual(true);
     // });
 
+    // san 不支持多选场景
     // it('multiple with static template', () => {
     //     const vm = new Vue({
     //         template:
@@ -365,50 +367,52 @@ describe('Directive a-model select', () => {
     //     expect(opts[2].selected).toBe(true);
     // });
 
-    // it('multiple selects', done => {
-    //     const spy = jasmine.createSpy();
-    //     const vm = new Vue({
-    //         data: {
-    //             selections: ['', ''],
-    //             selectBoxes: [
-    //                 [{
-    //                     value: 'foo',
-    //                     text: 'foo',
-    //                 }, {
-    //                     value: 'bar',
-    //                     text: 'bar',
-    //                 }],
-    //                 [{
-    //                     value: 'day',
-    //                     text: 'day',
-    //                 }, {
-    //                     value: 'night',
-    //                     text: 'night',
-    //                 }],
-    //             ],
-    //         },
-    //         watch: {
-    //             selections: spy,
-    //         },
-    //         template:
-    //             '<div>'
-    //             + '<select a-for="(item, index) in selectBoxes" a-model="selections[index]">'
-    //             +    '<option a-for="element in item" a-bind:value="element.value" a-text="element.text"></option>'
-    //             + '</select>'
-    //             + '<span ref="rs">{{selections}}</span>'
-    //             + '</div>',
-    //     }).$mount();
-    //     document.body.appendChild(vm.$el);
-    //     var selects = vm.$el.getElementsByTagName('select');
-    //     var select0 = selects[0];
-    //     select0.options[0].selected = true;
-    //     triggerEvent(select0, 'change');
-    //     waitForUpdate(() => {
-    //         expect(spy).toHaveBeenCalled();
-    //         expect(vm.selections).toEqual(['foo', '']);
-    //     }).then(done);
-    // });
 
+    it('multiple selects', done => {
+        const spy = jasmine.createSpy();
+        const vm = new Vue({
+            data: {
+                selections: ['', ''],
+                selectBoxes: [
+                    [{
+                        value: 'foo',
+                        text: 'foo',
+                    }, {
+                        value: 'bar',
+                        text: 'bar',
+                    }],
+                    [{
+                        value: 'day',
+                        text: 'day',
+                    }, {
+                        value: 'night',
+                        text: 'night',
+                    }],
+                ],
+            },
+            watch: {
+                selections: spy,
+            },
+            template:
+                '<div>'
+                + '<select a-for="(item, index) in selectBoxes" a-model="selections[index]">'
+                +    '<option a-for="element in item" a-bind:value="element.value" a-text="element.text"></option>'
+                + '</select>'
+                + '<span ref="rs">{{selections}}</span>'
+                + '</div>',
+        }).$mount();
+        document.body.appendChild(vm.$el);
+        var selects = vm.$el.getElementsByTagName('select');
+        var select0 = selects[0];
+        select0.options[0].selected = true;
+        triggerEvent(select0, 'change');
+        waitForUpdate(() => {
+            expect(spy).toHaveBeenCalled();
+            expect(vm.selections).toEqual(['foo', '']);
+        }).then(done);
+    });
+
+    // ATTENTION  不支持number
     // it('.number modifier', () => {
     //     const vm = new Vue({
     //         data: {
@@ -427,6 +431,7 @@ describe('Directive a-model select', () => {
     //     expect(vm.test).toBe(1);
     // });
 
+    // ATTENTION  不支持number
     // it('should respect different primitive type value', done => {
     //     const vm = new Vue({
     //         data: {
