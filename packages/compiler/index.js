@@ -1,4 +1,4 @@
-/* !
+/*!
  * vusa v1.0.0
  * (c) 2019-2021 * Released under the MIT License.
  */
@@ -422,7 +422,7 @@ function transform (code) {
 
 const bindKeys$1 = [':class', 'v-bind:class'];
 
-function postTransformNode$c(node) {
+function postTransformNode$d(node) {
     if (node.type === 1 && node.classBinding) {
         const staticClass = node.attrsMap.class || '';
         const classBinding = transform(node.attrsMap[bindKeys$1[0]] || node.attrsMap[bindKeys$1[1]]).code;
@@ -433,7 +433,7 @@ function postTransformNode$c(node) {
 }
 
 var clazz = {
-    postTransformNode: postTransformNode$c,
+    postTransformNode: postTransformNode$d,
 };
 
 /**
@@ -443,7 +443,7 @@ var clazz = {
 
 const bindKeys = [':style', 'v-bind:style', 'v-show'];
 
-function postTransformNode$b(node) {
+function postTransformNode$c(node) {
     let vShow = node.attrsMap['v-show'];
 
     if (node.type === 1 && (node.styleBinding || vShow)) {
@@ -464,7 +464,7 @@ function postTransformNode$b(node) {
 }
 
 var style = {
-    postTransformNode: postTransformNode$b,
+    postTransformNode: postTransformNode$c,
 };
 
 /**
@@ -474,8 +474,7 @@ var style = {
 
 const reBind = /^(v-bind)?\:/;
 
-function postTransformNode$a(node) {
-    // console.log('bind~~~~~~~~~~~~~~~~~');
+function postTransformNode$b(node) {
 
     if (node.type !== 1) {
         return;
@@ -495,7 +494,6 @@ function postTransformNode$a(node) {
         }
         node.attrsMap[attr] = attrValue;
         // node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
-        node.attrsMap[key.replace(reBind, '')] = `{{ ${code} }}`;
         // node.attrsMap[key.replace(reBind, '')] = `{{ _b(${code})}}`;
     }
 
@@ -521,7 +519,7 @@ function postTransformNode$a(node) {
 }
 
 var bind = {
-    postTransformNode: postTransformNode$a,
+    postTransformNode: postTransformNode$b,
 };
 
 /**
@@ -529,7 +527,7 @@ var bind = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$9(node) {
+function postTransformNode$a(node) {
     if (node.type !== 1) {
         return;
     }
@@ -551,7 +549,7 @@ function postTransformNode$9(node) {
 }
 
 var yf = {
-    postTransformNode: postTransformNode$9,
+    postTransformNode: postTransformNode$a,
 };
 
 /**
@@ -559,7 +557,7 @@ var yf = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$8(node) {
+function postTransformNode$9(node) {
 
     if (node.type !== 1 || !node.for) {
         return;
@@ -593,7 +591,7 @@ function postTransformNode$8(node) {
 }
 
 var fr = {
-    postTransformNode: postTransformNode$8,
+    postTransformNode: postTransformNode$9,
 };
 
 function stripWith(code) {
@@ -641,7 +639,7 @@ function getName() {
     return nanoid$1();
 }
 
-function postTransformNode$7(node, options) {
+function postTransformNode$8(node, options) {
     const eventAttrs = node.attrsList.filter(n => reEvent.test(n.name));
     for (const attr of eventAttrs) {
         delete node.attrsMap[attr.name];
@@ -678,7 +676,7 @@ function postTransformNode$7(node, options) {
 }
 
 var event = {
-    postTransformNode: postTransformNode$7,
+    postTransformNode: postTransformNode$8,
 };
 
 /**
@@ -686,7 +684,7 @@ var event = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$6(node) {
+function postTransformNode$7(node) {
 
     if (node.attrsMap && node.attrsMap['v-dangerous-html']) {
         const dir = node.directives.find(d => d.name === 'dangerous-html');
@@ -725,7 +723,7 @@ function postTransformNode$6(node) {
 }
 
 var html = {
-    postTransformNode: postTransformNode$6,
+    postTransformNode: postTransformNode$7,
 };
 
 /**
@@ -733,7 +731,7 @@ var html = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$5(node, options) {
+function postTransformNode$6(node, options) {
     if (node.type !== 1 || !node.attrsMap.ref && !node.attrsMap[':ref']) {
         return;
     }
@@ -759,7 +757,7 @@ function postTransformNode$5(node, options) {
 }
 
 var ref = {
-    postTransformNode: postTransformNode$5
+    postTransformNode: postTransformNode$6
 };
 
 /**
@@ -767,7 +765,7 @@ var ref = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$4(node, options) {
+function postTransformNode$5(node, options) {
 
     if (!(node.type === 1 && node.tag === 'component')) {
         return;
@@ -786,7 +784,7 @@ function postTransformNode$4(node, options) {
 }
 
 var dynamicComponent = {
-    postTransformNode: postTransformNode$4,
+    postTransformNode: postTransformNode$5,
 };
 
 /**
@@ -990,7 +988,7 @@ const htmlTag = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$3(node) {
+function postTransformNode$4(node) {
     if (!node.type === 1 || !node.attrsMap) {
         return;
     }
@@ -1000,12 +998,17 @@ function postTransformNode$3(node) {
         if ((htmlTag[node.tag] && booleanAttr[key]) || noValueAttr[key]) {
             continue;
         }
+
+        // input 标签 的 value 不做处理
+        if (node.tag === 'input' && (key === 'value' || key === ':value')) {
+            continue;
+        }
         node.attrsMap[key] = `{{ true }}`;
     }
 }
 
 var bool = {
-    postTransformNode: postTransformNode$3
+    postTransformNode: postTransformNode$4
 };
 
 /**
@@ -1037,7 +1040,7 @@ function getAttrs(attrsMap) {
     });
 }
 
-function postTransformNode$2(el) {
+function postTransformNode$3(el) {
     if (el.tag === 'transition') {
         el.tag = 'fragment';
 
@@ -1075,7 +1078,7 @@ function postTransformNode$2(el) {
 }
 
 var transition = {
-    postTransformNode: postTransformNode$2,
+    postTransformNode: postTransformNode$3,
 };
 
 /**
@@ -1083,7 +1086,7 @@ var transition = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$1(el, state) {
+function postTransformNode$2(el, state) {
     if (el.children && el.children.length > 0) {
         for (const child of el.children) {
             if (child.type !== 2 || !child.tokens || child.tokens.length <= 1) {
@@ -1113,7 +1116,7 @@ function postTransformNode$1(el, state) {
 }
 
 var textCombine = {
-    postTransformNode: postTransformNode$1,
+    postTransformNode: postTransformNode$2,
 };
 
 /**
@@ -1122,7 +1125,7 @@ var textCombine = {
  */
 
 
-function postTransformNode(node) {
+function postTransformNode$1(node) {
 
     if (node.type !== 1) {
         return;
@@ -1171,6 +1174,43 @@ function postTransformNode(node) {
 }
 
 var forIf = {
+    postTransformNode: postTransformNode$1,
+};
+
+/**
+ * @file 处理v-model的情况
+ * @author donghualei
+ */
+
+function postTransformNode(node) {
+
+    if (node.type !== 1
+        || !node.attrsMap.hasOwnProperty('v-model')
+        || (node.tag !== 'input' && node.tag !== 'select')) {
+        return;
+    }
+
+    const type = node.attrsMap.type;
+
+    if (node.tag === 'input') {
+
+        // 处理 input 的场景，text的场景
+        if (type === 'text' || !type && !node.attrsMap.hasOwnProperty('value')) {
+            node.attrsMap.value = `{= ${transform(node.attrsMap['v-model']).code} =}`;
+        }
+        // 有 value 则为 type = checkbox 或者 radio 的场景
+        else {
+            node.attrsMap.checked = `{= ${transform(node.attrsMap['v-model']).code} =}`;
+        }
+    }
+    else if (node.tag === 'select') {
+        node.attrsMap.value = `{= ${transform(node.attrsMap['v-model']).code} =}`;
+    }
+
+    delete node.attrsMap['v-model'];
+}
+
+var model = {
     postTransformNode,
 };
 
@@ -1192,6 +1232,7 @@ var buildInModules = [
 
     clazz,
     style,
+    model,
 
     // bind 放在所有处理完之后
     bind,
@@ -1263,9 +1304,7 @@ function stringify(ast, {scopeId, strip, atom}) {
  */
 
 const camelize = str => str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ''));
-
-/**
- * 获取数据类型
+/* 获取数据类型
  * @param {any} data 源对象
  * @returns {string} 'Function' | 'Undefined' | 'Null' | 'Object' | 'Boolean' | 'String' | 'Number' | 'RegExp' | 'Symbol' | 'BigInt'|'HTMLDivElement';
  */
@@ -1367,13 +1406,11 @@ function compile(source, options = {}) {
     }
     const template = stringify(ast, {scopeId, strip, atom: isAtom});
 
-
     const aNode = sanAnodeUtils.parseTemplate(template, {
         trimWhitespace: 'blank',
     }).children[0];
 
     // if (ast.tag === 'child') {
-    // if (ast.tag === 'div1') {
     //     console.log('---------------------------------');
     //     console.log('ast', ast.children[0]);
     //     console.log('aNode', aNode.children[0]);

@@ -244,6 +244,13 @@
     });
 
     /**
+     * Perform no operation.
+     * Stubbing args to make Flow happy without leaving useless transpiled code
+     * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
+     */
+    function noop$1() {}
+
+    /**
      * @file loop expression
      * @author cxtom(cxtom2008@gmail.com)
      */
@@ -565,7 +572,6 @@
             : [globalOptions, options];
 
         var methods = {};
-
         for (var i = 0, len = list.length; i < len; i++) {
             var opt = list[i];
             opt.methods && extend(methods, opt.methods);
@@ -644,7 +650,12 @@
         }
 
         resetTarget();
-        var value = computed[computedExpr].call(this);
+        var userDef = computed[computedExpr];
+        if (typeof userDef === 'object') {
+            userDef = userDef.get || noop$1;
+        }
+
+        var value = userDef.call(this);
         var deps = Dep.target;
         cleanTarget();
 
