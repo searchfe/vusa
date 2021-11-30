@@ -30,7 +30,6 @@ export default function stringify(ast, {scopeId, strip, atom}) {
     }
 
     let html = '';
-
     for (const node of ast) {
         if (node.type === 3 || node.type === 2) {
             const text = node.text;

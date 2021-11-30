@@ -69,7 +69,10 @@ function genConfig(opts) {
             banner: opts.banner,
             sourcemap: !!opts.sourceMap,
             name: 'Vusa',
-            globals: 'Vusa',
+            globals: {
+                Vusa: 'Vusa',
+                san: 'san',
+            },
         },
         external: opts.external,
         plugins: [

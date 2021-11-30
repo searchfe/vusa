@@ -244,6 +244,13 @@
     });
 
     /**
+     * Perform no operation.
+     * Stubbing args to make Flow happy without leaving useless transpiled code
+     * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
+     */
+    function noop$1() {}
+
+    /**
      * @file loop expression
      * @author cxtom(cxtom2008@gmail.com)
      */
@@ -565,7 +572,6 @@
             : [globalOptions, options];
 
         var methods = {};
-
         for (var i = 0, len = list.length; i < len; i++) {
             var opt = list[i];
             opt.methods && extend(methods, opt.methods);
@@ -644,7 +650,12 @@
         }
 
         resetTarget();
-        var value = computed[computedExpr].call(this);
+        var userDef = computed[computedExpr];
+        if (typeof userDef === 'object') {
+            userDef = userDef.get || noop$1;
+        }
+
+        var value = userDef.call(this);
         var deps = Dep.target;
         cleanTarget();
 
@@ -921,15 +932,30 @@
         this.computedDeps = {};
         var loop$1 = function ( i ) {
             var key$1 = this$1$1._computedKeys[i];
-            calcComputed.call(this$1$1, key$1, computed);
+            var keyExpr$1 = {
+                type: san.ExprType.ACCESSOR,
+                paths: [{
+                    type: san.ExprType.STRING,
+                    value: key$1,
+                }],
+            };
             def(this$1$1, key$1, {
                 get: function get() {
+                    dep.depend({
+                        context: context,
+                        expr: keyExpr$1,
+                    });
                     return me.data.get(createAccesser(key$1));
                 },
             });
         };
 
         for (var i$1 = 0; i$1 < this$1$1._computedKeys.length; i$1++) loop$1( i$1 );
+
+        for (var i$2 = 0; i$2 < this._computedKeys.length; i$2++) {
+            var key$2 = this._computedKeys[i$2];
+            calcComputed.call(this, key$2, computed);
+        }
     }
 
     /**

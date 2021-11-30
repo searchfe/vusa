@@ -3,7 +3,16 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {isObject, hasOwn, isPlainObject, extend, def, createAccesser, isPrimitive, isValidArrayIndex} from '../shared/util';
+import {
+    isObject,
+    hasOwn,
+    isPlainObject,
+    extend,
+    def,
+    createAccesser,
+    isPrimitive,
+    isValidArrayIndex,
+} from '../shared/util';
 import {ExprType, NodeType, parseExpr} from 'san';
 import {Dep} from './dep';
 import calcComputed from './calc-computed';
@@ -256,11 +265,26 @@ export default function (computed) {
     this.computedDeps = {};
     for (let i = 0; i < this._computedKeys.length; i++) {
         const key = this._computedKeys[i];
-        calcComputed.call(this, key, computed);
+        const keyExpr = {
+            type: ExprType.ACCESSOR,
+            paths: [{
+                type: ExprType.STRING,
+                value: key,
+            }],
+        };
         def(this, key, {
             get() {
+                dep.depend({
+                    context,
+                    expr: keyExpr,
+                });
                 return me.data.get(createAccesser(key));
             },
         });
+    }
+
+    for (let i = 0; i < this._computedKeys.length; i++) {
+        const key = this._computedKeys[i];
+        calcComputed.call(this, key, computed);
     }
 }

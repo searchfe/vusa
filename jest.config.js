@@ -1,7 +1,12 @@
 module.exports = {
     verbose: true,
     collectCoverage: true,
-    collectCoverageFrom: ['<rootDir>/src/**'],
+    collectCoverageFrom: [
+        '<rootDir>/src/**',
+        '!<rootDir>/src/runtime/bind-data.js',
+        '!<rootDir>/src/runtime/bind-data-proxy.js',
+        '!<rootDir>/src/runtime/calc-computed-observe.js'
+    ],
     testTimeout: 30000,
     projects: [
         {
@@ -17,6 +22,7 @@ module.exports = {
             setupFilesAfterEnv: [
                 '<rootDir>/test/helpers/wait-for-update.js',
                 '<rootDir>/test/helpers/trigger-event.js',
+                '<rootDir>/test/helpers/to-have-been-warned.js',
             ],
         },
     ],

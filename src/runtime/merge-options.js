@@ -33,7 +33,6 @@ export default function mergeOptions(options) {
         : [globalOptions, options];
 
     const methods = {};
-
     for (let i = 0, len = list.length; i < len; i++) {
         const opt = list[i];
         opt.methods && extend(methods, opt.methods);
