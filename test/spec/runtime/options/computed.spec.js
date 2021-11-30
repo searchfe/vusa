@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import Vue from '../../../helpers/vue';
 
 describe('Options computed', () => {
@@ -212,4 +213,31 @@ describe('Options computed', () => {
     //     })
     //     expect(() => vm.a).toThrowError('rethrow')
     // })
+
+
+    it('computed depend another computed', done => {
+        const vm = new Vue({
+            template: '<div>{{ b }}-{{c}}</div>',
+            data: {
+                a: 1,
+            },
+            computed: {
+                c() {
+                    return this.b + 2;
+                },
+                b() {
+                    return this.a + 1;
+                },
+            },
+        }).$mount();
+        expect(vm.b).toBe(2);
+        expect(vm.c).toBe(4);
+        expect(vm.$el.textContent).toBe('2-4');
+        vm.a = 2;
+        expect(vm.b).toBe(3);
+        expect(vm.c).toBe(5);
+        waitForUpdate(() => {
+            expect(vm.$el.textContent).toBe('3-5');
+        }).then(done);
+    });
 });
