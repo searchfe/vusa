@@ -45,6 +45,7 @@ const defaultSanOptions = {
     $nextTick: nextTick,
     $set: set,
     _da: changeDisabled,
+    $destroy: Component.prototype._leave,
 };
 /* eslint-enable fecs-camelcase */
 
