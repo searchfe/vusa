@@ -45,7 +45,7 @@ const defaultSanOptions = {
     $nextTick: nextTick,
     $set: set,
     _da: changeDisabled,
-    $destroy: Component.prototype._leave,
+    $destroy: Component.prototype.dispose,
 };
 /* eslint-enable fecs-camelcase */
 
@@ -65,10 +65,13 @@ const memberMap = {
         return this.parentComponent;
     },
     $children() {
-        if (this._rootNode && this.tagName !== this._rootNode.tagName) {
-            this.children.unshift(this._rootNode);
+        let children = [];
+        if (this._rootNode
+            && this.tagName !== this._rootNode.tagName
+            && this._rootNode.lifeCycle && !this._rootNode.lifeCycle.disposed) {
+            children.unshift(this._rootNode);
         }
-        return this.children.filter(child => {
+        return (children.concat(this.children)).filter(child => {
             return child.nodeType === 5;
         });
     },
