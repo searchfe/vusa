@@ -78,6 +78,7 @@ const transformRE = /\b(transform|all)(,|$)/;
 
 export function getTransitionInfo(el, expectedType) {
     const styles = window.getComputedStyle(el);
+
     // JSDOM may return undefined for transition properties
     const transitionDelays = (styles[transitionProp + 'Delay'] || '').split(', ');
     const transitionDurations = (styles[transitionProp + 'Duration'] || '').split(', ');
@@ -117,6 +118,7 @@ export function getTransitionInfo(el, expectedType) {
                 : animationDurations.length
             : 0;
     }
+
     const hasTransform = type === TRANSITION
         && transformRE.test(styles[transitionProp + 'Property']);
     return {
@@ -188,6 +190,7 @@ export function whenTransitionEnds(el, expectedType, cb) {
         el.removeEventListener(event, onEnd);
         cb();
     };
+
     setTimeout(() => {
         if (ended < propCount) {
             end();
@@ -207,22 +210,22 @@ export default function (options) {
         appearClass,
         appearToClass,
         appearActiveClass,
-        beforeEnter,
-        enter,
-        afterEnter,
-        enterCancelled,
-        beforeAppear,
-        appear,
-        afterAppear,
-        appearCancelled,
+        onBeforeEnter: beforeEnter,
+        onEnter: enter,
+        onAfterEnter: afterEnter,
+        onEnterCancelled: enterCancelled,
+        onBeforeAppear: beforeAppear,
+        onAppear: appear,
+        onAfterAppear: afterAppear,
+        onAppearCancelled: appearCancelled,
         leaveClass,
         leaveToClass,
         leaveActiveClass,
-        beforeLeave,
-        leave,
-        afterLeave,
-        leaveCancelled,
-        delayLeave,
+        onBeforeLeave: beforeLeave,
+        onLeave: leave,
+        onAfterLeave: afterLeave,
+        onLeaveCancelled: leaveCancelled,
+        onDelayLeave: delayLeave,
         duration,
     } = resolveTransition(options);
 
@@ -241,7 +244,7 @@ export default function (options) {
         if (typeof fn === 'function') {
             return fn;
         }
-        const invokerFn = context.owner[fn];
+        const invokerFn = context[fn];
         if (invokerFn && typeof invokerFn === 'function') {
             return invokerFn;
         }
@@ -249,6 +252,7 @@ export default function (options) {
     }
 
     function enterHandler(el, done) {
+
         const isAppear = !context.lifeCycle.attached;
 
         // call leave callback now
