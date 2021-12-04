@@ -22,6 +22,7 @@
     <wrapper></wrapper>
     <e-trans></e-trans>
     <e-trans-group></e-trans-group>
+    <el-trans-object></el-trans-object>
     <a-sync :name="'async'"></a-sync>
     <computed></computed>
   </div>
@@ -37,6 +38,7 @@ import Reactive from './reactive';
 import Slot from './slot';
 import Transition from './transition';
 import TransitionGroup from './transition-group';
+import TransitionObject from './transition-object';
 import Computed from './computed';
 
 export default {
@@ -73,7 +75,8 @@ export default {
         'a-sync': function (resolve) {
             import('./async.vue').then(c => resolve(c.default));
         },
-        computed: Computed
+        computed: Computed,
+        'el-trans-object': TransitionObject
     },
     methods: {
         onClick(e) {

@@ -1,11 +1,11 @@
 function insertCSS(text) {
     var cssEl = document.createElement('style');
     cssEl.textContent = text.trim();
-    document.head.appendChild(cssEl);
+    document.body.appendChild(cssEl);
 }
 
-const duration = process.env.TRANSITION_DURATION || 50;
-const buffer = process.env.TRANSITION_BUFFER || 10;
+const duration = 1000;
+const buffer = 200;
 let injected = false;
 
 export default function injectStyles() {
@@ -18,50 +18,54 @@ export default function injectStyles() {
     injected = true;
     insertCSS(`
         .test {
-        -webkit-transition: opacity ${duration}ms ease;
-        transition: opacity ${duration}ms ease;
+            transition-property: opacity;
+            transition-duration: 1s;
+            transition-timing-function: ease;
+            transition-delay: 0;
         }
         .group-move {
-        -webkit-transition: -webkit-transform ${duration}ms ease;
-        transition: transform ${duration}ms ease;
+            transition-property: transform;
+            transition-duration: 1s;
+            transition-timing-function: ease;
+            transition-delay: 0;
         }
         .a-appear, .v-enter, .v-leave-active,
         .test-appear, .test-enter, .test-leave-active,
         .hello, .bye.active,
         .changed-enter {
-        opacity: 0;
+            opacity: 0;
         }
         .test-anim-enter-active {
-        animation: test-enter ${duration}ms;
-        -webkit-animation: test-enter ${duration}ms;
+            animation-name: test-enter;
+            animation-duration: 1s;
         }
         .test-anim-leave-active {
-        animation: test-leave ${duration}ms;
-        -webkit-animation: test-leave ${duration}ms;
+            animation-name: test-leave;
+            animation-duration: 1s;
         }
         .test-anim-long-enter-active {
-        animation: test-enter ${duration * 2}ms;
-        -webkit-animation: test-enter ${duration * 2}ms;
+            animation-name: test-enter;
+            animation-duration: 2s;
         }
         .test-anim-long-leave-active {
-        animation: test-leave ${duration * 2}ms;
-        -webkit-animation: test-leave ${duration * 2}ms;
+            animation-name: test-leave;
+            animation-duration: 2s;
         }
         @keyframes test-enter {
-        from { opacity: 0 }
-        to { opacity: 1 }
+            from { opacity: 0 }
+            to { opacity: 1 }
         }
         @-webkit-keyframes test-enter {
-        from { opacity: 0 }
-        to { opacity: 1 }
+            from { opacity: 0 }
+            to { opacity: 1 }
         }
         @keyframes test-leave {
-        from { opacity: 1 }
-        to { opacity: 0 }
+            from { opacity: 1 }
+            to { opacity: 0 }
         }
         @-webkit-keyframes test-leave {
-        from { opacity: 1 }
-        to { opacity: 0 }
+            from { opacity: 1 }
+            to { opacity: 0 }
         }
     `);
     return {
