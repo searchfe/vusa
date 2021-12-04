@@ -62,22 +62,22 @@ export default {
             this.ok = !this.ok;
         },
         onEnter() {
-            console.log('~~~~~~~~enter');
+            console.log('enter');
         },
         onLeave() {
-            console.log('~~~~~~~~~leave');
+            console.log('leave');
         },
         onBeforeEnter() {
-            console.log('~~~~~~~~~~onBeforeEnter');
+            console.log('onBeforeEnter');
         },
         onAfterEnter() {
-            console.log('~~~~~~~~~~onAfterEnter');
+            console.log('onAfterEnter');
         },
         onAfterLeave() {
-            console.log('~~~~~~~~~~onAfterLeave');
+            console.log('onAfterLeave');
         },
         onBeforeLeave() {
-            console.log('~~~~~~~~~~onBeforeLeave');
+            console.log('onBeforeLeave');
         }
     }
 };
