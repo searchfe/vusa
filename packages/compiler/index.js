@@ -1088,6 +1088,7 @@ var transition = {
  * @file text-combine
  * @author cxtom(cxtom2008@gmail.com)
  */
+// import {trimStart, trimEnd} from 'lodash';
 
 function postTransformNode$2(el, state) {
     if (el.children && el.children.length > 0) {
@@ -1095,16 +1096,18 @@ function postTransformNode$2(el, state) {
             if (child.type !== 2 || !child.tokens || child.tokens.length <= 1) {
                 continue;
             }
-            let tokens = child.tokens.map((token, index) => {
+            let tokens = child.tokens.map(token => {
                 let text = '\'\'';
                 if (token['@binding']) {
                     text = token['@binding'];
                 }
                 if (typeof token === 'string') {
                     let str = escapeQuotes__default['default'](token.replace(/\s+/, ' '));
-                    str = index === 0
-                        ? lodash.trimStart(str, ' ')
-                        : (index === child.tokens.length - 1 ? lodash.trimEnd(str, ' ') : str);
+
+                    // 以下逻辑会导致标签与文本节点的空格被忽略,先注释掉
+                    // str = index === 0
+                    //     ? trimStart(str, ' ')
+                    //     : (index === child.tokens.length - 1 ? trimEnd(str, ' ') : str);
                     text = `'${str}'`;
                 }
                 return text;
@@ -1408,7 +1411,7 @@ function compile(source, options = {}) {
         throw new Error(source);
     }
     const template = stringify(ast, {scopeId, strip, atom: isAtom});
-    // console.log('~~~~~~~~~~~~~template', template);
+
     const aNode = sanAnodeUtils.parseTemplate(template, {
         trimWhitespace: 'blank',
     }).children[0];

@@ -72,6 +72,7 @@ function genConfig(opts) {
             globals: {
                 Vusa: 'Vusa',
                 san: 'san',
+                lodash: 'lodash',
             },
         },
         external: opts.external,
