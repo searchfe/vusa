@@ -82,6 +82,13 @@ const memberMap = {
                 root = root.parentComponent;
             }
         }
+
+        if (root && root.data && root.data.data && root.data.data.$root) {
+            for (var key in root.data.data.$root) {
+                root[key] = root.data.data.$root[key];
+            }
+        }
+
         return root;
     },
     $slots: slot,
