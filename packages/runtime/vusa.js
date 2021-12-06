@@ -127,6 +127,27 @@
     }
 
     /**
+     * Quick object check - this is primarily used to tell
+     */
+    function isObj(obj) {
+        return obj && Object.prototype.toString.call(obj) === '[object Object]';
+    }
+
+    /**
+     * Quick string check - this is primarily used to tell
+     */
+    function isString(value) {
+        return value && Object.prototype.toString.call(value) === '[object String]';
+    }
+
+    /**
+     * Quick function check - this is primarily used to tell
+     */
+    function isFunction(value) {
+        return value && Object.prototype.toString.call(value) === '[object Function]';
+    }
+
+    /**
      * Check whether an object has the property.
      */
     var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -242,6 +263,13 @@
         });
         return res;
     });
+
+    /**
+     * Perform no operation.
+     * Stubbing args to make Flow happy without leaving useless transpiled code
+     * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
+     */
+    function noop$1() {}
 
     /**
      * @file loop expression
@@ -565,7 +593,6 @@
             : [globalOptions, options];
 
         var methods = {};
-
         for (var i = 0, len = list.length; i < len; i++) {
             var opt = list[i];
             opt.methods && extend(methods, opt.methods);
@@ -644,7 +671,12 @@
         }
 
         resetTarget();
-        var value = computed[computedExpr].call(this);
+        var userDef = computed[computedExpr];
+        if (typeof userDef === 'object') {
+            userDef = userDef.get || noop$1;
+        }
+
+        var value = userDef.call(this);
         var deps = Dep.target;
         cleanTarget();
 
@@ -790,7 +822,7 @@
             enumerable: true,
             configurable: true,
             set: function set(newVal) {
-
+                
                 var value = getter ? getter.call(obj) : val;
                 if (newVal === value) {
                     return;
@@ -863,7 +895,40 @@
                 type: san.ExprType.ACCESSOR,
                 paths: ( ob.expr.paths ).concat( expr.paths),
             };
-            ob.context.set(finalExpr, value, {
+            ob.context.data.set(finalExpr, value, {
+                force: true,
+            });
+        }
+    }
+
+    function del(opt) {
+        var target = opt[0];
+        var key = opt[1];
+        opt.slice(2);
+
+        if (target === null) {
+            return;
+        }
+
+        var newTarget = Object.keys(target).reduce(function (pre, next) {
+            if (next !== key) {
+                pre[next] = target[next];
+            }
+            return pre;
+        }, {});
+
+        var ob = target.__ob__;
+
+        if (ob && Array.isArray(target)) {
+            // 暂不支持数组形式
+            return;
+        }
+        else if(ob) {
+            var finalExpr = {
+                type: san.ExprType.ACCESSOR,
+                paths: [].concat( ob.expr.paths ),
+            };
+            ob.context.data.set(finalExpr, newTarget, {
                 force: true,
             });
         }
@@ -1539,6 +1604,47 @@
     }
 
     /**
+     * @file s-watch-transition
+     * @author ngaiwe(ngaiwe@126.com)
+     */
+
+    function transitionHandler(handler, context) {
+    	if (isString(handler)) {
+    		return context && context['$options'] && context['$options']['methods'] && context['$options']['methods'][handler];
+    	}
+    	else if (isFunction(handler)) {
+    		return handler;
+    	}
+    	else {
+    		return ''
+    	}
+    }
+
+    function watcher(name, listener, context) {
+    	var watcher = {};
+    	// 第一步判断watcher类型
+    	if (isFunction(listener)) {
+    		watcher.handler = listener;
+    	}
+    	else if (isString(listener)) {
+    		watcher.handler = transitionHandler(listener, context);
+    	}
+    	else if (isObj(listener)) {
+    		var handler = transitionHandler(listener.handler, context);
+
+    		if (listener.immediate) {
+    			handler.call(context, context.data.get(name));
+    		}
+
+    		watcher = Object.assign({}, listener, {
+    			handler: handler
+    		});
+    	}
+
+    	return watcher;
+    }
+
+    /**
      * @file component
      * @author cxtom(cxtom2008@gmail.com)
      */
@@ -1563,9 +1669,49 @@
         _sf: toSafeString,
         _f: callFilter,
         _h: toHtml,
-        $emit: san.Component.prototype.fire,
-        $on: san.Component.prototype.on,
-        $watch: san.Component.prototype.watch,
+        $emit: function() {
+            var params = [], len = arguments.length;
+            while ( len-- ) params[ len ] = arguments[ len ];
+
+            var name = params[0];
+            var param = params.slice(1);
+            return san.Component.prototype.fire.call(this, name, param)
+        },
+        $on: function(name, listener, declaration) {
+            var this$1$1 = this;
+
+            return san.Component.prototype.on.call(this, name, function (params) { return listener.call.apply(listener, [ this$1$1 ].concat( params )); }, declaration)
+        },
+        $off: function(name) {
+            var this$1$1 = this;
+
+            if (name) {
+                return san.Component.prototype.un.call(this, name)
+            }
+            if (this.listeners && Object.keys(this.listeners).length) {
+                Object.keys(this.listeners).forEach(function (l) {
+                    return san.Component.prototype.un.call(this$1$1, l)
+                });
+            }
+        },
+        $watch: function(name, listener, declaration) {
+            var this$1$1 = this;
+
+            if (!listener) { return; }
+
+            var source = undefined;
+
+            if (declaration && Object.keys(declaration) && !isObj(listener)) {
+                source = Object.assign({}, declaration, {
+                    handler: listener
+                });
+            }
+
+            var ref = watcher(name, source? source : listener, this);
+            var handler = ref.handler;
+            
+            return san.Component.prototype.watch.call(this, name, function (newValue, sourceValue) { return handler.call(this$1$1, newValue, sourceValue.oldValue); })
+        },
         $nextTick: san.nextTick,
         $set: set,
         _da: changeDisabled,
@@ -1748,7 +1894,10 @@
 
             if (options.watch && !optimizeSSR) {
                 Object.keys(options.watch).forEach(function (key) {
-                    this$1$1.watch(key, options.watch[key].bind(this$1$1));
+                    var ref = watcher(key, options.watch[key], this$1$1);
+                    var handler = ref.handler;
+
+                    this$1$1.watch(key, function (newValue, sourceValue) { return handler.call(this$1$1, newValue, sourceValue.oldValue); });
                 });
             }
 
@@ -1782,13 +1931,24 @@
                     props[key] = {
                         get: function get() {
                             return memberMap[key].call(me);
-                        },
+                        }
                     };
                     return props;
                 }, {});
 
             properties.$options = {
                 value: options,
+            };
+
+            properties.$delete = {
+                get: function get() {
+                    return function () {
+                        var opt = [], len = arguments.length;
+                        while ( len-- ) opt[ len ] = arguments[ len ];
+
+                        return del.call(me, opt);
+                    }
+                }
             };
 
             Object.defineProperties(this, properties);

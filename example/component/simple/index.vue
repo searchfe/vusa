@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper" :class="[{node: 1, [name]: 1}, 'a']">
+  <div class="wrapper">
     Hello, {{ name }}! {{ message }}
     <span v-for="(item, index) in loop" :key="index">{{ item }}</span>
     <span v-for="n in 5">{{ n }}</span>
@@ -20,9 +20,11 @@
     <ssolt><span slot="x">slot x in main</span>default</ssolt>
     <ssolt><child slot="y" name="slot y"></child></ssolt>
     <wrapper></wrapper>
-    <e-trans></e-trans>
-    <e-trans-group></e-trans-group>
+    <!-- <e-trans></e-trans> -->
+    <!-- <e-trans-group></e-trans-group> -->
     <a-sync :name="'async'"></a-sync>
+    <methods/>
+    <methods-on @change-data="changeDataA"/>
   </div>
 </template>
 
@@ -34,8 +36,10 @@ import mixin1 from '../mixin1';
 import Bool from './bool';
 import Reactive from './reactive';
 import Slot from './slot';
-import Transition from './transition';
-import TransitionGroup from './transition-group';
+// import Transition from './transition';
+// import TransitionGroup from './transition-group';
+import Methods from './methods'
+import MethodsOn from './methods-on'
 
 export default {
     props: {
@@ -66,13 +70,18 @@ export default {
         Bool,
         Reactive,
         ssolt: Slot,
-        'e-trans': Transition,
-        'e-trans-group': TransitionGroup,
+        // 'e-trans': Transition,
+        // 'e-trans-group': TransitionGroup,
         'a-sync': function (resolve) {
             import('./async.vue').then(c => resolve(c.default));
-        }
+        },
+        Methods,
+        MethodsOn
     },
     methods: {
+        changeDataA(value1, value2) {
+          console.log('收到emit', value1, value2)
+        },
         onClick(e) {
             this.name = '';
         },

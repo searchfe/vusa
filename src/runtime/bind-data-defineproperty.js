@@ -129,7 +129,7 @@ function defineReactive(obj, key, expr, context) {
         enumerable: true,
         configurable: true,
         set(newVal) {
-
+            
             const value = getter ? getter.call(obj) : val;
             if (newVal === value) {
                 return;
@@ -202,7 +202,38 @@ export function set(target, propertyNameOrIndex, value) {
             type: ExprType.ACCESSOR,
             paths: [...ob.expr.paths, ...expr.paths],
         };
-        ob.context.set(finalExpr, value, {
+        ob.context.data.set(finalExpr, value, {
+            force: true,
+        });
+    }
+}
+
+export function del(opt) {
+    const [target, key, ...others] = opt;
+
+    if (target === null) {
+        return;
+    }
+
+    const newTarget = Object.keys(target).reduce((pre, next) => {
+        if (next !== key) {
+            pre[next] = target[next];
+        }
+        return pre;
+    }, {});
+
+    const ob = target.__ob__;
+
+    if (ob && Array.isArray(target)) {
+        // 暂不支持数组形式
+        return;
+    }
+    else if(ob) {
+        const finalExpr = {
+            type: ExprType.ACCESSOR,
+            paths: [...ob.expr.paths],
+        };
+        ob.context.data.set(finalExpr, newTarget, {
             force: true,
         });
     }

@@ -50,6 +50,27 @@ export function isObject(obj) {
 }
 
 /**
+ * Quick object check - this is primarily used to tell
+ */
+export function isObj(obj) {
+    return obj && Object.prototype.toString.call(obj) === '[object Object]';
+}
+
+/**
+ * Quick string check - this is primarily used to tell
+ */
+export function isString(value) {
+    return value && Object.prototype.toString.call(value) === '[object String]';
+}
+
+/**
+ * Quick function check - this is primarily used to tell
+ */
+export function isFunction(value) {
+    return value && Object.prototype.toString.call(value) === '[object Function]';
+}
+
+/**
  * Check whether an object has the property.
  */
 const hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -162,6 +183,22 @@ export const parseStyleText = cached(function (cssText) {
     });
     return res;
 });
+
+/**
+ * 遍历数组集合
+ *
+ * @param {Array} array 数组源
+ * @param {function(Any,number):boolean} iterator 遍历函数
+ */
+export function each(array, iterator) {
+    if (array && array.length > 0) {
+        for (var i = 0, l = array.length; i < l; i++) {
+            if (iterator(array[i], i) === false) {
+                break;
+            }
+        }
+    }
+}
 
 /**
  * Perform no operation.
