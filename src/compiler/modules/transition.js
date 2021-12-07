@@ -15,12 +15,14 @@ function getAttrs(attrsMap) {
 }
 
 function postTransformNode(el) {
+
     if (el.tag === 'transition') {
         el.tag = 'fragment';
 
         const attrs = getAttrs(el.attrsMap);
 
         if (el.children && el.children[0]) {
+            // console.log('el.children~~~~~~~');
             el.children[0].attrsMap['s-transition'] = `_t({${attrs.join(',')}})`;
 
             if (el.children[0].ifConditions) {
@@ -31,6 +33,7 @@ function postTransformNode(el) {
                 }
             }
         }
+        // console.log('el~~~~~~~~', el);
     }
 
     if (el.tag === 'transition-group') {

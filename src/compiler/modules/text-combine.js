@@ -4,7 +4,7 @@
  */
 
 import escapeQuotes from 'escape-quotes';
-import {trimStart, trimEnd} from 'lodash';
+// import {trimStart, trimEnd} from 'lodash';
 
 function postTransformNode(el, state) {
     if (el.children && el.children.length > 0) {
@@ -12,7 +12,7 @@ function postTransformNode(el, state) {
             if (child.type !== 2 || !child.tokens || child.tokens.length <= 1) {
                 continue;
             }
-            let tokens = child.tokens.map((token, index) => {
+            let tokens = child.tokens.map(token => {
                 let text = '\'\'';
                 if (token['@binding']) {
                     text = token['@binding'];
