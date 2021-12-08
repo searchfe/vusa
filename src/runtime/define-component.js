@@ -6,7 +6,7 @@
 import './override-data-get';
 
 import {defineComponent, Component, nextTick, createComponentLoader} from 'san';
-import {extend, hyphenate, def, freeze, createAccesser, isObj, each} from '../shared/util';
+import {extend, hyphenate, def, freeze, createAccesser, isPlainObject} from '../shared/util';
 import loopExpression from './loop-expression';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
@@ -57,7 +57,7 @@ const defaultSanOptions = {
 
         let source = undefined;
 
-        if (declaration && Object.keys(declaration) && !isObj(listener)) {
+        if (declaration && Object.keys(declaration) && !isPlainObject(listener)) {
             source = Object.assign({}, declaration, {
                 handler: listener
             });

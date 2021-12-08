@@ -2,7 +2,7 @@
  * @file s-watch-transition
  * @author ngaiwe(ngaiwe@126.com)
  */
-import {isObj, isFunction, isString} from '../shared/util';
+import {isPlainObject, isFunction, isString} from '../shared/util';
 
 function transitionHandler(handler, context) {
 	if (isString(handler)) {
@@ -25,7 +25,7 @@ export default function watcher(name, listener, context) {
 	else if (isString(listener)) {
 		watcher.handler = transitionHandler(listener, context);
 	}
-	else if (isObj(listener)) {
+	else if (isPlainObject(listener)) {
 		const handler = transitionHandler(listener.handler, context);
 
 		if (listener.immediate) {
