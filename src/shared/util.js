@@ -50,6 +50,20 @@ export function isObject(obj) {
 }
 
 /**
+ * Quick string check - this is primarily used to tell
+ */
+export function isString(value) {
+    return value && Object.prototype.toString.call(value) === '[object String]';
+}
+
+/**
+ * Quick function check - this is primarily used to tell
+ */
+export function isFunction(value) {
+    return value && Object.prototype.toString.call(value) === '[object Function]';
+}
+
+/**
  * Check whether an object has the property.
  */
 const hasOwnProperty = Object.prototype.hasOwnProperty;

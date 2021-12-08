@@ -6,18 +6,19 @@
 import './override-data-get';
 
 import {defineComponent, Component, nextTick, createComponentLoader} from 'san';
-import {extend, hyphenate, def, freeze, createAccesser} from '../shared/util';
+import {extend, hyphenate, def, freeze, createAccesser, isPlainObject} from '../shared/util';
 import loopExpression from './loop-expression';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
 import mergeOptions, {globalOptions} from './merge-options';
-import bindData, {set} from './bind-data-defineproperty';
+import bindData, {set, del} from './bind-data-defineproperty';
 import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
 import Transition from './transition';
 import toSafeString from './safe-html';
 import toHtml from './html';
 import changeDisabled from './disabled';
+import watcher from './watch';
 
 const COMPONENT_REFERENCE = '__COMPONENT_REFERENCE__';
 
@@ -41,7 +42,31 @@ const defaultSanOptions = {
     _h: toHtml,
     $emit: Component.prototype.fire,
     $on: Component.prototype.on,
-    $watch: Component.prototype.watch,
+    $off: function(name) {
+        if (name) {
+            return Component.prototype.un.call(this, name);
+        }
+        if (this.listeners && Object.keys(this.listeners).length) {
+            Object.keys(this.listeners).forEach(l => {
+                return Component.prototype.un.call(this, l)
+            });
+        }
+    },
+    $watch: function(name, listener, declaration) {
+        if (!listener) return;
+
+        let source = undefined;
+
+        if (declaration && Object.keys(declaration) && !isPlainObject(listener)) {
+            source = Object.assign({}, declaration, {
+                handler: listener
+            });
+        }
+
+        const {handler} = watcher(name, source? source : listener, this);
+        
+        return Component.prototype.watch.call(this, name, (newValue, sourceValue) => handler.call(this, newValue, sourceValue.oldValue));
+    },
     $nextTick: nextTick,
     $set: set,
     _da: changeDisabled,
@@ -231,7 +256,9 @@ export default function define(options) {
 
         if (options.watch && !optimizeSSR) {
             Object.keys(options.watch).forEach(key => {
-                this.watch(key, options.watch[key].bind(this));
+                const {handler} = watcher(key, options.watch[key], this);
+
+                this.watch(key, (newValue, sourceValue) => handler.call(this, newValue, sourceValue.oldValue));
             });
         }
 
@@ -273,6 +300,12 @@ export default function define(options) {
         properties.$options = {
             value: options,
         };
+
+        properties.$delete = {
+            get() {
+                return (...opt) => del.call(me, opt)
+            }
+        }
 
         Object.defineProperties(this, properties);
 
