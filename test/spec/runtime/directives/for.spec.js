@@ -537,8 +537,8 @@ describe('Directive a-for', () => {
         expect(vm.$el.textContent).toMatch(/foo/);
         vm.list[0][0].push('bar');
         waitForUpdate(() => {
-            // expect(vm.$el.textContent).toMatch(/\s+foo\s+bar\s+/);
-            expect(vm.$el.textContent).toMatch(/foobar/);
+            expect(vm.$el.textContent).toMatch(/\s+foo\s+bar\s+/);
+            // expect(vm.$el.textContent).toMatch(/foobar/);
         }).then(done);
     });
 

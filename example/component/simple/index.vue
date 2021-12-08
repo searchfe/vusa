@@ -22,9 +22,11 @@
     <wrapper></wrapper>
     <e-trans></e-trans>
     <e-trans-group></e-trans-group>
+    <el-trans-object></el-trans-object>
     <a-sync :name="'async'"></a-sync>
     <methods/>
     <methods-on @change-data="changeDataA"/>
+    <computed></computed>
   </div>
 </template>
 
@@ -40,6 +42,8 @@ import Transition from './transition';
 import TransitionGroup from './transition-group';
 import Methods from './methods'
 import MethodsOn from './methods-on'
+import TransitionObject from './transition-object';
+import Computed from './computed';
 
 export default {
     props: {
@@ -76,7 +80,9 @@ export default {
             import('./async.vue').then(c => resolve(c.default));
         },
         Methods,
-        MethodsOn
+        MethodsOn,
+        computed: Computed,
+        'el-trans-object': TransitionObject
     },
     methods: {
         changeDataA(value1, value2) {

@@ -986,15 +986,30 @@
         this.computedDeps = {};
         var loop$1 = function ( i ) {
             var key$1 = this$1$1._computedKeys[i];
-            calcComputed.call(this$1$1, key$1, computed);
+            var keyExpr$1 = {
+                type: san.ExprType.ACCESSOR,
+                paths: [{
+                    type: san.ExprType.STRING,
+                    value: key$1,
+                }],
+            };
             def(this$1$1, key$1, {
                 get: function get() {
+                    dep.depend({
+                        context: context,
+                        expr: keyExpr$1,
+                    });
                     return me.data.get(createAccesser(key$1));
                 },
             });
         };
 
         for (var i$1 = 0; i$1 < this$1$1._computedKeys.length; i$1++) loop$1( i$1 );
+
+        for (var i$2 = 0; i$2 < this._computedKeys.length; i$2++) {
+            var key$2 = this._computedKeys[i$2];
+            calcComputed.call(this, key$2, computed);
+        }
     }
 
     /**
@@ -1200,6 +1215,7 @@
 
     function getTransitionInfo(el, expectedType) {
         var styles = window.getComputedStyle(el);
+
         // JSDOM may return undefined for transition properties
         var transitionDelays = (styles[transitionProp + 'Delay'] || '').split(', ');
         var transitionDurations = (styles[transitionProp + 'Duration'] || '').split(', ');
@@ -1239,6 +1255,7 @@
                     : animationDurations.length
                 : 0;
         }
+
         var hasTransform = type === TRANSITION
             && transformRE.test(styles[transitionProp + 'Property']);
         return {
@@ -1309,6 +1326,7 @@
             el.removeEventListener(event, onEnd);
             cb();
         };
+
         setTimeout(function () {
             if (ended < propCount) {
                 end();
@@ -1328,22 +1346,22 @@
         var appearClass = ref.appearClass;
         var appearToClass = ref.appearToClass;
         var appearActiveClass = ref.appearActiveClass;
-        var beforeEnter = ref.beforeEnter;
-        var enter = ref.enter;
-        var afterEnter = ref.afterEnter;
-        var enterCancelled = ref.enterCancelled;
-        var beforeAppear = ref.beforeAppear;
-        var appear = ref.appear;
-        var afterAppear = ref.afterAppear;
-        var appearCancelled = ref.appearCancelled;
+        var beforeEnter = ref.onBeforeEnter;
+        var enter = ref.onEnter;
+        var afterEnter = ref.onAfterEnter;
+        var enterCancelled = ref.onEnterCancelled;
+        var beforeAppear = ref.onBeforeAppear;
+        var appear = ref.onAppear;
+        var afterAppear = ref.onAfterAppear;
+        var appearCancelled = ref.onAppearCancelled;
         var leaveClass = ref.leaveClass;
         var leaveToClass = ref.leaveToClass;
         var leaveActiveClass = ref.leaveActiveClass;
-        var beforeLeave = ref.beforeLeave;
-        var leave = ref.leave;
-        var afterLeave = ref.afterLeave;
-        var leaveCancelled = ref.leaveCancelled;
-        var delayLeave = ref.delayLeave;
+        var beforeLeave = ref.onBeforeLeave;
+        var leave = ref.onLeave;
+        var afterLeave = ref.onAfterLeave;
+        var leaveCancelled = ref.onLeaveCancelled;
+        var delayLeave = ref.onDelayLeave;
         var duration = ref.duration;
 
         var context = this;
@@ -1361,7 +1379,7 @@
             if (typeof fn === 'function') {
                 return fn;
             }
-            var invokerFn = context.owner[fn];
+            var invokerFn = context[fn];
             if (invokerFn && typeof invokerFn === 'function') {
                 return invokerFn;
             }
@@ -1369,6 +1387,7 @@
         }
 
         function enterHandler(el, done) {
+
             var isAppear = !context.lifeCycle.attached;
 
             // call leave callback now
@@ -1715,6 +1734,7 @@
         $nextTick: san.nextTick,
         $set: set,
         _da: changeDisabled,
+        $destroy: san.Component.prototype.dispose,
     };
     /* eslint-enable fecs-camelcase */
 
@@ -1734,10 +1754,13 @@
             return this.parentComponent;
         },
         $children: function $children() {
-            if (this._rootNode && this.tagName !== this._rootNode.tagName) {
-                this.children.unshift(this._rootNode);
+            var children = [];
+            if (this._rootNode
+                && this.tagName !== this._rootNode.tagName
+                && this._rootNode.lifeCycle && !this._rootNode.lifeCycle.disposed) {
+                children.unshift(this._rootNode);
             }
-            return this.children.filter(function (child) {
+            return (children.concat(this.children)).filter(function (child) {
                 return child.nodeType === 5;
             });
         },
@@ -1748,6 +1771,13 @@
                     root = root.parentComponent;
                 }
             }
+
+            if (root && root.data && root.data.data && root.data.data.$root) {
+                for (var key in root.data.data.$root) {
+                    root[key] = root.data.data.$root[key];
+                }
+            }
+
             return root;
         },
         $slots: slot,
