@@ -127,13 +127,6 @@
     }
 
     /**
-     * Quick object check - this is primarily used to tell
-     */
-    function isObj(obj) {
-        return obj && Object.prototype.toString.call(obj) === '[object Object]';
-    }
-
-    /**
      * Quick string check - this is primarily used to tell
      */
     function isString(value) {
@@ -1648,7 +1641,7 @@
     	else if (isString(listener)) {
     		watcher.handler = transitionHandler(listener, context);
     	}
-    	else if (isObj(listener)) {
+    	else if (isPlainObject$1(listener)) {
     		var handler = transitionHandler(listener.handler, context);
 
     		if (listener.immediate) {
@@ -1688,24 +1681,13 @@
         _sf: toSafeString,
         _f: callFilter,
         _h: toHtml,
-        $emit: function() {
-            var params = [], len = arguments.length;
-            while ( len-- ) params[ len ] = arguments[ len ];
-
-            var name = params[0];
-            var param = params.slice(1);
-            return san.Component.prototype.fire.call(this, name, param)
-        },
-        $on: function(name, listener, declaration) {
-            var this$1$1 = this;
-
-            return san.Component.prototype.on.call(this, name, function (params) { return listener.call.apply(listener, [ this$1$1 ].concat( params )); }, declaration)
-        },
+        $emit: san.Component.prototype.fire,
+        $on: san.Component.prototype.on,
         $off: function(name) {
             var this$1$1 = this;
 
             if (name) {
-                return san.Component.prototype.un.call(this, name)
+                return san.Component.prototype.un.call(this, name);
             }
             if (this.listeners && Object.keys(this.listeners).length) {
                 Object.keys(this.listeners).forEach(function (l) {
@@ -1720,7 +1702,7 @@
 
             var source = undefined;
 
-            if (declaration && Object.keys(declaration) && !isObj(listener)) {
+            if (declaration && Object.keys(declaration) && !isPlainObject$1(listener)) {
                 source = Object.assign({}, declaration, {
                     handler: listener
                 });
@@ -1729,7 +1711,7 @@
             var ref = watcher(name, source? source : listener, this);
             var handler = ref.handler;
             
-            return san.Component.prototype.watch.call(this, name, function (newValue, sourceValue) { return handler.call(this$1$1, newValue, sourceValue.oldValue); })
+            return san.Component.prototype.watch.call(this, name, function (newValue, sourceValue) { return handler.call(this$1$1, newValue, sourceValue.oldValue); });
         },
         $nextTick: san.nextTick,
         $set: set,
@@ -1961,7 +1943,7 @@
                     props[key] = {
                         get: function get() {
                             return memberMap[key].call(me);
-                        }
+                        },
                     };
                     return props;
                 }, {});

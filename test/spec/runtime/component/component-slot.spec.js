@@ -726,4 +726,44 @@ describe('Component slot', () => {
     //         expect(vm.$el.querySelector('input').value).toBe('b');
     //     }).then(done);
     // });
+
+    it('nested slots', done => {
+        const vm = new Vue({
+            template: `
+                <div>
+                    <test>
+                        <div slot="first">
+                            1
+                        </div>
+                        <div slot="second">
+                            2
+                        </div>
+                        <div slot="second">
+                            2+
+                        </div>
+                    </test>
+                </div>
+            `,
+            data: {
+            },
+            components: {
+                test: {
+                    template: `
+                        <div>
+                            <slot name="first"><p>first slot</p></slot>
+                            <slot><p>this is the default slot</p></slot>
+                            <slot name="second"><p>second named slot</p></slot>
+                        </div>
+                    `
+                }
+            }
+        }).$mount();
+        expect(vm.$el.innerHTML.replace(/<!--[0-9]{1,}-->/g, '')).toBe(
+            '<div><div>1</div><p>this is the default slot</p><div>2</div><div>2+</div></div>'
+        );
+        expect(vm.$children[0].$slots.first.length).toBe(1);
+        expect(vm.$children[0].$slots.second.length).toBe(2);
+        expect(vm.$children[0].$slots.default.length).toBe(1);
+        done();
+    });
 });
