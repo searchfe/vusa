@@ -108,9 +108,9 @@ const memberMap = {
             }
         }
 
-        if (root && root.data && root.data.data && root.data.data.$root) {
-            for (var key in root.data.data.$root) {
-                root[key] = root.data.data.$root[key];
+        if (root && root.data && root.data.data && root.data.data.$rootData) {
+            for (var key in root.data.data.$rootData) {
+                root[key] = root.data.data.$rootData[key];
             }
         }
 

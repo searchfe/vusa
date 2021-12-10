@@ -386,4 +386,5 @@ describe('Directive a-bind:style', () => {
             expect(vm.$el.children[0].style.color).toBe('green');
         }).then(done);
     });
+
 });
