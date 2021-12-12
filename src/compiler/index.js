@@ -65,7 +65,8 @@ export function compile(source, options = {}) {
     // if (ast.tag === 'child') {
     //     console.log('---------------------------------');
     //     console.log('ast', ast.children[0]);
-    //     console.log('aNode', aNode.children[0]);
+    //     console.log('aNode', JSON.stringify(aNode));
+    //     console.log('aPack', pack.stringify(pack(aNode)));
     //     console.log('template', template);
     //     console.log('---------------------------------');
     // }

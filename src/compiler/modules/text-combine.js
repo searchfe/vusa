@@ -9,6 +9,7 @@ import escapeQuotes from 'escape-quotes';
 function postTransformNode(el, state) {
     if (el.children && el.children.length > 0) {
         for (const child of el.children) {
+
             if (child.type !== 2 || !child.tokens || child.tokens.length <= 1) {
                 continue;
             }
@@ -16,6 +17,10 @@ function postTransformNode(el, state) {
                 let text = '\'\'';
                 if (token['@binding']) {
                     text = token['@binding'];
+                    if (text.trim().indexOf('_f') === 0) {
+                        text = text.replace(')(', ',[');
+                        text = text.replace(')', '])');
+                    }
                 }
                 if (typeof token === 'string') {
                     let str = escapeQuotes(token.replace(/\s+/, ' '));
