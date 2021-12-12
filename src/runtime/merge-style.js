@@ -40,7 +40,11 @@ export default function (style, staticStyle, vShow) {
         if (Array.isArray(val)) {
             style[key] = val[val.length - 1];
         }
+        else if (isPlainObject(val) && Object.keys(val).length === 0) {
+            delete style[key];
+        }
     });
+
     return staticStyle
         ? extend(staticStyle, style)
         : style;
