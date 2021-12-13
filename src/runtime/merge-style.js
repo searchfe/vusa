@@ -3,7 +3,7 @@
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-import {cached, extend, toObject, hyphenate,parseStyleText} from '../shared/util';
+import {cached, extend, toObject, hyphenate, parseStyleText, isPlainObject} from '../shared/util';
 
 
 function hyphenateKey(object) {
