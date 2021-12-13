@@ -1093,6 +1093,7 @@ var transition = {
 function postTransformNode$2(el, state) {
     if (el.children && el.children.length > 0) {
         for (const child of el.children) {
+
             if (child.type !== 2 || !child.tokens || child.tokens.length <= 1) {
                 continue;
             }
@@ -1100,6 +1101,10 @@ function postTransformNode$2(el, state) {
                 let text = '\'\'';
                 if (token['@binding']) {
                     text = token['@binding'];
+                    if (text.trim().indexOf('_f') === 0) {
+                        text = text.replace(')(', ',[');
+                        text = text.replace(')', '])');
+                    }
                 }
                 if (typeof token === 'string') {
                     let str = escapeQuotes__default['default'](token.replace(/\s+/, ' '));
@@ -1419,7 +1424,8 @@ function compile(source, options = {}) {
     // if (ast.tag === 'child') {
     //     console.log('---------------------------------');
     //     console.log('ast', ast.children[0]);
-    //     console.log('aNode', aNode.children[0]);
+    //     console.log('aNode', JSON.stringify(aNode));
+    //     console.log('aPack', pack.stringify(pack(aNode)));
     //     console.log('template', template);
     //     console.log('---------------------------------');
     // }

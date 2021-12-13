@@ -1665,8 +1665,10 @@
 
     var noop = function () {};
 
-    var callFilter = function (name) {
-        return this.filters[name];
+    var callFilter = function (name, args) {
+        var ref;
+
+        return (ref = this.filters)[name].apply(ref, args);
     };
 
     /* eslint-disable fecs-camelcase */

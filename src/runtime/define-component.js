@@ -24,9 +24,9 @@ const COMPONENT_REFERENCE = '__COMPONENT_REFERENCE__';
 
 const noop = () => {};
 
-const callFilter = function (name) {
-    return this.filters[name];
-};
+const callFilter = function (name, args) {
+    return this.filters[name](...args);
+}
 
 /* eslint-disable fecs-camelcase */
 const defaultSanOptions = {
