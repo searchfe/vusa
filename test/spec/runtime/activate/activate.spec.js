@@ -115,14 +115,8 @@ describe('activated and deactivated', () => {
             expect(deactivatedSpy.calls.count()).toBe(1);
             expect(childDeactivatedSpy.calls.count()).toBe(1);
             vm.$children[0].$activate(true);
-            // expect(childDeactivatedSpy.calls.count()).toBe(1);
-            // vm.$activate(true);
         }).then(() => {
             expect(activatedSpy.calls.count()).toBe(1);
-            // vm.$children[0].$activate(true);
-        }).then(() => {
-            // expect(childActivatedSpy.calls.count()).toBe(1);
-            // expect(activatedSpy.calls.count()).toBe(1);
         }).then(done);
     });
 });

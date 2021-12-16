@@ -22,7 +22,6 @@ function postTransformNode(el) {
         const attrs = getAttrs(el.attrsMap);
 
         if (el.children && el.children[0]) {
-            // console.log('el.children~~~~~~~');
             el.children[0].attrsMap['s-transition'] = `_t({${attrs.join(',')}})`;
 
             if (el.children[0].ifConditions) {
@@ -33,7 +32,6 @@ function postTransformNode(el) {
                 }
             }
         }
-        // console.log('el~~~~~~~~', el);
     }
 
     if (el.tag === 'transition-group') {
@@ -53,7 +51,6 @@ function postTransformNode(el) {
                 attrs.push(`iterator:${node.iterator1}`);
             }
             node.attrsMap['s-transition'] = `_t({${attrs.join(',')}})`;
-            console.log("node.attrsMap['s-transition']", node.attrsMap['s-transition']);
         }
     }
 }
