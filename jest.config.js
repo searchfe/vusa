@@ -6,7 +6,8 @@ module.exports = {
         '!<rootDir>/src/runtime/bind-data.js',
         '!<rootDir>/src/runtime/bind-data-proxy.js',
         '!<rootDir>/src/runtime/calc-computed-observe.js',
-        '!<rootDir>/src/global-api/extend.js'
+        '!<rootDir>/src/global-api/extend.js',
+        '!<rootDir>/src/runtime/mixin.js',
     ],
     testTimeout: 30000,
     projects: [

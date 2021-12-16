@@ -9,7 +9,7 @@ export const lifeCycleMap = {
     created: 'inited',
     beforeMount: 'created',
     beforeDestroy: 'detached',
-    destroy: 'disposed',
+    destroyed: 'disposed',
     updated: 'updated',
     beforeUpdate: 'beforeUpdate',
     activated: 'activated',

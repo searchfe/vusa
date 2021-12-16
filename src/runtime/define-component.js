@@ -70,7 +70,10 @@ const defaultSanOptions = {
     $nextTick: nextTick,
     $set: set,
     _da: changeDisabled,
-    $destroy: Component.prototype.dispose,
+    $destroy: function () {
+        Component.prototype.dispose.call(this);
+        Component.prototype._leave.call(this);
+    },
 };
 /* eslint-enable fecs-camelcase */
 
@@ -99,6 +102,12 @@ const memberMap = {
         return (children.concat(this.children)).filter(child => {
             return child.nodeType === 5;
         });
+    },
+    _isMounted() {
+        return !!this.lifeCycle.attached;
+    },
+    _isBeingDestroyed() {
+        return this.lifeCycle.detached !== true;
     },
     $root() {
         let root = this;
@@ -349,7 +358,7 @@ export default function define(options) {
             : (options.data || {});
 
         if (!optimizeSSR) {
-            this._dataKeys = Object.keys(data) || [];
+            this._dataKeys = data && Object.keys(data) || [];
         }
 
         const initialData = extend({$style: {}}, defaultProps, data);

@@ -3,7 +3,7 @@ import Vue from '../../../helpers/vue';
 describe('Filters', () => {
     it('basic usage', () => {
         const vm = new Vue({
-            template: '<div>{{ msg | upper }}</div>',
+            template: '<div> {{ msg | upper }} </div>',
             data: {
                 msg: 'hi',
             },
@@ -11,7 +11,7 @@ describe('Filters', () => {
                 upper: v => v.toUpperCase(),
             },
         }).$mount();
-        expect(vm.$el.textContent).toBe('HI');
+        expect(vm.$el.textContent).toBe(' HI ');
     });
 
     it('chained usage', () => {

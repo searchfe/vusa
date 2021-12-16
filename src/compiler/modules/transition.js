@@ -37,7 +37,7 @@ function postTransformNode(el) {
     }
 
     if (el.tag === 'transition-group') {
-        el.tag = el.attrsMap.tag;
+        el.tag = el.attrsMap.tag || 'span';
         delete el.attrsMap.tag;
 
         if (!el.children || el.children.length <= 0) {
@@ -45,11 +45,15 @@ function postTransformNode(el) {
         }
 
         for (const node of el.children) {
+            if (node.type !== 1) {
+                continue;
+            }
             const attrs = getAttrs(el.attrsMap);
             if (node.for) {
                 attrs.push(`iterator:${node.iterator1}`);
             }
             node.attrsMap['s-transition'] = `_t({${attrs.join(',')}})`;
+            console.log("node.attrsMap['s-transition']", node.attrsMap['s-transition']);
         }
     }
 }
