@@ -2,7 +2,6 @@ import {defineComponent} from '../../src/runtime/index';
 import {compile} from '../../src/compiler';
 import {omit} from 'lodash';
 
-
 function getTpl(options) {
     return compile(options.template, {
         strip: options.strip == null ? true : options.strip,
