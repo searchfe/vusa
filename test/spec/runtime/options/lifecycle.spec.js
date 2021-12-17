@@ -335,7 +335,6 @@ describe('Options computed', () => {
                 // render () {},
                 template: '<div></div>',
                 destroyed() {
-                    console.log('~~~~~~~~~~destroyed');
                     spy();
                     expect(this._isBeingDestroyed).toBe(true);
                     expect(this._isDestroyed).toBe(true);
