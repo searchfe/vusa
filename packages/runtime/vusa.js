@@ -371,7 +371,7 @@
         created: 'inited',
         beforeMount: 'created',
         beforeDestroy: 'detached',
-        destroy: 'disposed',
+        destroyed: 'disposed',
         updated: 'updated',
         beforeUpdate: 'beforeUpdate',
         activated: 'activated',
@@ -485,7 +485,11 @@
             if (Array.isArray(val)) {
                 style[key] = val[val.length - 1];
             }
+            else if (isPlainObject$1(val) && Object.keys(val).length === 0) {
+                delete style[key];
+            }
         });
+
         return staticStyle
             ? extend(staticStyle, style)
             : style;
@@ -1044,14 +1048,68 @@
      * @author cxtom(cxtom2008@gmail.com)
      */
 
+    function isInInactiveTree(vm) {
+        while (vm && (vm = vm.$parent)) {
+            if (vm._inactive) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function deactivateChildComponent(vm, direct) {
+        if (direct) {
+            vm._directInactive = true;
+            if (isInInactiveTree(vm)) {
+                return;
+            }
+        }
+        if (!vm._inactive) {
+            vm._inactive = true;
+            if (vm.children
+                && vm.children.length) {
+                for (var i = 0; i < vm.children.length; i++) {
+                    if (vm.children[i].nodeType === san.NodeType.CMPT) {
+                        deactivateChildComponent(vm.children[i]);
+                    }
+                }
+            }
+            vm._toPhase('deactivated');
+        }
+    }
+
+    function activateChildComponent(vm, direct) {
+        if (direct) {
+            vm._directInactive = false;
+            if (isInInactiveTree(vm)) {
+                return;
+            }
+        }
+        else if (vm._directInactive) {
+            return;
+        }
+
+        if (vm._inactive || vm._inactive === undefined) {
+            vm._inactive = false;
+            if (vm.children
+                && vm.children.length) {
+                for (var i = 0; i < vm.children.length; i++) {
+                    if (vm.children[i].nodeType === san.NodeType.CMPT) {
+                        activateChildComponent(vm.children[i]);
+                    }
+                }
+            }
+            vm._toPhase('activated');
+        }
+    }
+
     function createCallFactory(name) {
         return function call(direct) {
-            var ele = this;
-            if (ele.nodeType === san.NodeType.CMPT) {
-                ele._toPhase(name);
+            if (name === 'deactivited') {
+                deactivateChildComponent(this, direct);
             }
-            if (ele.children && ele.children.length > 1) {
-                ele.children.forEach(call);
+            else {
+                activateChildComponent(this, direct);
             }
         };
     }
@@ -1718,7 +1776,10 @@
         $nextTick: san.nextTick,
         $set: set,
         _da: changeDisabled,
-        $destroy: san.Component.prototype.dispose,
+        $destroy: function () {
+            san.Component.prototype.dispose.call(this);
+            san.Component.prototype._leave.call(this);
+        },
     };
     /* eslint-enable fecs-camelcase */
 
@@ -1747,6 +1808,12 @@
             return (children.concat(this.children)).filter(function (child) {
                 return child.nodeType === 5;
             });
+        },
+        _isMounted: function _isMounted() {
+            return !!this.lifeCycle.attached;
+        },
+        _isBeingDestroyed: function _isBeingDestroyed() {
+            return this.lifeCycle.detached !== true;
         },
         $root: function $root() {
             var root = this;
@@ -2007,7 +2074,7 @@
                 : (options.data || {});
 
             if (!optimizeSSR) {
-                this._dataKeys = Object.keys(data) || [];
+                this._dataKeys = data && Object.keys(data) || [];
             }
 
             var initialData = extend({$style: {}}, defaultProps, data);
