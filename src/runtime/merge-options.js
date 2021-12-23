@@ -44,7 +44,10 @@ export default function mergeOptions(options) {
         }
         for (let j = 0; j < lifeCycleKeys.length; j++) {
             const k = lifeCycleKeys[j];
-            const dk = lifeCycleMap[k];
+            let dk = lifeCycleMap[k];
+            if (isPureSan(options) && k === 'created') {
+                dk = k;
+            }
             if (opt[k]) {
                 destOptions[dk] = mergeHook(destOptions[dk] || [], opt[k]);
             }
@@ -52,8 +55,11 @@ export default function mergeOptions(options) {
     }
     for (let j = 0; j < lifeCycleKeys.length; j++) {
         const k = lifeCycleKeys[j];
-        const dk = lifeCycleMap[k];
-        if (destOptions[dk]) {
+        let dk = lifeCycleMap[k];
+        if (isPureSan(options) && k === 'created') {
+            dk = k;
+        }
+        if (Array.isArray(destOptions[dk])) {
             const hooks = destOptions[dk].slice();
             destOptions[dk] = hooks.length === 1 ? hooks[0] : function () {
                 hooks.forEach(hook => hook.call(this), this);
@@ -66,4 +72,9 @@ export default function mergeOptions(options) {
         destOptions.messages = options.messages;
     }
     return destOptions;
+}
+
+// 在纯 san 和 atom2san 混合的情况下，区分纯 san 组件
+export function isPureSan(options) {
+    return !options.isAtom2san;
 }

@@ -377,6 +377,16 @@
         activated: 'activated',
         deactivated: 'deactivated',
         errorCaptured: 'error',
+
+        // 纯 san 和 atom2san 混合情况时，支持纯 san 生命周期映射
+        compiled: 'compiled',
+        inited: 'inited',
+        // 与上面冲突，代码中处理
+        // created: 'created',
+        attached: 'attached',
+        detached: 'detached',
+        disposed: 'disposed',
+        error: 'error',
     };
 
     var lifeCycleKeys = Object.keys(lifeCycleMap);
@@ -602,6 +612,9 @@
             for (var j$1 = 0; j$1 < lifeCycleKeys.length; j$1++) {
                 var k$1 = lifeCycleKeys[j$1];
                 var dk = lifeCycleMap[k$1];
+                if (isPureSan(options) && k$1 === 'created') {
+                    dk = k$1;
+                }
                 if (opt[k$1]) {
                     destOptions[dk] = mergeHook(destOptions[dk] || [], opt[k$1]);
                 }
@@ -610,7 +623,10 @@
         for (var j$2 = 0; j$2 < lifeCycleKeys.length; j$2++) {
             var k$2 = lifeCycleKeys[j$2];
             var dk$1 = lifeCycleMap[k$2];
-            if (destOptions[dk$1]) {
+            if (isPureSan(options) && k$2 === 'created') {
+                dk$1 = k$2;
+            }
+            if (Array.isArray(destOptions[dk$1])) {
                 var hooks = destOptions[dk$1].slice();
                 destOptions[dk$1] = hooks.length === 1 ? hooks[0] : function () {
                     var this$1$1 = this;
@@ -625,6 +641,11 @@
             destOptions.messages = options.messages;
         }
         return destOptions;
+    }
+
+    // 在纯 san 和 atom2san 混合的情况下，区分纯 san 组件
+    function isPureSan(options) {
+        return !options.isAtom2san;
     }
 
     /**
@@ -1770,7 +1791,7 @@
 
             var ref = watcher(name, source? source : listener, this);
             var handler = ref.handler;
-            
+
             return san.Component.prototype.watch.call(this, name, function (newValue, sourceValue) { return handler.call(this$1$1, newValue, sourceValue.oldValue); });
         },
         $nextTick: san.nextTick,
@@ -1856,15 +1877,31 @@
         if (component && component[COMPONENT_REFERENCE]) {
             return component;
         }
-        if (component instanceof san.Component || component instanceof VusaComponent) {
-            var proto = component.prototype;
 
+        var proto = component.prototype;
+
+        if (component instanceof san.Component || component instanceof VusaComponent) {
             if (!proto.hasOwnProperty('_cmptReady')) {
                 var components = component.components || proto.components || {};
                 proto.components = normalizeComponents(components);
                 proto._cmptReady = 1;
             }
             return component;
+        }
+        // 纯 san 组件 xxxComponent extends san.Component
+        if (isPureSan(component) && (proto.template || proto.aNode || proto.aPack)) {
+            var components$1 = component.components || proto.components || {};
+            proto.components = normalizeComponents(components$1);
+            proto._cmptReady = 1;
+            extend(proto, mergeOptions(proto));
+            return component;
+        }
+        if (component.template || component.aNode || component.aPack) {
+            if (component.components) {
+                component.components = normalizeComponents(component.components);
+                component._cmptReady = 1;
+            }
+            return san.defineComponent(component);
         }
         if (typeof component === 'function') {
             return san.createComponentLoader(function () {
@@ -1874,13 +1911,6 @@
                     });
                 });
             });
-        }
-        if (component.template || component.aNode || component.aPack) {
-            if (component.components) {
-                component.components = normalizeComponents(component.components);
-                component._cmptReady = 1;
-            }
-            return san.defineComponent(component);
         }
         return define(component);
     }
@@ -1910,6 +1940,14 @@
         if (options.components) {
             prePareOptions.components = normalizeComponents(options.components);
             prePareOptions._cmptReady = 1;
+        }
+
+        // 支持组件树中既有 atom2san 组件，又有纯 san 组件的情况
+        // 这里处理纯 san 组件的情况
+        if (isPureSan(options)) {
+            var sanOptions$1 = extend({}, options, prePareOptions, mergeOptions(options));
+            var cmpt$1 = san.defineComponent(sanOptions$1);
+            return options[innerKey] = cmpt$1;
         }
 
         if (
