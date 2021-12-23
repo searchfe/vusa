@@ -71,7 +71,6 @@ typings/
 # other stuff
 .DS_Store
 Thumbs.db
-.favorites.json
 
 # IDE configurations
 .idea

@@ -23,7 +23,6 @@ describe('Instance methods data', () => {
     beforeEach(() => {
       spy = jasmine.createSpy('watch')
       vm = new Vue({
-        template: '<div></div>',
         data: {
           a: {
             b: 1
@@ -35,7 +34,7 @@ describe('Instance methods data', () => {
         methods: {
           foo: spy
         }
-      }).$mount();
+      })
     })
 
     it('basic usage', done => {
@@ -57,26 +56,24 @@ describe('Instance methods data', () => {
       expect(spy).toHaveBeenCalledWith(1)
     })
 
-    // san不支持watch返回取消监听器，且aladdin-atom无此类写法
-    // it('unwatch', done => {
-    //   const unwatch = vm.$watch('a.b', spy)
-    //   unwatch()
-    //   vm.a.b = 2
-    //   waitForUpdate(() => {
-    //     expect(spy.calls.count()).toBe(0)
-    //   }).then(done)
-    // })
+    it('unwatch', done => {
+      const unwatch = vm.$watch('a.b', spy)
+      unwatch()
+      vm.a.b = 2
+      waitForUpdate(() => {
+        expect(spy.calls.count()).toBe(0)
+      }).then(done)
+    })
 
-    // san不支持watch监听对象为函数，且aladdin-atom无此类写法
-    // it('function watch', done => {
-    //   vm.$watch(function () {
-    //     return this.a.b
-    //   }, spy)
-    //   vm.a.b = 2
-    //   waitForUpdate(() => {
-    //     expect(spy).toHaveBeenCalledWith(2, 1)
-    //   }).then(done)
-    // })
+    it('function watch', done => {
+      vm.$watch(function () {
+        return this.a.b
+      }, spy)
+      vm.a.b = 2
+      waitForUpdate(() => {
+        expect(spy).toHaveBeenCalledWith(2, 1)
+      }).then(done)
+    })
 
     it('deep watch', done => {
       const oldA = vm.a
@@ -114,20 +111,18 @@ describe('Instance methods data', () => {
       expect(spy).toHaveBeenCalledWith(1)
     })
 
-    // 暂不支持非英文字符，且aladdin-atom无此类写法
-    // it('handler option in string', () => {
-    //   vm.$watch('유니코드.なまえ', {
-    //     handler: 'foo',
-    //     immediate: true
-    //   })
-    //   expect(spy.calls.count()).toBe(1)
-    //   expect(spy).toHaveBeenCalledWith('ok')
-    // })
+    it('handler option in string', () => {
+      vm.$watch('유니코드.なまえ', {
+        handler: 'foo',
+        immediate: true
+      })
+      expect(spy.calls.count()).toBe(1)
+      expect(spy).toHaveBeenCalledWith('ok')
+    })
 
-    // 暂不支持错误warning抛错
-    //   it('warn expression', () => {
-    //     vm.$watch('a + b', spy)
-    //     expect('Watcher only accepts simple dot-delimited paths').toHaveBeenWarned()
-    //   })
+    it('warn expression', () => {
+      vm.$watch('a + b', spy)
+      expect('Watcher only accepts simple dot-delimited paths').toHaveBeenWarned()
+    })
   })
 })
