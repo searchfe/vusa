@@ -244,11 +244,6 @@ export default function define(options) {
             }
         }
 
-        // merge css modules
-        if (this.$style) {
-            this.data.set(styleAccesser, freeze(this.$style));
-        }
-
         if (!optimizeSSR) {
             bindData.call(this, options.computed);
         }
@@ -262,6 +257,11 @@ export default function define(options) {
         }
 
         initedHook && initedHook.call(this);
+
+        // merge css modules
+        if (this.$style) {
+            this.data.set('$style', freeze(this.$style));
+        }
 
         if (options.watch && !optimizeSSR) {
             Object.keys(options.watch).forEach(key => {

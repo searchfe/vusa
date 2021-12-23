@@ -1848,7 +1848,7 @@
 
     var innerKey = '_SanCtor';
 
-    var styleAccesser = createAccesser('$style');
+    createAccesser('$style');
 
     function normalizeComponent(component) {
 
@@ -1954,11 +1954,6 @@
                 }
             }
 
-            // merge css modules
-            if (this.$style) {
-                this.data.set(styleAccesser, freeze(this.$style));
-            }
-
             if (!optimizeSSR) {
                 bindData.call(this, options.computed);
             }
@@ -1972,6 +1967,11 @@
             }
 
             initedHook && initedHook.call(this);
+
+            // merge css modules
+            if (this.$style) {
+                this.data.set('$style', freeze(this.$style));
+            }
 
             if (options.watch && !optimizeSSR) {
                 Object.keys(options.watch).forEach(function (key) {
