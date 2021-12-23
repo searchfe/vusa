@@ -30,6 +30,7 @@ function getComponentOptions(options) {
         __sanRefs: tpl.refs,
         components: dealComponents,
         _cmptReady: 1,
+        isAtom2san: true,
     };
 }
 

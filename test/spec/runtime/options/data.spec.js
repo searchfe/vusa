@@ -24,7 +24,8 @@ describe('Options data', () => {
     const Test = Vusa.defineComponent({
       data () {
         return { a: 1 }
-      }
+      },
+      isAtom2san: true
     })
     let vm = new Test({
       data: { b: 2 }
@@ -132,7 +133,7 @@ describe('Options data', () => {
   //     expect(calls).toBe(1)
   //   }).then(done)
   // })
- 
+
 // 不支持data中调用methods中函数直接返回值
 //   it('should have access to methods', () => {
 //     const vm = new Vue({

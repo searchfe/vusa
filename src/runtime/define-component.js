@@ -10,7 +10,7 @@ import {extend, hyphenate, def, freeze, createAccesser, isPlainObject} from '../
 import loopExpression from './loop-expression';
 import objectComputedProperties from './object-computed-propertirs';
 import ref from './ref';
-import mergeOptions, {globalOptions} from './merge-options';
+import mergeOptions, {globalOptions, isPureSan} from './merge-options';
 import bindData, {set, del} from './bind-data-defineproperty';
 import slot from './get-slots';
 import {callActivited, callDeActivited} from './call-activated-hook';
@@ -64,7 +64,7 @@ const defaultSanOptions = {
         }
 
         const {handler} = watcher(name, source? source : listener, this);
-        
+
         return Component.prototype.watch.call(this, name, (newValue, sourceValue) => handler.call(this, newValue, sourceValue.oldValue));
     },
     $nextTick: nextTick,
@@ -150,15 +150,31 @@ function normalizeComponent(component) {
     if (component && component[COMPONENT_REFERENCE]) {
         return component;
     }
-    if (component instanceof Component || component instanceof VusaComponent) {
-        const proto = component.prototype;
 
+    const proto = component.prototype;
+
+    if (component instanceof Component || component instanceof VusaComponent) {
         if (!proto.hasOwnProperty('_cmptReady')) {
             const components = component.components || proto.components || {};
             proto.components = normalizeComponents(components);
             proto._cmptReady = 1;
         }
         return component;
+    }
+    // 纯 san 组件 xxxComponent extends san.Component
+    if (isPureSan(component) && (proto.template || proto.aNode || proto.aPack)) {
+        const components = component.components || proto.components || {};
+        proto.components = normalizeComponents(components);
+        proto._cmptReady = 1;
+        extend(proto, mergeOptions(proto));
+        return component;
+    }
+    if (component.template || component.aNode || component.aPack) {
+        if (component.components) {
+            component.components = normalizeComponents(component.components);
+            component._cmptReady = 1;
+        }
+        return defineComponent(component);
     }
     if (typeof component === 'function') {
         return createComponentLoader(() => {
@@ -168,13 +184,6 @@ function normalizeComponent(component) {
                 });
             });
         });
-    }
-    if (component.template || component.aNode || component.aPack) {
-        if (component.components) {
-            component.components = normalizeComponents(component.components);
-            component._cmptReady = 1;
-        }
-        return defineComponent(component);
     }
     return define(component);
 }
@@ -204,6 +213,14 @@ export default function define(options) {
     if (options.components) {
         prePareOptions.components = normalizeComponents(options.components);
         prePareOptions._cmptReady = 1;
+    }
+
+    // 支持组件树中既有 atom2san 组件，又有纯 san 组件的情况
+    // 这里处理纯 san 组件的情况
+    if (isPureSan(options)) {
+        const sanOptions = extend({}, options, prePareOptions, mergeOptions(options));
+        const cmpt = defineComponent(sanOptions);
+        return options[innerKey] = cmpt;
     }
 
     if (
