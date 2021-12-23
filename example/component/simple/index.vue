@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper" :class="[{node: 1, [name]: 1}, 'a']">
+  <div class="wrapper">
     Hello, {{ name }}! {{ message }}
     <span v-for="(item, index) in loop" :key="index">{{ item }}</span>
     <span v-for="n in 5">{{ n }}</span>
@@ -24,6 +24,8 @@
     <e-trans-group></e-trans-group>
     <el-trans-object></el-trans-object>
     <a-sync :name="'async'"></a-sync>
+    <methods/>
+    <methods-on @change-data="changeDataA"/>
     <computed></computed>
   </div>
 </template>
@@ -38,6 +40,8 @@ import Reactive from './reactive';
 import Slot from './slot';
 import Transition from './transition';
 import TransitionGroup from './transition-group';
+import Methods from './methods'
+import MethodsOn from './methods-on'
 import TransitionObject from './transition-object';
 import Computed from './computed';
 
@@ -75,10 +79,15 @@ export default {
         'a-sync': function (resolve) {
             import('./async.vue').then(c => resolve(c.default));
         },
+        Methods,
+        MethodsOn,
         computed: Computed,
         'el-trans-object': TransitionObject
     },
     methods: {
+        changeDataA(value1, value2) {
+            console.log('收到emit', value1, value2)
+        },
         onClick(e) {
             this.name = '';
         },
