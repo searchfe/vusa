@@ -1,6 +1,6 @@
 /*!
  * vusa v1.0.0
- * (c) 2019-2021 * Released under the MIT License.
+ * (c) 2019-2022 * Released under the MIT License.
  */
 /* eslint-disable */
 (function (global, factory) {
@@ -1770,7 +1770,7 @@
 
             var ref = watcher(name, source? source : listener, this);
             var handler = ref.handler;
-            
+
             return san.Component.prototype.watch.call(this, name, function (newValue, sourceValue) { return handler.call(this$1$1, newValue, sourceValue.oldValue); });
         },
         $nextTick: san.nextTick,
@@ -1866,6 +1866,14 @@
             }
             return component;
         }
+        // 兼容纯 san 组件，需要提前到这里判断，否则会走到 createComponentLoader 逻辑
+        if (component.template || component.aNode || component.aPack) {
+            if (component.components) {
+                component.components = normalizeComponents(component.components);
+                component._cmptReady = 1;
+            }
+            return san.defineComponent(component);
+        }
         if (typeof component === 'function') {
             return san.createComponentLoader(function () {
                 return new Promise(function (resolve) {
@@ -1874,13 +1882,6 @@
                     });
                 });
             });
-        }
-        if (component.template || component.aNode || component.aPack) {
-            if (component.components) {
-                component.components = normalizeComponents(component.components);
-                component._cmptReady = 1;
-            }
-            return san.defineComponent(component);
         }
         return define(component);
     }

@@ -64,7 +64,7 @@ const defaultSanOptions = {
         }
 
         const {handler} = watcher(name, source? source : listener, this);
-        
+
         return Component.prototype.watch.call(this, name, (newValue, sourceValue) => handler.call(this, newValue, sourceValue.oldValue));
     },
     $nextTick: nextTick,
@@ -160,6 +160,14 @@ function normalizeComponent(component) {
         }
         return component;
     }
+    // 兼容纯 san 组件，需要提前到这里判断，否则会走到 createComponentLoader 逻辑
+    if (component.template || component.aNode || component.aPack) {
+        if (component.components) {
+            component.components = normalizeComponents(component.components);
+            component._cmptReady = 1;
+        }
+        return defineComponent(component);
+    }
     if (typeof component === 'function') {
         return createComponentLoader(() => {
             return new Promise(resolve => {
@@ -168,13 +176,6 @@ function normalizeComponent(component) {
                 });
             });
         });
-    }
-    if (component.template || component.aNode || component.aPack) {
-        if (component.components) {
-            component.components = normalizeComponents(component.components);
-            component._cmptReady = 1;
-        }
-        return defineComponent(component);
     }
     return define(component);
 }
