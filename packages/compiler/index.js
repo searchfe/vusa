@@ -1,6 +1,6 @@
 /*!
  * vusa v1.0.0
- * (c) 2019-2021 * Released under the MIT License.
+ * (c) 2019-2022 * Released under the MIT License.
  */
 /* eslint-disable */
 'use strict';
