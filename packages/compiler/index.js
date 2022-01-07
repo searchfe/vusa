@@ -422,7 +422,7 @@ function transform (code) {
 
 const bindKeys$1 = [':class', 'v-bind:class'];
 
-function postTransformNode$d(node) {
+function postTransformNode$e(node) {
     if (node.type === 1 && node.classBinding) {
         const staticClass = node.attrsMap.class || '';
         const classBinding = transform(node.attrsMap[bindKeys$1[0]] || node.attrsMap[bindKeys$1[1]]).code;
@@ -433,7 +433,7 @@ function postTransformNode$d(node) {
 }
 
 var clazz = {
-    postTransformNode: postTransformNode$d,
+    postTransformNode: postTransformNode$e,
 };
 
 /**
@@ -443,7 +443,7 @@ var clazz = {
 
 const bindKeys = [':style', 'v-bind:style', 'v-show'];
 
-function postTransformNode$c(node) {
+function postTransformNode$d(node) {
     let vShow = node.attrsMap['v-show'];
 
     if (node.type === 1 && (node.styleBinding || vShow)) {
@@ -464,7 +464,7 @@ function postTransformNode$c(node) {
 }
 
 var style = {
-    postTransformNode: postTransformNode$c,
+    postTransformNode: postTransformNode$d,
 };
 
 /**
@@ -474,7 +474,7 @@ var style = {
 
 const reBind = /^(v-bind)?\:/;
 
-function postTransformNode$b(node) {
+function postTransformNode$c(node) {
 
     if (node.type !== 1) {
         return;
@@ -519,7 +519,7 @@ function postTransformNode$b(node) {
 }
 
 var bind = {
-    postTransformNode: postTransformNode$b,
+    postTransformNode: postTransformNode$c,
 };
 
 /**
@@ -527,7 +527,7 @@ var bind = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$a(node) {
+function postTransformNode$b(node) {
     if (node.type !== 1) {
         return;
     }
@@ -549,7 +549,7 @@ function postTransformNode$a(node) {
 }
 
 var yf = {
-    postTransformNode: postTransformNode$a,
+    postTransformNode: postTransformNode$b,
 };
 
 /**
@@ -557,7 +557,7 @@ var yf = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$9(node) {
+function postTransformNode$a(node) {
 
     if (node.type !== 1 || !node.for) {
         return;
@@ -591,7 +591,7 @@ function postTransformNode$9(node) {
 }
 
 var fr = {
-    postTransformNode: postTransformNode$9,
+    postTransformNode: postTransformNode$a,
 };
 
 function stripWith(code) {
@@ -639,7 +639,7 @@ function getName() {
     return nanoid$1();
 }
 
-function postTransformNode$8(node, options) {
+function postTransformNode$9(node, options) {
     const eventAttrs = node.attrsList.filter(n => reEvent.test(n.name));
     for (const attr of eventAttrs) {
         delete node.attrsMap[attr.name];
@@ -676,7 +676,7 @@ function postTransformNode$8(node, options) {
 }
 
 var event = {
-    postTransformNode: postTransformNode$8,
+    postTransformNode: postTransformNode$9,
 };
 
 /**
@@ -684,7 +684,7 @@ var event = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$7(node) {
+function postTransformNode$8(node) {
 
     if (node.attrsMap && node.attrsMap['v-dangerous-html']) {
         const dir = node.directives.find(d => d.name === 'dangerous-html');
@@ -723,7 +723,7 @@ function postTransformNode$7(node) {
 }
 
 var html = {
-    postTransformNode: postTransformNode$7,
+    postTransformNode: postTransformNode$8,
 };
 
 /**
@@ -731,7 +731,7 @@ var html = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$6(node, options) {
+function postTransformNode$7(node, options) {
     if (node.type !== 1 || !node.attrsMap.ref && !node.attrsMap[':ref']) {
         return;
     }
@@ -757,7 +757,7 @@ function postTransformNode$6(node, options) {
 }
 
 var ref = {
-    postTransformNode: postTransformNode$6
+    postTransformNode: postTransformNode$7
 };
 
 /**
@@ -765,7 +765,7 @@ var ref = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$5(node, options) {
+function postTransformNode$6(node, options) {
 
     if (!(node.type === 1 && node.tag === 'component')) {
         return;
@@ -784,7 +784,7 @@ function postTransformNode$5(node, options) {
 }
 
 var dynamicComponent = {
-    postTransformNode: postTransformNode$5,
+    postTransformNode: postTransformNode$6,
 };
 
 /**
@@ -988,7 +988,7 @@ const htmlTag = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
-function postTransformNode$4(node) {
+function postTransformNode$5(node) {
     if (!node.type === 1 || !node.attrsMap) {
         return;
     }
@@ -1008,7 +1008,7 @@ function postTransformNode$4(node) {
 }
 
 var bool = {
-    postTransformNode: postTransformNode$4
+    postTransformNode: postTransformNode$5
 };
 
 /**
@@ -1040,7 +1040,7 @@ function getAttrs(attrsMap) {
     });
 }
 
-function postTransformNode$3(el) {
+function postTransformNode$4(el) {
 
     if (el.tag === 'transition') {
         el.tag = 'fragment';
@@ -1082,7 +1082,7 @@ function postTransformNode$3(el) {
 }
 
 var transition = {
-    postTransformNode: postTransformNode$3,
+    postTransformNode: postTransformNode$4,
 };
 
 /**
@@ -1091,7 +1091,7 @@ var transition = {
  */
 // import {trimStart, trimEnd} from 'lodash';
 
-function postTransformNode$2(el, state) {
+function postTransformNode$3(el, state) {
     if (el.children && el.children.length > 0) {
         for (const child of el.children) {
 
@@ -1128,7 +1128,7 @@ function postTransformNode$2(el, state) {
 }
 
 var textCombine = {
-    postTransformNode: postTransformNode$2,
+    postTransformNode: postTransformNode$3,
 };
 
 /**
@@ -1137,7 +1137,7 @@ var textCombine = {
  */
 
 
-function postTransformNode$1(node) {
+function postTransformNode$2(node) {
 
     if (node.type !== 1) {
         return;
@@ -1186,7 +1186,7 @@ function postTransformNode$1(node) {
 }
 
 var forIf = {
-    postTransformNode: postTransformNode$1,
+    postTransformNode: postTransformNode$2,
 };
 
 /**
@@ -1194,7 +1194,7 @@ var forIf = {
  * @author donghualei
  */
 
-function postTransformNode(node) {
+function postTransformNode$1(node) {
 
     if (node.type !== 1
         || !node.attrsMap.hasOwnProperty('v-model')
@@ -1223,6 +1223,35 @@ function postTransformNode(node) {
 }
 
 var model = {
+    postTransformNode: postTransformNode$1,
+};
+
+/**
+ * @file methods
+ * @author donghualei
+ */
+
+/**
+ * 提取模板的methods
+ * @param {Object} node 节点
+ * @param {Object} options 其他参数
+ */
+function postTransformNode(node, options) {
+    const attrsMap = node.attrsMap;
+
+    if (attrsMap) {
+        for (let key in attrsMap) {
+            if (Object.prototype.hasOwnProperty.call(attrsMap, key)) {
+                const t = transform(attrsMap[key]);
+                if (t.ast && t.ast.type === 'CallExpression') {
+                    options.methodsList.push(t.ast.callee.name);
+                }
+            }
+        }
+    }
+}
+
+var methods = {
     postTransformNode,
 };
 
@@ -1233,6 +1262,7 @@ var model = {
 
 var buildInModules = [
     template,
+    methods,
     bool,
     yf,
     fr,
@@ -1392,6 +1422,7 @@ function compile(source, options = {}) {
 
     const errors = [];
     const injectScript = {};
+    const methodsList = [];
     const compilerOptions = {
         modules: [
             ...buildInModules,
@@ -1401,6 +1432,7 @@ function compile(source, options = {}) {
         useDynamicComponent: false,
         refs: [],
         injectScript,
+        methodsList,
         error(msg) {
             // eslint-disable-next-line no-console
             console.error(`[vusa error] ${msg}`);
@@ -1439,6 +1471,7 @@ function compile(source, options = {}) {
         refs: compilerOptions.refs,
         errors,
         injectScript,
+        methodsList,
     };
 }
 
