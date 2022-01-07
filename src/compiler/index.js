@@ -32,6 +32,7 @@ export function compile(source, options = {}) {
 
     const errors = [];
     const injectScript = {};
+    const methodsList = [];
     const compilerOptions = {
         modules: [
             ...buildInModules,
@@ -41,6 +42,7 @@ export function compile(source, options = {}) {
         useDynamicComponent: false,
         refs: [],
         injectScript,
+        methodsList,
         error(msg) {
             // eslint-disable-next-line no-console
             console.error(`[vusa error] ${msg}`);
@@ -79,5 +81,6 @@ export function compile(source, options = {}) {
         refs: compilerOptions.refs,
         errors,
         injectScript,
+        methodsList,
     };
 }

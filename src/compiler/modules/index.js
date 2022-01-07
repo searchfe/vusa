@@ -18,9 +18,11 @@ import transition from './transition';
 import textCombine from './text-combine';
 import forIf from './for-if';
 import model from './model';
+import methods from './methods';
 
 export default [
     template,
+    methods,
     bool,
     yf,
     fr,
