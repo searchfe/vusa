@@ -189,7 +189,8 @@ const CodeGeneragor = {
             return this.ret(stringify, getType(value), value);
         }
 
-        return this.ret(`${node.operator}${result.code}`);
+        const code = wrapBacket(result.code, node.argument);
+        return this.ret(`${node.operator}${code}`);
     },
 
     ObjectExpression(node, results) {
