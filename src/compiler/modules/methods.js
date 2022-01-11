@@ -5,8 +5,9 @@
 
 import transform from '../expression-transformer';
 
-// v-bind:xxx :xxx v-on:xxx @xxx v-if/for/else
-const notStaticAttribute = /^(v-[\w-]+:?|@|:|#)[\w-]+/;
+// v-bind:xxx :xxx v-on:xxx @xxx v-if/else/else-if
+// notice: not include v-for
+const notStaticAttributeRE = /^(?:v\-(?:(?:else\-)?if|bind|model|else|show|slot|text|html|on)|[:@])/;
 
 /**
  * 提取模板的methods
@@ -20,9 +21,15 @@ function postTransformNode(node, options) {
         for (let key in attrsMap) {
             if (
                 Object.prototype.hasOwnProperty.call(attrsMap, key)
-                && notStaticAttribute.test(key)
+                && notStaticAttributeRE.test(key)
             ) {
-                const t = transform(attrsMap[key]);
+                let t;
+                try {
+                    t = transform(attrsMap[key]);
+                }
+                catch (e) {
+                    continue;
+                }
                 if (t.ast && t.ast.type === 'CallExpression') {
                     options.methodsList.push(t.ast.callee.name);
                 }
