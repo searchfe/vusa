@@ -31,6 +31,7 @@ describe('compiler', function () {
         expect(transform('6 + 1').code).toBe('7');
         expect(transform('1 && 0').code).toBe('0');
         expect(transform('-9 + 1').code).toBe('-8');
+        expect(transform('!(a && a.type)').code).toBe('!(a&&a.type)');
     });
 
     it('conditional', () => {
@@ -98,4 +99,3 @@ describe('compiler', function () {
     });
 
 });
-
