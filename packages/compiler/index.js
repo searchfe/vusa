@@ -685,6 +685,48 @@ var event = {
  * @author cxtom(cxtom2008@gmail.com)
  */
 
+function makeMap(str, expectsLowerCase) {
+    const map = Object.create(null);
+    const list = str.split(',');
+    for (let i = 0; i < list.length; i++) {
+        map[list[i]] = true;
+    }
+    return expectsLowerCase
+        ? function (val) {
+            return map[val.toLowerCase()];
+        }
+        : function (val) {
+            return map[val];
+        };
+}
+
+const isHTMLTag = makeMap(
+    'html,body,base,head,link,meta,style,title,'
+    + 'address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,'
+    + 'div,dd,dl,dt,figcaption,figure,picture,hr,img,li,main,ol,p,pre,ul,'
+    + 'a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,rtc,ruby,'
+    + 's,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,'
+    + 'embed,object,param,source,canvas,script,noscript,del,ins,'
+    + 'caption,col,colgroup,table,thead,tbody,td,th,tr,'
+    + 'button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,'
+    + 'output,progress,select,textarea,'
+    + 'details,dialog,menu,menuitem,summary,'
+    + 'content,element,shadow,template,blockquote,iframe,tfoot'
+);
+
+// this map is intentionally selective, only covering SVG elements that may
+// contain child elements.
+const isSVG = makeMap(
+    'svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font-face,'
+    + 'foreignObject,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,'
+    + 'polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view',
+    true
+);
+
+function isReservedTag(tag) {
+    return isHTMLTag(tag) || isSVG(tag);
+}
+
 function postTransformNode$8(node) {
 
     if (node.attrsMap && node.attrsMap['v-dangerous-html']) {
@@ -710,7 +752,22 @@ function postTransformNode$8(node) {
         delete node.attrsMap['v-html'];
         node.attrsMap['s-html'] = `{{ ${value} }}`;
         // node.attrsMap['s-html'] = `{{ _h(${value}) }}`;
-        node.children = [];
+
+        // 如果是组件
+        if (!isReservedTag(node.tag)) {
+
+            if (node.children && node.children.length) {
+                throw Error('组件内部有其他子节点，不能使用v-html');
+            }
+
+            const index = node.directives.findIndex(d => d.name === 'html');
+            node.children = [{
+                type: 2,
+                text: `{{ ${value} | raw}}`,
+            }];
+            node.directives.splice(index, 1);
+            delete node.attrsMap['s-html'];
+        }
     }
 
     if (node.type === 1 && node.attrsMap['v-text']) {
@@ -721,6 +778,7 @@ function postTransformNode$8(node) {
             text: `{{ ${value} | _s }}`,
         }];
     }
+
 }
 
 var html = {

@@ -1,6 +1,10 @@
 /* eslint-disable quotes */
 import Vue from '../../../helpers/vue';
 
+function replaceComent(str) {
+    return str.replace(/<!--[0-9]{1,}-->/g, '');
+}
+
 describe('Directive a-html', () => {
 
     it('should render html', () => {
@@ -28,6 +32,22 @@ describe('Directive a-html', () => {
             template: `<div a-html="'<span>&lt;</span>'"></div>`,
         }).$mount();
         expect(vm.$el.innerHTML).toBe('<span>&lt;</span>');
+    });
+
+    it('should support component', () => {
+        const vm = new Vue({
+            template: '<c-line a-html="a"></c-line>',
+            data: {
+                a: 'hello',
+                id: 1,
+            },
+            components: {
+                'c-line': {
+                    template: '<div><slot /></div>',
+                },
+            },
+        }).$mount();
+        expect(replaceComent(vm.$el.innerHTML)).toBe('hello');
     });
 
     // ATTENTION 跟骁哥确认这种场景不需要支持，因此先注释掉了这个case
