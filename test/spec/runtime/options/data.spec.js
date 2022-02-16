@@ -19,6 +19,30 @@ describe('Options data', () => {
     }).then(done)
   })
 
+  it('computed data change', done => {
+    const data = {
+      first: 'Jay',
+      last: 'Chou',
+    };
+    const vm = new Vue({
+        template: '<div>{{ name }}</div>',
+        data,
+        computed: {
+            // case 中 computed 必须依赖大于一个 data，覆盖 calc-computed.js 的 bug
+            name() {
+                return this.first + ' ' + this.last;
+            },
+        },
+    }).$mount();
+    waitForUpdate(() => {
+        expect(vm.$el.textContent).toBe('Jay Chou');
+        vm.last = 'Lee';
+    }).thenWaitFor(100).then(() => {
+        expect(vm.name).toBe('Jay Lee');
+        expect(vm.$el.textContent).toBe('Jay Lee');
+    }).then(done);
+});
+
   // 不支持extend，所以用defineComponent模拟
   it('should merge data properly', () => {
     const Test = Vusa.defineComponent({
@@ -132,7 +156,7 @@ describe('Options data', () => {
   //     expect(calls).toBe(1)
   //   }).then(done)
   // })
- 
+
 // 不支持data中调用methods中函数直接返回值
 //   it('should have access to methods', () => {
 //     const vm = new Vue({

@@ -819,7 +819,7 @@
             enumerable: true,
             configurable: true,
             set: function set(newVal) {
-                
+
                 var value = getter ? getter.call(obj) : val;
                 if (newVal === value) {
                     return;
@@ -841,6 +841,7 @@
                 dep.depend({
                     context: context,
                     expr: keyExpr,
+                    key: key,
                 });
                 var value = getter ? getter.call(obj) : val;
                 return value;
@@ -956,6 +957,7 @@
                     dep.depend({
                         context: context,
                         expr: keyExpr,
+                        key: key,
                     });
                     var val = context.data.get(keyExpr);
                     observe(val, keyExpr, context);
@@ -995,6 +997,7 @@
                     dep.depend({
                         context: context,
                         expr: keyExpr$1,
+                        key: key$1,
                     });
                     return me.data.get(createAccesser(key$1));
                 },
@@ -1856,9 +1859,9 @@
         if (component && component[COMPONENT_REFERENCE]) {
             return component;
         }
-        if (component instanceof san.Component || component instanceof VusaComponent) {
-            var proto = component.prototype;
 
+        var proto = component.prototype;
+        if (proto instanceof san.Component || proto instanceof VusaComponent) {
             if (!proto.hasOwnProperty('_cmptReady')) {
                 var components = component.components || proto.components || {};
                 proto.components = normalizeComponents(components);

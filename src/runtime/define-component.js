@@ -150,9 +150,9 @@ function normalizeComponent(component) {
     if (component && component[COMPONENT_REFERENCE]) {
         return component;
     }
-    if (component instanceof Component || component instanceof VusaComponent) {
-        const proto = component.prototype;
 
+    const proto = component.prototype;
+    if (proto instanceof Component || proto instanceof VusaComponent) {
         if (!proto.hasOwnProperty('_cmptReady')) {
             const components = component.components || proto.components || {};
             proto.components = normalizeComponents(components);

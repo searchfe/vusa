@@ -138,7 +138,7 @@ function defineReactive(obj, key, expr, context) {
         enumerable: true,
         configurable: true,
         set(newVal) {
-            
+
             const value = getter ? getter.call(obj) : val;
             if (newVal === value) {
                 return;
@@ -160,6 +160,7 @@ function defineReactive(obj, key, expr, context) {
             dep.depend({
                 context,
                 expr: keyExpr,
+                key,
             });
             const value = getter ? getter.call(obj) : val;
             return value;
@@ -271,6 +272,7 @@ export default function (computed) {
                 dep.depend({
                     context,
                     expr: keyExpr,
+                    key,
                 });
                 const val = context.data.get(keyExpr);
                 observe(val, keyExpr, context);
@@ -308,6 +310,7 @@ export default function (computed) {
                 dep.depend({
                     context,
                     expr: keyExpr,
+                    key,
                 });
                 return me.data.get(createAccesser(key));
             },
