@@ -58,6 +58,7 @@ function proxy(obj, expr, context) {
             dep.depend({
                 context,
                 expr: keyExpr,
+                key: keyExpr.paths.map(a => a.value).join('.'),
             });
             if (isArray && methodsToPatch.indexOf(prop) >= 0) {
                 const original = arrayProto[prop];
