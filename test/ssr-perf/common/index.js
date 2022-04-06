@@ -42,7 +42,12 @@ async function compileAtomComponentToSanComponent(componentPath, baseName, runti
         const props = componentProps.props || [];
         module.exports = makeRender;
         module.exports.props = Array.isArray(props) ? props : Object.keys(props);`;
-    const renderPath = path.resolve(baseName, componentPath.replace('atom/', 'atom/dist/').replace('.atom', '.js'));
+    const renderPath = path.resolve(
+        baseName,
+        componentPath
+            .replace('atom/', 'atom/dist/')
+            .replace('atom-older-version/', 'atom-older-version/dist/')
+            .replace('.atom', '.js'));
     await fs.writeFile(renderPath, result);
     return require(renderPath);
 }

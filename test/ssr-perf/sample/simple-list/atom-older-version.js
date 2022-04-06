@@ -9,7 +9,7 @@ const path = require('path');
 
 const entries = [
     // {name: `atom2san ${Atom2SanVersion}`, path: './atom-older-version/app.atom'},
-    {name: `atom(item as component) ${Atom2SanVersion}`, path: './atom-older-version/app2.atom'},
+    {name: `atom2san(item as component) ${Atom2SanVersion}`, path: './atom-older-version/app2.atom'},
 ];
 const components = ['./atom-older-version/item.atom'];
 
