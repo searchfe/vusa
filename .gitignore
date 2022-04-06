@@ -81,6 +81,7 @@ Thumbs.db
 /output
 /dist
 /dll
+/test/ssr-perf/**/dist
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test

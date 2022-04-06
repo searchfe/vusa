@@ -1,0 +1,14 @@
+<template>
+    <div id='app'>
+        <ul>
+            <li a-for='item in items'>{{item}}</li>
+        </ul>
+    </div>
+</template>
+
+<script lang="ts">
+export default {
+    props: ['items']
+
+};
+</script>

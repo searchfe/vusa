@@ -1,0 +1,28 @@
+<template>
+    <div class="todos">
+        <a href="#/add" class="todo-add"><i class="fa fa-plus-square"></i></a>
+        <ul class="filter-category">
+            <li
+                a-for="item in categories"
+                :style="'background: ' + item.color"
+            >
+                <a :href="'/todos/category/' + item.id">{{ item.title }}</a>
+            </li>
+        </ul>
+
+        <ul class="todo-list">
+            <x-item :item="item" :index="index" a-for="(item, index) in todos"/>
+        </ul>
+    </div>
+</template>
+
+<script lang="ts">
+import Atom from '@baidu/atom-web-runtime';
+import TodoItem from './use-component-child.atom';
+export default {
+    props: ['todos', 'categories'],
+    components: {
+        'x-item': TodoItem
+    }
+};
+</script>

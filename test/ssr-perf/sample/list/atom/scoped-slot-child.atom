@@ -1,0 +1,15 @@
+<template>
+    <li :style="'border-color: ' + item.category.color"
+        :class="item.done ? 'todo-done' : ''"
+    >
+        <slot :item="item"/>
+    </li>
+</template>
+
+<script lang="ts">
+import Atom from '@baidu/atom-web-runtime';
+
+export default Atom.extend({
+    props: ['item'],
+});
+</script>
