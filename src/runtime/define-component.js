@@ -317,7 +317,9 @@ export default function define(options) {
             }
         }
 
-        Object.defineProperties(this, properties);
+        if (!optimizeSSR) {
+            Object.defineProperties(this, properties);
+        }
 
         const defaultProps = {};
         if (options.props) {
@@ -372,7 +374,15 @@ export default function define(options) {
         }
 
         if (optimizeSSR) {
-            Object.defineProperties(this.data.data, properties);
+            const ssrProperties = {};
+            ['$root', '$slots'].forEach(prop => {
+                ssrProperties[prop] = {
+                    get() {
+                        return memberMap[prop].call(me);
+                    }
+                }
+            });
+            Object.defineProperties(this.data.data, ssrProperties);
         }
 
         return initialData;
