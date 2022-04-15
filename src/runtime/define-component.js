@@ -338,7 +338,7 @@ export default function define(options) {
                 for (let i = 0, len = propKeys.length; i < len; i++) {
                     const p = propKeys[i];
                     const prop = options.props[p];
-                    if (prop.default) {
+                    if (prop.default !== undefined) {
                         defaultProps[p] = typeof prop.default === 'function'
                             ? prop.default()
                             : prop.default;
