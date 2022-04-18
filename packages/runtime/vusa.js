@@ -2036,7 +2036,9 @@
                 }
             };
 
-            Object.defineProperties(this, properties);
+            if (!optimizeSSR) {
+                Object.defineProperties(this, properties);
+            }
 
             var defaultProps = {};
             if (options.props) {
@@ -2055,7 +2057,7 @@
                     for (var i = 0, len = propKeys.length; i < len; i++) {
                         var p = propKeys[i];
                         var prop = options.props[p];
-                        if (prop.default) {
+                        if (prop.default !== undefined) {
                             defaultProps[p] = typeof prop.default === 'function'
                                 ? prop.default()
                                 : prop.default;
@@ -2091,7 +2093,15 @@
             }
 
             if (optimizeSSR) {
-                Object.defineProperties(this.data.data, properties);
+                var ssrProperties = {};
+                ['$root', '$slots'].forEach(function (prop) {
+                    ssrProperties[prop] = {
+                        get: function get() {
+                            return memberMap[prop].call(me);
+                        }
+                    };
+                });
+                Object.defineProperties(this.data.data, ssrProperties);
             }
 
             return initialData;
