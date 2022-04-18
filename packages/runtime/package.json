@@ -1,6 +1,6 @@
 {
     "name": "@vusa/runtime",
-    "version": "1.0.1",
+    "version": "1.0.1-alpha.43",
     "description": "runtime adapter for vue components",
     "main": "vusa.js",
     "scripts": {
