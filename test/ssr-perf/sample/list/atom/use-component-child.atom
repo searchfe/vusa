@@ -1,0 +1,22 @@
+<template>
+    <li :style="'border-color: ' + item.category.color"
+        :class="item.done ? 'todo-done' : ''"
+    >
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.desc }}</p>
+        <div class="todo-meta">
+            <span a-if="item.category">{{ item.category.title }} | </span>
+        </div>
+        <a class="fa fa-pencil" :href="'/edit/' + item.id"></a>
+        <i class="fa fa-check" @click="doneTodo(index)"></i>
+        <i class="fa fa-trash-o" @click="rmTodo(index)"></i>
+    </li>
+</template>
+
+<script lang="ts">
+import Atom from '@baidu/atom-web-runtime';
+
+export default Atom.extend({
+    props: ['item', 'index']
+});
+</script>

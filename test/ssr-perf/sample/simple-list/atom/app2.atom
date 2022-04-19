@@ -1,0 +1,17 @@
+<template>
+    <div id='app'>
+        <ul>
+            <x-item a-for='item in items' :item="item"/>
+        </ul>
+    </div>
+</template>
+
+<script>
+const Item = require('./item.san');
+export default {
+    props: ['items'],
+    components: {
+        'x-item': Item
+    }
+};
+</script>
