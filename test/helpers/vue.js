@@ -1,6 +1,8 @@
 import {defineComponent} from '../../src/runtime/index';
 import {compile} from '../../src/compiler';
 import {omit} from 'lodash';
+import {SanProject} from 'san-ssr';
+const project = new SanProject();
 
 function getTpl(options) {
     return compile(options.template, {
@@ -37,7 +39,12 @@ module.exports = class Vue {
     constructor(options) {
         const componentOptions = getComponentOptions(options);
         const Component = defineComponent(componentOptions);
-        this.component = new Component();
+        if (options.__sanOptimizeSSR) {
+            this.render = project.compileToRenderer(Component);
+        }
+        else {
+            this.component = new Component();
+        }
     }
 
     $mount() {
