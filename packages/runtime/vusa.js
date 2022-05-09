@@ -48,7 +48,15 @@
             expr = san.parseExpr(expr);
         }
         else {
-            key = expr.paths.map(function (a) { return a.value; }).join('.');
+
+            for (var i = 0; i < expr.paths.length; i++) {
+                if (i === 0) {
+                    key = expr.paths[i].value;
+                }
+                else {
+                    key = key + '.' + expr.paths[i].value;
+                }
+            }
         }
         this._dep && this._dep.depend({
             key: key,
@@ -71,8 +79,8 @@
 
         // TODO 先删除了，不然会导致dom上多一个id属性
         // value = this.owner[first];
-        for (var i = 1, l = paths.length; value != null && i < l; i++) {
-            value = value[paths[i].value || san.evalExpr(paths[i], callee)];
+        for (var i$1 = 1, l = paths.length; value != null && i$1 < l; i$1++) {
+            value = value[paths[i$1].value || san.evalExpr(paths[i$1], callee)];
         }
         return value;
     };
@@ -480,15 +488,17 @@
         if (!vShow) {
             style.display = 'none';
         }
-        Object.keys(style).forEach(function (key) {
-            var val = style[key];
+
+        var styleKeys =  Object.keys(style);
+        for (var i = 0; i < styleKeys.length; i++) {
+            var val = style[styleKeys[i]];
             if (Array.isArray(val)) {
-                style[key] = val[val.length - 1];
+                style[styleKeys[i]] = val[val.length - 1];
             }
             else if (isPlainObject$1(val) && Object.keys(val).length === 0) {
-                delete style[key];
+                delete style[styleKeys[i]];
             }
-        });
+        }
 
         return staticStyle
             ? extend(staticStyle, style)
@@ -1610,9 +1620,13 @@
     }
 
     function processAttr(str) {
-        return str.split(/(?=<)/g).map(function (subStr) {
+        var strArr = str.split(/(?=<)/g);
+        var res = '';
+        for (var i = 0; i < strArr.length; i++) {
+            var subStr = strArr[i];
             if (/^<\//.test(subStr) || (subStr.indexOf('>') < 0)) {
-                return subStr;
+                res = res + subStr;
+                continue;
             }
             var reg = /\s*(on[^\s"'<>\/=]+)\s*=/gi;
             var gtIndex = subStr.indexOf('>');
@@ -1620,8 +1634,9 @@
             var front = subStr.slice(0, gtIndex + 1).replace(reg, function (match, match1) {
                 return match.replace(match1, match1 + '-safe');
             });
-            return front + back;
-        }).join('');
+            res = res + front + back;
+        }
+        return res;
     }
 
     function toSafeString(html) {
