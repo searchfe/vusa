@@ -55,10 +55,20 @@ function proxy(obj, expr, context) {
                 return true;
             }
             const keyExpr = getKeyExpr(prop);
+            let key = '';
+            for (let i = 0; i < keyExpr.paths.length; i++) {
+                if (i === 0) {
+                    key = keyExpr.paths[i].value;
+                }
+                else {
+                    key = key + '.' + keyExpr.paths[i].value;
+                }
+            }
+
             dep.depend({
                 context,
                 expr: keyExpr,
-                key: keyExpr.paths.map(a => a.value).join('.'),
+                key: key,
             });
             if (isArray && methodsToPatch.indexOf(prop) >= 0) {
                 const original = arrayProto[prop];

@@ -1,7 +1,11 @@
 function processAttr(str) {
-    return str.split(/(?=<)/g).map(function (subStr) {
+    const strArr = str.split(/(?=<)/g);
+    let res = '';
+    for (let i = 0; i < strArr.length; i++) {
+        const subStr = strArr[i];
         if (/^<\//.test(subStr) || (subStr.indexOf('>') < 0)) {
-            return subStr;
+            res = res + subStr;
+            continue;
         }
         let reg = /\s*(on[^\s"'<>\/=]+)\s*=/gi;
         let gtIndex = subStr.indexOf('>');
@@ -9,8 +13,9 @@ function processAttr(str) {
         let front = subStr.slice(0, gtIndex + 1).replace(reg, function (match, match1) {
             return match.replace(match1, match1 + '-safe');
         });
-        return front + back;
-    }).join('');
+        res = res + front + back;
+    }
+    return res;
 }
 
 export default function toSafeString(html) {

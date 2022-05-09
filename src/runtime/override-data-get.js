@@ -17,7 +17,15 @@ Data.prototype.get = function (expr, callee) {
         expr = parseExpr(expr);
     }
     else {
-        key = expr.paths.map(a => a.value).join('.');
+
+        for (let i = 0; i < expr.paths.length; i++) {
+            if (i === 0) {
+                key = expr.paths[i].value;
+            }
+            else {
+                key = key + '.' + expr.paths[i].value;
+            }
+        }
     }
     this._dep && this._dep.depend({
         key,
