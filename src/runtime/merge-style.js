@@ -35,15 +35,17 @@ export default function (style, staticStyle, vShow) {
     if (!vShow) {
         style.display = 'none';
     }
-    Object.keys(style).forEach(key => {
-        const val = style[key];
+
+    const styleKeys =  Object.keys(style);
+    for (let i = 0; i < styleKeys.length; i++) {
+        const val = style[styleKeys[i]];
         if (Array.isArray(val)) {
-            style[key] = val[val.length - 1];
+            style[styleKeys[i]] = val[val.length - 1];
         }
         else if (isPlainObject(val) && Object.keys(val).length === 0) {
-            delete style[key];
+            delete style[styleKeys[i]];
         }
-    });
+    }
 
     return staticStyle
         ? extend(staticStyle, style)
